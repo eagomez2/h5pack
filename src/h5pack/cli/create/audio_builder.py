@@ -1,4 +1,6 @@
 import os
+import numpy as np
+from datetime import datetime
 from argparse import Namespace
 from typing import (
     List,
@@ -8,13 +10,20 @@ from typing import (
 )
 from tqdm import tqdm
 from .builder import DatasetBuilder
-from ...core.display import print_warning
+from ...core.display import (
+    ask_confirmation,
+    print_warning
+)
 from ...core.guards import is_file_with_ext
 from ...core.io import (
+    add_extension,
+    add_suffix,
     get_dir_files,
     read_audio_metadata
 )
 from ...core.utils import (
+    dict_from_interleaved_list,
+    make_list,
     list_from_csv_col,
     list_from_tsv_col
 )
@@ -129,14 +138,83 @@ class AudioDatasetBuilder(DatasetBuilder):
                     writer=tqdm
                 )
 
-    
-    def create_partition_specs(self, *args, **kwargs) -> dict:
-        ...
+    def create_partition_specs(
+            self,
+            files: List[str],
+            output: str,
+            num_partitions: int,
+            dtype: str,
+            meta: Optional[dict] = None,
+    ) -> dict:
+        if num_partitions > len(files):
+            exit_error(
+                "The number of partitions should be greater than the number of"
+                f" files. Found {len(files)} file(s) for {num_partitions} "
+                "partitions"
+            )
+        
+        # Split files
+        partitions = np.array_split(files, indices_or_sections=num_partitions)
+
+        # Form .h5 partition filenames
+        if len(partitions) == 1:
+            filenames = make_list(add_extension(output, ext=".h5"))
+        
+        else:
+            filenames = []
+            zfill = len(str(len(partitions)))
+
+            for idx in range(len(partitions)):
+                filename = add_extension(output, ext=".h5")
+                filename = add_suffix(
+                    filename,
+                    suffix=f".pt{str(idx).zfill(zfill)}"
+                )
+                filenames.append(filename)
+        
+        # Form partition specs
+        specs = []
+        audio_meta = read_audio_metadata(files[0])
+
+        for filename, files in zip(filenames, partitions):
+            specs.append(
+                {
+                    "filename": filename,
+                    "attrs": {
+                        "creation_date": (
+                            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        ),
+                    },
+                    "data": {
+                        "audio": {
+                            "files": files,
+                            "dtype": dtype,
+                            "attrs": {
+                                "fs": audio_meta["fs"]
+                            }
+                        },
+                    }
+                }
+            )
+
+            # Add custom metadata
+            if meta is not None:
+                specs[-1]["attrs"].update(meta)
+        
+        return specs
     
     def create_partition_from_specs(self, *args, **kwargs) -> Tuple[int, str]:
         ...
     
     def create_partitions(self, args: Namespace) -> None:
+        # Assertions
+        if args.meta is not None and len(args.meta) % 2 != 0:
+            exit_error(
+                "--meta should have an even number of elements where each "
+                "odd value corresponds to a key and each even value "
+                "corresponds to a value to be added as metadata"
+            )
+
         if self.verbose:
             print(
                 f"Collecting files from '{args.input}' ... This may take some "
@@ -167,3 +245,38 @@ class AudioDatasetBuilder(DatasetBuilder):
         else:
             if self.verbose:
                 print_warning("Validation skipped (--skip-validation enabled)")
+
+        # Create specifications for each partition
+        if self.verbose:
+            print(
+                f"Creating partition specifications for {args.partitions} "
+                "partition(s) ..."
+            )
+
+        partition_specs = self.create_partition_specs(
+            files,
+            output=args.output,
+            num_partitions=args.partitions,
+            dtype=args.dtype,
+            meta=(
+                dict_from_interleaved_list(args.meta) if args.meta is not None
+                else None
+            )
+        )
+
+        if self.verbose:
+            print(
+                f"{len(partition_specs)} partition specification(s) completed"
+            )
+
+        # User confirmation
+        if not args.unattended:
+            print(
+                f"{len(partition_specs)} HDF5 partition(s) will be generated "
+                f"for {len(files)} file(s)"
+            )
+            ask_confirmation()
+
+        # Create partition(s)
+        ...
+        import pdb;pdb.set_trace()
