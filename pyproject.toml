@@ -1,0 +1,32 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "h5pack"
+authors = [{name = "Esteban Gómez", email = "esteban.gomezmellado@aalto.fi"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+dynamic = ["version", "description"]
+dependencies = [
+    "numpy >= 2.0.2",
+    "soundfile >= 0.12.1",
+    "polars >= 1.9.0",
+    "tqdm >= 4.66.5"
+]
+requires-python = ">=3.9"
+
+[project.urls]
+Home = "https://www.github.com/eagomez2/h5pack"
+
+[project.scripts]
+"h5pack" = "h5pack.cli.main:main"
+
+[tool.ruff]
+extend-select = [
+    "C4",
+    "SIM",
+    "TCH"
+]
+ignore-init-module-imports = true
+line-length = 79
