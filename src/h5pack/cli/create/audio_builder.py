@@ -140,6 +140,7 @@ class AudioDatasetBuilder(DatasetBuilder):
         if self.verbose:
             print(
                 f"Collecting files from '{args.input}' ... This may take some "
+                "time for large folders"
              )
 
         files = self.collect_data(
