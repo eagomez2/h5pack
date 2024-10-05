@@ -4,7 +4,6 @@ from typing import (
     Union
 )
 from .exceptions import FileExtensionError
-from .utils import make_list
 
 
 def is_file_or_error(file: str) -> None:
@@ -32,7 +31,7 @@ def has_ext(file: str, ext: Union[str, List[str]]) -> bool:
         bool: `True` if `file` has one of the specified extensions, `False`
             otherwise.
     """
-    ext = make_list(ext)
+    ext = [ext] if not isinstance(ext, list) and ext is not None else ext
     _, ext_ = os.path.splitext(file)
     return ext_ in ext
 

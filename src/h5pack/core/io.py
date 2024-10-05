@@ -1,12 +1,15 @@
 import os
+import numpy as np
 import soundfile as sf
 from glob import glob
 from typing import (
     Callable,
     List,
     Optional,
+    Tuple,
     Union
 )
+from .guards import is_file_or_error
 from .exceptions import FolderNotFoundError
 from .utils import make_list
 
@@ -100,7 +103,7 @@ def get_dir_files(
     return sorted(all_files, key=key)
 
 
-def read_audio_info(file: str) -> dict:
+def read_audio_metadata(file: str) -> dict:
     """Reads the metadata block of an audio file.
     
     Args:
@@ -123,3 +126,40 @@ def read_audio_info(file: str) -> dict:
         "fmt": info.format,
         "subtype": info.subtype
     }
+
+
+def read_audio(
+        file: str,
+        start: int = 0,
+        frames: Optional[int] = -1,
+        stop: Optional[int] = None,
+        dtype: str = "float32",
+) -> Tuple[np.ndarray, int]:
+    """Reads an audio file or audio file chunk and returns it as a 
+    `np.ndarray`.
+
+    Args:
+        file (str): Audio file.
+        start (int): Start frame for reading partial frames of the file.
+        frames Optional[int]: Number of frames to read.
+        stop (Optional[int]): End frame index for reading partial frames of the
+            file.
+        dtype (str): Data type used to represent the data.
+    
+    Returns:
+        (Tuple[np.ndarray, int]): `np.ndarray` representing the audio data and
+            and sample rate `tuple`.
+    """
+    is_file_or_error(file)
+
+    # Read audio in (num_channels, num_samples) format
+    data, fs_ = sf.read(
+        file,
+        dtype=dtype,
+        always_2d=True,
+        start=start,
+        stop=stop,
+        frames=frames
+    )
+
+    return data.transpose(), fs_

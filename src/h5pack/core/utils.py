@@ -67,6 +67,13 @@ def list_from_tsv_col(file: str, col: str) -> List[str]:
     return col_data
 
 
+def dict_from_interleaved_list(li: list) -> dict:
+    if len(li) % 2 != 0:
+        raise ValueError("Input list must have an even number of elements")
+    
+    return {li[idx]: li[idx + 1] for idx in range(0, len(li), 2)}
+
+
 def time_to_str(time: float, abbrev: bool = False) -> str:
     """Returns a time in seconds in a human readable format.
     

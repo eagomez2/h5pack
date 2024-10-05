@@ -1,6 +1,7 @@
 import sys
 import argparse
 from h5pack import __version__
+from .create.audio_builder import AudioDatasetBuilder
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -40,7 +41,7 @@ def get_parser() -> argparse.ArgumentParser:
              ".tsv file)"
     )
     create_parser.add_argument(
-        "--audio-col-root-dir",
+        "--audio-root",
         type=str,
         help="root folder to be added to --audio-col (only valid if --input is"
              " a .csv or .tsv file)"
@@ -93,9 +94,9 @@ def get_parser() -> argparse.ArgumentParser:
         help="search folders recursively (only valid if --input is a folder)"
     )
     create_parser.add_argument(
-        "--skip-verification",
+        "--skip-validation",
         action="store_true",
-        help="skip verifying files before generating the partition files"
+        help="skip validating files before generating the partition(s)"
     )
     create_parser.add_argument(
         "--skip-virtual-layout",
@@ -120,6 +121,11 @@ def get_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="unattended mode (no user prompts)"
     )
+    create_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="verbose output"
+    )
 
     # Info parser
     info_parser = subparser.add_parser(
@@ -135,7 +141,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     if (len(sys.argv) == 1
-            or (len(sys.argv) == 2 and sys.argv[1] in ("-v", "--version"))
+            or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
     ):
         print(f"h5pack version {__version__} developed by Esteban Gómez")
         sys.exit(0)
@@ -144,14 +150,15 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.action == "create":
-        if args.vlen:
-            ...
+        if args.type == "audio":
+            builder = AudioDatasetBuilder(verbose=args.verbose)
+            builder.create_partitions(args)
         
-        else:
-            ...
+        elif args.type == "audio->metric":
+            raise NotImplementedError
     
     elif args.action == "info":
-        ...
+        raise NotImplementedError
     
     else:
         raise AssertionError

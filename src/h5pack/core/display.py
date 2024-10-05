@@ -52,9 +52,53 @@ def printc_exit(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
     sys.exit(code)
 
 
+def print_error(s: str, writer: Optional[tqdm] = None) -> None:
+    return printc(f"<error>{s}</error>", writer=writer)
+
+
+def exit_error(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
+    return printc_exit(f"<error>{s}</error>", code=code, writer=writer)
+
+
 def print_warning(s: str, writer: Optional[tqdm] = None) -> None:
     return printc(f"<warning>{s}</warning>", writer=writer)
 
 
-def exit_error(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
-    return printc(f"<error>{s}</error>", writer=writer)
+def exit_warning(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
+    return printc_exit(f"<warning>{s}</warning>", code=code, writer=writer)
+
+def ask_confirmation(
+          s: str = "Do you want to continue? [y/n]:",
+          exit: bool = True
+    ) -> Optional[bool]:
+        """Request user input to confirm or reject an instruction.
+
+        Args:
+            s (str): Message to be printed to ask user confirmation.
+            exit (bool): If ``True`` and user answer is ``n`` (no), then
+                the program execution is terminated.
+
+        Returns:
+            (Optional[bool]): User response.
+        """
+        user_input = None
+
+        while str(user_input) not in ["y", "n"]:
+            if user_input is not None:
+                print_error(f"Invalid input '{user_input}'")
+
+            user_input = input(_decorate_str(s))
+
+            if str(user_input) == "y":
+                response = True
+
+            elif str(user_input) == "n":
+                if exit:
+                    exit_warning("Program finished by the user")
+
+                else:
+                    response = False
+            else:
+                pass
+
+        return response
