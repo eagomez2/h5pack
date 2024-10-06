@@ -140,15 +140,16 @@ class AudioDatasetBuilder(DatasetBuilder):
             ):
                 observed_lens.append(audio_meta["num_samples_per_channel"])
             
-            if len(observed_lens) > 1:
-                exit_error(
-                    "All files should have the same length. Previous files "
-                    f"have sample_len={observed_lens[0]}, but '{file}' has "
-                    f"sample_len= {audio_meta['num_samples_per_channel']}. If "
-                    "you intend to write a variable length .h5 files, please "
-                    "use the --vlen option",
-                    writer=tqdm
-                )
+                if len(observed_lens) > 1:
+                    exit_error(
+                        "All files should have the same length. Previous files"
+                        f" have sample_len={observed_lens[0]}, but '{file}' "
+                        "has sample_len="
+                        f"{audio_meta['num_samples_per_channel']}. If you "
+                        "intend to write a variable length .h5 files, please "
+                        "use the --vlen option",
+                        writer=tqdm
+                    )
 
     def create_partition_specs(
             self,
@@ -237,7 +238,7 @@ class AudioDatasetBuilder(DatasetBuilder):
         if specs["data"]["audio"]["sample_len"] is None:  # None = vlen
             dataset = data_group.create_dataset(
                 name="audio",
-                shape=(len(specs["files"]),),
+                shape=(len(specs["data"]["audio"]["files"]),),
                 dtype=(
                     h5py.vlen_dtype(np.dtype(specs["data"]["audio"]["dtype"]))
                 )
@@ -252,7 +253,7 @@ class AudioDatasetBuilder(DatasetBuilder):
                 ),
                 dtype=specs["data"]["audio"]["dtype"]
             )
-
+        
         # Add top level attributes
         for name, attr in specs["attrs"].items():
             h5_file.attrs[name] = attr
