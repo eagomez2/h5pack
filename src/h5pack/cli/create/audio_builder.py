@@ -39,6 +39,7 @@ from ...core.utils import (
     time_to_str
 )
 from ...core.display import exit_error
+from h5pack import __version__
 
 
 class AudioDatasetBuilder(DatasetBuilder):
@@ -196,6 +197,7 @@ class AudioDatasetBuilder(DatasetBuilder):
                         "creation_date": (
                             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         ),
+                        "producer_id": f"h5pack {__version__}"
                     },
                     "data": {
                         "audio": {
@@ -394,8 +396,9 @@ class AudioDatasetBuilder(DatasetBuilder):
             h5_file.attrs["creation_date"] = (
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
+            h5_file.attrs["producer_id"] = f"h5pack {__version__}"
             origin = [os.path.basename(p) for p in partitions]
-            h5_file.attrs["origin"] = ", ".join(origin)
+            h5_file.attrs["source"] = ", ".join(origin)
 
             # Add custom metadata
             if meta is not None:
