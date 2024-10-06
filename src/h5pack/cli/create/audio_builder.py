@@ -1,4 +1,5 @@
 import os
+import h5py
 import numpy as np
 from datetime import datetime
 from argparse import Namespace
@@ -19,6 +20,7 @@ from ...core.io import (
     add_extension,
     add_suffix,
     get_dir_files,
+    read_audio,
     read_audio_metadata
 )
 from ...core.utils import (
@@ -188,6 +190,9 @@ class AudioDatasetBuilder(DatasetBuilder):
                     "data": {
                         "audio": {
                             "files": files,
+                            "sample_len": (
+                                audio_meta["num_samples_per_channel"]
+                            ),
                             "dtype": dtype,
                             "attrs": {
                                 "fs": audio_meta["fs"]
@@ -203,8 +208,55 @@ class AudioDatasetBuilder(DatasetBuilder):
         
         return specs
     
-    def create_partition_from_specs(self, *args, **kwargs) -> Tuple[int, str]:
-        ...
+    def create_partition_from_specs(
+            self,
+            idx: int,
+            specs: dict, 
+            args: Namespace
+    ) -> Tuple[int, str]:
+        # Create partition file
+        h5_file = h5py.File(specs["filename"], "w")
+
+        # Create data group
+        data_group = h5_file.create_group("data")
+
+        # Create dataset
+        dataset = data_group.create_dataset(
+            name="audio",
+            shape=(
+                len(specs["data"]["audio"]["files"]),
+                specs["data"]["audio"]["sample_len"]
+            ),
+            dtype=specs["data"]["audio"]["dtype"]
+        )
+
+        # Add top level attributes
+        for name, attr in specs["attrs"].items():
+            h5_file.attrs[name] = attr
+
+        # Add data attributes
+        for name, attr in specs["data"]["audio"]["attrs"].items():
+            dataset.attrs[name] = attr
+        
+        # Add partition data
+        for idx, file in enumerate(
+            tqdm(
+                specs["data"]["audio"]["files"],
+                desc=f"Writing partition #{idx}",
+                colour="green" if args.workers == 1 else "cyan",
+                leave=False,
+                unit="file",
+                position=idx
+            )
+        ):
+            # NOTE: Files have already been validated at this point so there is
+            # no need for additional assertions
+            data, _ = read_audio(file, dtype=specs["data"]["audio"]["dtype"])
+            dataset[idx, :] = data
+
+        # Close file
+        h5_file.close()
+        return idx, specs["filename"]
     
     def create_partitions(self, args: Namespace) -> None:
         # Assertions
@@ -278,5 +330,14 @@ class AudioDatasetBuilder(DatasetBuilder):
             ask_confirmation()
 
         # Create partition(s)
-        ...
-        import pdb;pdb.set_trace()
+        if args.workers == 1:
+            for idx, specs in enumerate(partition_specs):
+                _, filename = self.create_partition_from_specs(
+                    idx,
+                    specs,
+                    args
+                )
+                print(f"Partition #{idx} saved to '{filename}'")
+        
+        else:
+            ...
