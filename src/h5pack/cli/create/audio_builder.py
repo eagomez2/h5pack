@@ -10,6 +10,10 @@ from typing import (
     Union
 )
 from tqdm import tqdm
+from multiprocessing import (
+    Pool,
+    RLock
+)
 from .builder import DatasetBuilder
 from ...core.display import (
     ask_confirmation,
@@ -147,6 +151,7 @@ class AudioDatasetBuilder(DatasetBuilder):
             num_partitions: int,
             dtype: str,
             meta: Optional[dict] = None,
+            vlen: bool = False
     ) -> dict:
         if num_partitions > len(files):
             exit_error(
@@ -192,6 +197,7 @@ class AudioDatasetBuilder(DatasetBuilder):
                             "files": files,
                             "sample_len": (
                                 audio_meta["num_samples_per_channel"]
+                                if not vlen else None
                             ),
                             "dtype": dtype,
                             "attrs": {
@@ -221,14 +227,24 @@ class AudioDatasetBuilder(DatasetBuilder):
         data_group = h5_file.create_group("data")
 
         # Create dataset
-        dataset = data_group.create_dataset(
-            name="audio",
-            shape=(
-                len(specs["data"]["audio"]["files"]),
-                specs["data"]["audio"]["sample_len"]
-            ),
-            dtype=specs["data"]["audio"]["dtype"]
-        )
+        if specs["data"]["audio"]["sample_len"] is None:  # None = vlen
+            dataset = data_group.create_dataset(
+                name="audio",
+                shape=(len(specs["files"]),),
+                dtype=(
+                    h5py.vlen_dtype(np.dtype(specs["data"]["audio"]["dtype"]))
+                )
+            )
+        
+        else:
+            dataset = data_group.create_dataset(
+                name="audio",
+                shape=(
+                    len(specs["data"]["audio"]["files"]),
+                    specs["data"]["audio"]["sample_len"]
+                ),
+                dtype=specs["data"]["audio"]["dtype"]
+            )
 
         # Add top level attributes
         for name, attr in specs["attrs"].items():
@@ -252,7 +268,12 @@ class AudioDatasetBuilder(DatasetBuilder):
             # NOTE: Files have already been validated at this point so there is
             # no need for additional assertions
             data, _ = read_audio(file, dtype=specs["data"]["audio"]["dtype"])
-            dataset[idx, :] = data
+
+            if specs["data"]["audio"]["sample_len"] is None:  # vlen
+                dataset[idx] = data
+            
+            else:
+                dataset[idx, :] = data
 
         # Close file
         h5_file.close()
@@ -284,7 +305,6 @@ class AudioDatasetBuilder(DatasetBuilder):
         if self.verbose:
             print(f"{len(files)} file(s) found")
         
-
         if not args.skip_validation:
             if self.verbose:
                 print("Validating files ...")
@@ -313,7 +333,8 @@ class AudioDatasetBuilder(DatasetBuilder):
             meta=(
                 dict_from_interleaved_list(args.meta) if args.meta is not None
                 else None
-            )
+            ),
+            vlen=args.vlen
         )
 
         if self.verbose:
@@ -340,4 +361,20 @@ class AudioDatasetBuilder(DatasetBuilder):
                 print(f"Partition #{idx} saved to '{filename}'")
         
         else:
-            ...
+            pool = Pool(
+                processes=None if args.workers == 0 else args.workers,
+                initargs=(RLock(),),
+                initializer=tqdm.set_lock
+            )
+            jobs = [
+                pool.apply_async(
+                    self.create_partition_from_specs,
+                    args=(idx, specs, args)
+                )
+                for idx, specs in enumerate(partition_specs)
+            ]
+            pool.close()
+            results = [job.get() for job in jobs]
+
+            for _, filename in results:
+                tqdm.write(f"Partition saved to '{filename}'")
