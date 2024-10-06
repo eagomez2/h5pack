@@ -27,6 +27,11 @@ def add_extension(file: str, ext: str) -> str:
     return f"{file}{ext}" if not file.endswith(ext) else file
 
 
+def change_extension(file: str, new_ext: str) -> str:
+    file, _ = os.path.splitext(file)
+    return f"{file}{new_ext}"
+
+
 def add_suffix(file: str, suffix: str) -> str:
     """Adds a suffix between a filename and its extension.
     

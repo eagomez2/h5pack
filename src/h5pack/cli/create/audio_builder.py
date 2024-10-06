@@ -1,6 +1,8 @@
 import os
 import h5py
+import polars as pl
 import numpy as np
+from time import perf_counter
 from datetime import datetime
 from argparse import Namespace
 from typing import (
@@ -23,15 +25,18 @@ from ...core.guards import is_file_with_ext
 from ...core.io import (
     add_extension,
     add_suffix,
+    change_extension,
     get_dir_files,
     read_audio,
     read_audio_metadata
 )
 from ...core.utils import (
     dict_from_interleaved_list,
+    get_array_checksum,
     make_list,
     list_from_csv_col,
-    list_from_tsv_col
+    list_from_tsv_col,
+    time_to_str
 )
 from ...core.display import exit_error
 
@@ -279,6 +284,51 @@ class AudioDatasetBuilder(DatasetBuilder):
         h5_file.close()
         return idx, specs["filename"]
     
+    def create_trace(self, files: List[str], dtype: str) -> pl.DataFrame:
+        df = pl.DataFrame(
+            {
+                "filename": pl.Series([], dtype=pl.Utf8),
+                "data_sha256": pl.Series([], dtype=pl.Utf8),
+                "fs": pl.Series([], dtype=pl.Int64),
+                "subtype": pl.Series([], dtype=pl.Utf8) 
+            }
+        )
+
+        for file in tqdm(
+                files,
+                desc="Creating trace",
+                leave=False,
+                unit="file",
+                colour="green"
+        ):
+            filename = os.path.basename(file)
+
+            if filename in df["filename"].to_list():
+                exit_error(
+                    "Filenames must be unique in order to generate a trace "
+                    f"file. Found {filename=} in {file=} is a repeated "
+                    "filename. Please solve repeated filenames either by "
+                    "changing one of the names or by using --skip-trace if "
+                    "this is expected and you do not need a trace file to "
+                    "expand the resulting .h5 file later.",
+                    writer=tqdm
+                )
+            
+            meta = read_audio_metadata(file)
+            audio, _ = read_audio(file, dtype=dtype)
+            checksum = get_array_checksum(audio, hash="sha256")
+            row = pl.DataFrame(
+                {
+                    "filename": filename,
+                    "data_sha256": checksum,
+                    "fs": meta["fs"],
+                    "subtype": meta["subtype"] 
+                }
+            )
+            df = pl.concat([df, row], how="vertical")
+
+        return df
+    
     def create_partitions(self, args: Namespace) -> None:
         # Assertions
         if args.meta is not None and len(args.meta) % 2 != 0:
@@ -287,6 +337,8 @@ class AudioDatasetBuilder(DatasetBuilder):
                 "odd value corresponds to a key and each even value "
                 "corresponds to a value to be added as metadata"
             )
+        
+        start_time = perf_counter()
 
         if self.verbose:
             print(
@@ -378,3 +430,24 @@ class AudioDatasetBuilder(DatasetBuilder):
 
             for _, filename in results:
                 tqdm.write(f"Partition saved to '{filename}'")
+
+        # Generate virtual dataset
+        ...
+
+        # Generate trace file
+        if not args.skip_trace:
+            if self.verbose:
+                print("Generating trace file ...")
+
+            df = self.create_trace(files, dtype=args.dtype)
+            trace_file = change_extension(args.output, new_ext=".csv")
+            trace_file = add_suffix(trace_file, suffix="_trace")
+            df.write_csv(trace_file)
+            print(f"Trace file saved to '{trace_file}'")
+        
+        else:
+            print_warning("Trace file skipped (--skip-trace-file enabled)")
+
+        end_time = perf_counter()
+        elapsed_time_repr = time_to_str(end_time - start_time, abbrev=False)
+        print(f"Task completed in {elapsed_time_repr}")

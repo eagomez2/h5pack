@@ -1,3 +1,5 @@
+import hashlib
+import numpy as np
 import polars as pl
 from itertools import chain
 from typing import (
@@ -146,3 +148,52 @@ def bytes_to_str(bytes: int) -> str:
         repr = f"{bytes:d}B"
     
     return repr
+
+
+def get_available_hashes() -> dict:
+    return {
+        "md5": hashlib.md5(),
+        "sha256": hashlib.sha256(),
+        "sha384": hashlib.sha384(),
+        "sha512": hashlib.sha512(),
+        "shake_128": hashlib.shake_128(),
+        "shake_256": hashlib.shake_256()
+    }
+
+
+def get_array_checksum(x: np.ndarray, hash: str = "sha256") -> str:
+    available_hashes = get_available_hashes()
+
+    if hash not in available_hashes:
+        hashes_repr = [f"'{k}'" for k in available_hashes]
+        hashes_repr = ", ".join(hashes_repr)
+
+        raise ValueError(
+            f"Invalid hash '{hash}'. Available hashes: {hashes_repr}"
+        )
+    
+    hash_gen = available_hashes[hash]
+    x_bytes = x.data.tobytes()
+    hash_gen.update(x_bytes)
+    checksum = hash_gen.hexdigest()
+    return checksum
+
+
+def get_file_checksum(file: str, hash: str = "sha256") -> str:
+    available_hashes = get_available_hashes()
+
+    if hash not in available_hashes:
+        hashes_repr = [f"'{k}'" for k in available_hashes]
+        hashes_repr = ", ".join(hashes_repr)
+
+        raise ValueError(
+            f"Invalid hash '{hash}'. Available hashes: {hashes_repr}"
+        )
+
+    hash_gen = available_hashes[hash]
+
+    with open(file, "rb") as f:
+        content = f.read()
+        hash_gen.update(content)
+
+    return hash_gen.hexdigest()
