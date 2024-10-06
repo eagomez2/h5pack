@@ -328,7 +328,80 @@ class AudioDatasetBuilder(DatasetBuilder):
             df = pl.concat([df, row], how="vertical")
 
         return df
-    
+
+    def create_virtual_dataset_from_partitions(
+            self,
+            file: str,
+            partitions: List[str],
+            meta: Optional[dict] = None
+    ) -> h5py.VirtualLayout:
+        # Check all partition files exist
+        for p in partitions:
+            if not is_file_with_ext(p, ext=".h5"):
+                exit_error(f"Invalid partition file '{p}'")
+        
+        # NOTE: Specs is a list because this allows doing a virtual dataset
+        # where the same file is repeated twice. It can allow quickly creating
+        # many-to-one dataset pairs
+        specs = []
+        accum_idx = 0
+
+        # Get specs from partition files
+        # NOTE: This specs are not the same used to generate files
+        for partition in partitions:
+            with h5py.File(partition) as f:
+                specs.append(
+                    {
+                        "file": partition,
+                        "shape": f["data"]["audio"].shape,
+                        "dtype": f["data"]["audio"].dtype,
+                        "start_idx": accum_idx,
+                        "end_idx": accum_idx + f["data"]["audio"].shape[0]
+                    }
+                )
+
+                accum_idx += f["data"]["audio"].shape[0]
+        
+        # Calculate virtual layout shape based on first partition specs
+        sample_len = specs[0]["shape"][-1]
+        dtype = specs[0]["dtype"]
+        shape = (sum([p["shape"][0] for p in specs]), sample_len)
+
+        # Instantiate virtual layout
+        layout = h5py.VirtualLayout(shape=shape, dtype=dtype)
+
+        for idx, partition in enumerate(partitions):
+            src = h5py.VirtualSource(
+                partition,
+                name="audio",
+                shape=specs[idx]["shape"]
+            )
+
+            start_idx = specs[idx]["start_idx"]
+            end_idx = specs[idx]["end_idx"]
+            layout[start_idx:end_idx, :] = src
+        
+        virtual_dataset_file = add_extension(file, ext=".h5")
+
+        with h5py.File(virtual_dataset_file, "w", libver="latest") as h5_file:
+            # Create data group
+            data_group = h5_file.create_group("data")
+
+            # Create virtual dataset
+            data_group.create_virtual_dataset(name="audio", layout=layout)
+
+            # Add metadata
+            h5_file.attrs["creation_date"] = (
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            origin = [os.path.basename(p) for p in partitions]
+            h5_file.attrs["origin"] = ", ".join(origin)
+
+            # Add custom metadata
+            if meta is not None:
+                for k, v in meta.items():
+                    h5_file.attrs[k] = v
+
     def create_partitions(self, args: Namespace) -> None:
         # Assertions
         if args.meta is not None and len(args.meta) % 2 != 0:
@@ -432,7 +505,22 @@ class AudioDatasetBuilder(DatasetBuilder):
                 tqdm.write(f"Partition saved to '{filename}'")
 
         # Generate virtual dataset
-        ...
+        if not args.skip_virtual_layout and args.partitions > 1:
+            if self.verbose:
+                print("Creating virtual layout ...")
+
+            partition_filenames = [
+                spec["filename"] for spec in partition_specs
+            ]
+            self.create_virtual_dataset_from_partitions(
+                file=args.output,
+                partitions=partition_filenames,
+                meta=(
+                    dict_from_interleaved_list(args.meta)
+                    if args.meta is not None else None
+                )
+            )
+            print(f"Virtual layout saved to '{args.output}'")
 
         # Generate trace file
         if not args.skip_trace:
