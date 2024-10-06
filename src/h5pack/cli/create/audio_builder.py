@@ -367,16 +367,16 @@ class AudioDatasetBuilder(DatasetBuilder):
         dtype = specs[0]["dtype"]
         shape = (sum([p["shape"][0] for p in specs]), sample_len)
 
-        # Instantiate virtual layout
+        # Create virtual layout
         layout = h5py.VirtualLayout(shape=shape, dtype=dtype)
 
         for idx, partition in enumerate(partitions):
             src = h5py.VirtualSource(
                 partition,
-                name="audio",
-                shape=specs[idx]["shape"]
+                name="data/audio",
+                shape=specs[idx]["shape"],
+                dtype=dtype
             )
-
             start_idx = specs[idx]["start_idx"]
             end_idx = specs[idx]["end_idx"]
             layout[start_idx:end_idx, :] = src
