@@ -109,7 +109,7 @@ class AudioDatasetBuilder(DatasetBuilder):
         ):
             # Check files exist
             if not os.path.isfile(file):
-                exit_error(f"Invalid file '{file}'")
+                exit_error(f"Invalid file '{file}'", writer=tqdm)
 
             # Check files are mono
             audio_meta = read_audio_metadata(file)
@@ -422,7 +422,8 @@ class AudioDatasetBuilder(DatasetBuilder):
                 f"Collecting files from '{args.input}' ... This may take some "
                 "time for large folders"
              )
-
+        
+        # Collect data
         files = self.collect_data(
             input=args.input,
             root_dir=args.audio_root,

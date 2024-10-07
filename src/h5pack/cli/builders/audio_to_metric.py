@@ -1,5 +1,6 @@
 import os
 import polars as pl
+from tqdm import tqdm
 from time import perf_counter
 from argparse import Namespace
 from typing import (
@@ -14,6 +15,7 @@ from ...core.utils import (
     list_from_csv_col,
     list_from_tsv_col
 )
+from ...core.io import read_audio_metadata
 
 
 class AudioToMetricDatasetBuilder(DatasetBuilder):
@@ -75,8 +77,64 @@ class AudioToMetricDatasetBuilder(DatasetBuilder):
         
         return files, metrics
     
-    def validate_data(self, *args, **kwargs) -> None:
-        ...
+    def validate_data(self, files: List[str], vlen: bool = False) -> None:
+        # Only single sample rate is required
+        observed_fs = []
+
+        # If not variable length, only a single length is expected
+        if not vlen:
+            observed_lens = []
+        
+        for file in tqdm(
+            files,
+            desc="Validating files",
+            colour="green",
+            unit="file",
+            leave=False
+        ):
+            # Check files exist
+            if not os.path.isfile(file):
+                exit_error(f"Invalid file '{file}'", writer=tqdm)
+
+            # Check files are mono
+            audio_meta = read_audio_metadata(file)
+
+            if audio_meta["num_channels"] != 1:
+                exit_error(
+                    f"Currently only mono files are supported, but '{file}' "
+                    f"has {audio_meta['num_channels']} channels",
+                    writer=tqdm
+                )
+
+            # Check files have same sample rate
+            if audio_meta["fs"] not in observed_fs:
+                observed_fs.append(audio_meta["fs"])
+            
+            if len(observed_fs) > 1:
+                exit_error(
+                    f"All files should have the same sample rate. Previous "
+                    f"files have sample_rate={observed_fs[0]} but '{file}' has"
+                    f"has sample_rate={audio_meta['fs']}",
+                    writer=tqdm
+                )
+
+            # Check files have same length (if vlen=False)
+            if (
+                not vlen
+                and audio_meta["num_samples_per_channel"] not in observed_lens 
+            ):
+                observed_lens.append(audio_meta["num_samples_per_channel"])
+            
+                if len(observed_lens) > 1:
+                    exit_error(
+                        "All files should have the same length. Previous files"
+                        f" have sample_len={observed_lens[0]}, but '{file}' "
+                        "has sample_len="
+                        f"{audio_meta['num_samples_per_channel']}. If you "
+                        "intend to write a variable length .h5 files, please "
+                        "use the --vlen option",
+                        writer=tqdm
+                    )
     
     def create_partition_specs(self, *args, **kwargs) -> dict:
         ...
@@ -120,9 +178,21 @@ class AudioToMetricDatasetBuilder(DatasetBuilder):
                 "time for large folders"
              )
             
+        # Collect data
         files, metrics = self.collect_data(
             input=args.input,
             audio_col=args.audio_col,
             metric_col=args.metric_col,
             root_dir=args.audio_root
         )
+
+        if self.verbose:
+            print(f"{len(files)} row(s) found")
+        
+        if not args.skip_validation:
+            if self.verbose:
+                print("Validating files ...")
+            
+            # NOTE: No need to validate metrics as these are only values
+            self.validate_data(files, vlen=args.vlen)
+        import pdb;pdb.set_trace()
