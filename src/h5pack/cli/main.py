@@ -1,7 +1,8 @@
 import sys
 import argparse
 from h5pack import __version__
-from .create.audio_builder import AudioDatasetBuilder
+from .builders.audio import AudioDatasetBuilder
+from .builders.audio_to_metric import AudioToMetricDatasetBuilder
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -30,7 +31,7 @@ def get_parser() -> argparse.ArgumentParser:
     create_parser.add_argument(
         "-t", "--type",
         type=str,
-        choices=["audio", "audio->metric"],
+        choices=["audio", "audio-to-metric"],
         default="audio",
         help="layout preset to use"
     )
@@ -154,8 +155,15 @@ def main() -> int:
             builder = AudioDatasetBuilder(verbose=args.verbose)
             builder.create_partitions(args)
         
-        elif args.type == "audio->metric":
-            raise NotImplementedError
+        elif args.type == "audio-to-metric":
+            builder = AudioToMetricDatasetBuilder(verbose=args.verbose)
+            builder.create_partitions(args)
+        
+        else:
+            raise AssertionError
+    
+    elif args.action == "expand":
+        ...
     
     elif args.action == "info":
         raise NotImplementedError
