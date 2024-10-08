@@ -19,6 +19,7 @@ from multiprocessing import (
 from .builder import DatasetBuilder
 from ...core.display import (
     ask_confirmation,
+    exit_error,
     print_warning
 )
 from ...core.guards import is_file_with_ext
@@ -38,7 +39,6 @@ from ...core.utils import (
     list_from_tsv_col,
     time_to_str
 )
-from ...core.display import exit_error
 from h5pack import __version__
 
 
@@ -211,7 +211,7 @@ class AudioDatasetBuilder(DatasetBuilder):
                             "attrs": {
                                 "fs": audio_meta["fs"]
                             }
-                        },
+                        }
                     }
                 }
             )
