@@ -21,7 +21,8 @@ requires-python = ">=3.9"
 Home = "https://www.github.com/eagomez2/h5pack"
 
 [project.scripts]
-"h5pack" = "h5pack.cli.main:main"
+"h5pack-old" = "h5pack.cli.main:main"
+"h5pack" = "h5pack.cli.experimental:main"
 
 [tool.ruff]
 extend-select = [

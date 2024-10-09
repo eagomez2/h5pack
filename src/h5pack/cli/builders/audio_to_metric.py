@@ -564,3 +564,6 @@ class AudioToMetricDatasetBuilder(DatasetBuilder):
                 )
             )
             print(f"Virtual layout saved to '{args.output}'")
+
+        # Generate trace file
+        ...
