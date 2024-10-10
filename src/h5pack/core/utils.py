@@ -4,7 +4,8 @@ import polars as pl
 from itertools import chain
 from typing import (
     Any,
-    List
+    List,
+    Tuple
 )
 from .guards import is_file_with_ext_or_error
 
@@ -197,3 +198,18 @@ def get_file_checksum(file: str, hash: str = "sha256") -> str:
         hash_gen.update(content)
 
     return hash_gen.hexdigest()
+
+
+def total_to_list_slices(total: int, slices: int) -> List[Tuple[int, int]]:
+    if total < slices:
+        raise ValueError("Total should be equal or greater than slices")
+
+    size, remainder = divmod(total, slices)
+    idx_slices = []
+
+    for idx in range(slices):
+        start_idx = idx * size
+        end_idx = min((idx + 1) * size, slices * size + remainder)
+        idx_slices.append((start_idx, end_idx)) 
+    
+    return idx_slices

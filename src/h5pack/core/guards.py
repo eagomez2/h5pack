@@ -16,7 +16,7 @@ def is_file_or_error(file: str) -> None:
         FileNotFoundError: If `file` is not a valid file.
     """
     if not os.path.isfile(file):
-        raise FileNotFoundError(f"File not found: {file}")
+        raise FileNotFoundError(f"File not found: '{file}'")
 
 
 def has_ext(file: str, ext: Union[str, List[str]]) -> bool:

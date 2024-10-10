@@ -4,3 +4,11 @@ class FileExtensionError(Exception):
 
 class FolderNotFoundError(Exception):
     pass
+
+
+class ChannelCountError(Exception):
+    pass
+
+
+class SampleRateError(Exception):
+    pass
