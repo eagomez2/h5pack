@@ -8,7 +8,8 @@ __all__ = [
 
 from .parsers import (
     as_audiofloat32,
-    as_audiofloat64
+    as_audiofloat64,
+    as_float32
 )
 
 from .validators import (
@@ -24,6 +25,12 @@ def get_parsers_map() -> dict:
         pl.String: {
             "as_audiofloat32": as_audiofloat32,
             "as_audiofloat64": as_audiofloat64
+        },
+        pl.Float32: {
+            "as_float32": as_float32
+        },
+        pl.Float64: {
+            "as_float32": as_float32
         }
     }
 

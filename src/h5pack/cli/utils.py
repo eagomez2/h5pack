@@ -69,13 +69,12 @@ def create_partition_from_data(
 
         parser(
             partition_idx=idx,
-            field_name=field_name,
-            data_group=data_group,
-            data_df=data_df,
-            df_start_idx=start_idx,
-            df_end_idx=end_idx,
-            col=field_data["column"],
-            pbar_color="green" if args.workers == 1 else "cyan",
+            partition_data_group=data_group,
+            partition_field_name=field_name,
+            data_frame=data_df,
+            data_column_name=field_data["column"],
+            data_start_idx=start_idx,
+            data_end_idx=end_idx,
             verbose=args.verbose
         )
     
