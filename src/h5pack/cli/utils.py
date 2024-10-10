@@ -4,6 +4,7 @@ import h5py
 import polars as pl
 from tqdm import tqdm
 from typing import Tuple
+from time import perf_counter
 from datetime import datetime
 from argparse import Namespace
 from h5pack import __version__
@@ -16,7 +17,10 @@ from ..core.display import (
     exit_error,
     print_warning
 )
-from ..core.utils import total_to_list_slices
+from ..core.utils import (
+    total_to_list_slices,
+    time_to_str
+)
 from ..core.io import (
     add_extension,
     add_suffix
@@ -135,12 +139,13 @@ def cmd_create(args: Namespace) -> None:
     
     if args.verbose:
         print("Input file validation completed")
+    
+    # Get input data
+    data_df = pl.read_csv(data_file, has_header=True)
 
     if not args.skip_validation:
         if args.verbose:
             print("Validating input data ...")
-
-        data_df = pl.read_csv(data_file, has_header=True)
 
         for field_name, field_data in data["fields"].items():
             col_name = data["fields"][field_name]["column"]
@@ -221,6 +226,8 @@ def cmd_create(args: Namespace) -> None:
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
     
+    start_time = perf_counter()
+    
     if args.workers == 1:
         for partition_idx in range(args.partitions):
             idx, filename = create_partition_from_data(
@@ -255,4 +262,15 @@ def cmd_create(args: Namespace) -> None:
             tqdm.write(f"Partition #{idx} saved to '{filename}'")
         
     # Create virtual layout
-    ...
+    if not args.skip_virtual:
+        ...
+    
+    else:
+        if args.verbose:
+            print_warning(
+                "Skipping virtual layout generation (--skip-virtual enabled)"
+            )
+    
+    end_time = perf_counter()
+    elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
+    print(f"{args.partitions} partition(s) created in {elapsed_time_repr}")
