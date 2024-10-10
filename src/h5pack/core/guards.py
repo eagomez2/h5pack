@@ -85,3 +85,37 @@ def is_file_with_ext_or_error(file: str, ext: Union[str, List[str]]) -> bool:
     """
     is_file_or_error(file)
     has_ext_or_error(file, ext=ext)
+
+
+def are_lists_equal_len(*lists) -> bool:
+    """Returns ``True`` if all lists have the same length, ``False`` otherwise.
+    
+    Args:
+        lists: Lists to be checked.
+    
+    Returns:
+        bool: ``True`` if all lists have the same length, ``False`` otherwise.
+    """
+    return len({len(li) for li in lists}) == 1
+
+
+def are_lists_equal_len_or_error(*lists) -> None:
+    """Raises an exception if not all input lists have the same length.
+    
+    Args:
+        lists: Lists to be checked.
+    
+    Raises:
+        ValueError: If not all lists have the same length.
+    """
+    if not are_lists_equal_len(*lists):
+        lists_len_repr = []
+
+        for idx, li in enumerate(*lists):
+            lists_len_repr.append(f"index{idx} ({len(li)})")
+
+        lists_len_repr = ", ".join(lists_len_repr)
+
+        raise ValueError(
+            f"All lists should have equal length. Found {lists_len_repr}"
+        )

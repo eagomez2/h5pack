@@ -3,7 +3,10 @@ import json
 import h5py
 import polars as pl
 from tqdm import tqdm
-from typing import Tuple
+from typing import (
+    List,
+    Tuple
+)
 from time import perf_counter
 from datetime import datetime
 from argparse import Namespace
@@ -81,6 +84,91 @@ def create_partition_from_data(
     h5_file.close()
 
     return idx, h5_filename
+
+
+def create_virtual_dataset_from_partitions(
+        file: str,
+        partitions: List[str],
+        verbose: bool = False
+) -> None:
+    # Check all partition files exist
+    for partition in partitions:
+        if not is_file_with_ext(partition, ext=".h5"):
+            exit_error(f"Invalid partition file '{partition}'")
+    
+    virtual_specs = {"file": file, "fields": {}}
+    partition_specs = []
+    accum_idx = 0
+    
+    # TODO: Create stack_shape function for 1d and 2d
+    
+    for partition in partitions:
+        with h5py.File(partition) as f:
+            partition_specs.append({"file": partition, "fields": {}})
+
+            for field_name, field_data in f["data"].items():
+                # Get virtual specs
+                if field_name not in virtual_specs["fields"]:
+                    virtual_specs["fields"][field_name] = {
+                        "dtype": field_data.dtype,
+                    }
+
+                # Assumes elements are grouped by first index
+                if field_data.ndim == 1:
+                    partition_specs[-1]["fields"][field_name] = (
+                        {
+                            "dtype": field_data.dtype,
+                            "item_shape": None,
+                            "start_idx": accum_idx,
+                            "end_idx": accum_idx + field_data.shape[0]
+                        }
+                    )
+
+                    virtual_specs["fields"][field_name] = {
+                        "shape": (
+                            virtual_specs["fields"][field_name]
+                            + field_data.shape[0]
+                        )
+                    }
+                
+                elif field_data.ndim == 2:
+                    partition_specs[-1]["fields"][field_name] = (
+                        {
+                            "dtype": field_data.dtype,
+                            "item_shape": field_data.shape[1],
+                            "start_idx": accum_idx,
+                            "end_idx": accum_idx + field_data.shape[0]
+                        }
+                    )
+                
+                else:
+                    raise NotImplementedError
+
+            # NOTE: Assumes all datasets inside a file have the same length
+            # otherwise a per-field accum_idx is necessary
+            accum_idx += len(list(f["data"].keys())[0])
+    
+    # Calculate virtual layout shape based on specs
+    field_specs = []
+
+    for field_name, field_data in partition_specs[0]["fields"].items():
+        field_specs.append(
+            {
+                "name": field_name,
+                "dtype": field_data["dtype"]
+            }
+        )
+
+        if field_data["item_shape"] is None:
+            accum_shape = ...
+        
+        else:
+            ...
+
+        import pdb;pdb.set_trace()
+    
+    # Create virtual layouts
+    ...
 
 
 def cmd_create(args: Namespace) -> None:
@@ -226,6 +314,7 @@ def cmd_create(args: Namespace) -> None:
         )
     
     start_time = perf_counter()
+    partition_filenames = []
     
     if args.workers == 1:
         for partition_idx in range(args.partitions):
@@ -235,7 +324,8 @@ def cmd_create(args: Namespace) -> None:
                 data_df=data_df,
                 args=args
             )
-            print(f"Partition #{idx} saved to '{filename}'") 
+            partition_filenames.append(filename)
+            print(f"Partition #{idx} saved to '{filename}'")
     
     else:
         pool = Pool(
@@ -258,11 +348,19 @@ def cmd_create(args: Namespace) -> None:
         results = [job.get() for job in jobs]
 
         for idx, filename in results:
+            partition_filenames.append(filename)
             tqdm.write(f"Partition #{idx} saved to '{filename}'")
         
     # Create virtual layout
-    if not args.skip_virtual:
-        ...
+    if not args.skip_virtual and args.partitions > 1:
+        if args.verbose:
+            print("Creating virtual dataset ...")
+
+        create_virtual_dataset_from_partitions(
+            file=add_extension(args.output, ext=".h5"),
+            partitions=partition_filenames,
+            verbose=args.verbose
+        )
     
     else:
         if args.verbose:

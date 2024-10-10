@@ -7,7 +7,10 @@ from typing import (
     List,
     Tuple
 )
-from .guards import is_file_with_ext_or_error
+from .guards import (
+    are_lists_equal_len_or_error,
+    is_file_with_ext_or_error
+)
 
 
 def make_list(x: Any) -> List[Any]:
@@ -213,3 +216,22 @@ def total_to_list_slices(total: int, slices: int) -> List[Tuple[int, int]]:
         idx_slices.append((start_idx, end_idx)) 
     
     return idx_slices
+
+
+def stack_shape(*shapes, axis: int = -1) -> Tuple[int]:
+    if not all(isinstance(s, tuple) for s in shapes):
+        raise ValueError("Each shape should be a tuple")
+
+    if len(set(map(len, shapes))) != 1:
+        raise ValueError("All shapes should be tuples of the same length")
+    
+    # Check if all values except 'axis' are the same
+    for idx in range(len(shapes[0])):
+        if idx != axis and len({s[idx] for s in shapes}) != 1:
+            raise ValueError(f"Incompatible shapes at dimension {idx}")
+    
+    axis_sum = sum([n[axis] for n in shapes])
+    shape_sum = list(shapes[0])
+    shape_sum[axis] = axis_sum 
+    
+    return tuple(shape_sum)
