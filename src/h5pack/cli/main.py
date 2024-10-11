@@ -1,8 +1,7 @@
 import sys
 import argparse
 from h5pack import __version__
-from .builders.audio import AudioDatasetBuilder
-from .builders.audio_to_metric import AudioToMetricDatasetBuilder
+from .utils import cmd_create
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -25,33 +24,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-i", "--input",
         type=str,
         required=True,
-        help="input folder containing audio files of tabular data in .csv or "
-             ".tsv format containing file and metrics map"
-    )
-    create_parser.add_argument(
-        "-t", "--type",
-        type=str,
-        choices=["audio", "audio-to-metric"],
-        default="audio",
-        help="layout preset to use"
-    )
-    create_parser.add_argument(
-        "--audio-col",
-        type=str,
-        help="column containing audio files (required if --input is .csv or "
-             ".tsv file)"
-    )
-    create_parser.add_argument(
-        "--audio-root",
-        type=str,
-        help="root folder to be added to --audio-col (only valid if --input is"
-             " a .csv or .tsv file)"
-    )
-    create_parser.add_argument(
-        "--metric-col",
-        type=str,
-        help="column containing metric values (required if --type is "
-             "audio->metric)"
+        help=".json configuration file containing dataset specifications"
     )
     create_parser.add_argument(
         "-o", "--output",
@@ -60,39 +33,10 @@ def get_parser() -> argparse.ArgumentParser:
         help="output HDF5 partition file(s) with .h5 extension"
     ) 
     create_parser.add_argument(
-        "-e", "--extension",
-        type=str,
-        nargs="+",
-        default=[".wav"],
-        help="audio file extension(s)"
-    )
-    create_parser.add_argument(
         "-p", "--partitions",
         type=int,
         default=1,
         help="number of partitions to generate"
-    )
-    create_parser.add_argument(
-        "-d", "--dtype",
-        type=str,
-        choices=["float32", "float64", "int16"],
-        default="float32",
-        help="data type used to write the dataset"
-    )
-    create_parser.add_argument(
-        "-m", "--meta",
-        nargs="*",
-        help="key/value pairs to be added as metadata"
-    )
-    create_parser.add_argument(
-        "--vlen",
-        action="store_true",
-        help="create a variable length dataset"
-    )
-    create_parser.add_argument(
-        "-r", "--recursive",
-        action="store_true",
-        help="search folders recursively (only valid if --input is a folder)"
     )
     create_parser.add_argument(
         "--skip-validation",
@@ -100,16 +44,15 @@ def get_parser() -> argparse.ArgumentParser:
         help="skip validating files before generating the partition(s)"
     )
     create_parser.add_argument(
-        "--skip-virtual-layout",
+        "--skip-virtual",
         action="store_true",
         help="skip generating a virtual layout when two or more partitions "
              "are created"
     )
     create_parser.add_argument(
-        "--skip-trace",
+        "--skip-checksum",
         action="store_true",
-        help="skip generating a trace file in .csv format. This file can be "
-             "used to expand the dataset back to the original set of files"
+        help="skip generating the checksum file"
     )
     create_parser.add_argument(
         "-w", "--workers",
@@ -128,11 +71,79 @@ def get_parser() -> argparse.ArgumentParser:
         help="verbose output"
     )
 
+    # Virtual parser
+    virtual_parser = subparser.add_parser(
+        "virtual",
+        description="create virtual HDF5 datasets",
+        help="create virtual HDF5 datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+    virtual_parser.add_argument(
+        "-i", "--input",
+        type=str,
+        required=True,
+        nargs="+",
+        help="input .h5 file(s) or folder(s) containing .h5 file(s)"
+    )
+    virtual_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        required=True,
+        help="output HDF5 file(s) with .h5 extension"
+    )
+    virtual_parser.add_argument(
+        "-r", "--recursive",
+        action="store_true",
+        help="search folders recursively"
+    )
+    virtual_pattr_parser = virtual_parser.add_mutually_exclusive_group()
+    virtual_pattr_parser.add_argument(
+        "-m", "--select",
+        type=str,
+        metavar="PATTERN",
+        help="select pattern to filter out non-matching elements from --input"
+    )
+    virtual_pattr_parser.add_argument(
+        "-e", "--exclude",
+        type=str,
+        metavar="PATTERN",
+        help="exclude pattern to filter out matching elements from --input"
+    )
+    virtual_parser.add_argument(
+        "-u", "--unattended",
+        action="store_true",
+        help="unattended mode (no user prompts)"
+    )
+    virtual_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="verbose output"
+    )
+
+    # Checksum parser
+    checksum_parser = subparser.add_parser(
+        "checksum",
+        description="verify HDF5 datasets checksum",
+        help="create virtual HDF5 datasets checksum",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+
     # Info parser
     info_parser = subparser.add_parser(
         "info",
-        description="inspect HDF5 datasets generated with this tool",
-        help="inspect HDF5 datasets generated with this tool",
+        description="inspect HDF5 datasets",
+        help="inspect HDF5 datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+
+    # Expand parder
+    expand_parser = subparser.add_parser(
+        "expand",
+        description="expand HDF5 datasets into individual files",
+        help="expand HDF5 datasets datasets into individual files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
@@ -151,22 +162,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.action == "create":
-        if args.type == "audio":
-            builder = AudioDatasetBuilder(verbose=args.verbose)
-            builder.create_partitions(args)
-        
-        elif args.type == "audio-to-metric":
-            builder = AudioToMetricDatasetBuilder(verbose=args.verbose)
-            builder.create_partitions(args)
-        
-        else:
-            raise AssertionError
-    
-    elif args.action == "expand":
-        ...
-    
-    elif args.action == "info":
-        raise NotImplementedError
+        cmd_create(args)
     
     else:
         raise AssertionError
