@@ -176,7 +176,13 @@ def create_virtual_dataset_from_partitions(
             )
 
         # Add metadata
-        ...
+        h5_file.attrs["creation_date"] = (
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        )
+        h5_file.attrs["source"] = (
+            ", ".join([os.path.basename(p) for p in partitions])
+        )
+        h5_file.attrs["producer"] = f"h5pack {__version__}"
 
 
 def cmd_create(args: Namespace) -> None:
@@ -354,12 +360,16 @@ def cmd_create(args: Namespace) -> None:
     if not args.skip_virtual and args.partitions > 1:
         if args.verbose:
             print("Creating virtual dataset ...")
+        
+        virtual_dataset_file = add_extension(args.output, ext=".h5")
 
         create_virtual_dataset_from_partitions(
-            file=add_extension(args.output, ext=".h5"),
+            file=virtual_dataset_file,
             partitions=partition_filenames,
             verbose=args.verbose
         )
+
+        print(f"Virtual dataset saved to '{virtual_dataset_file}'")
     
     else:
         if args.verbose:
