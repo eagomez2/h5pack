@@ -344,7 +344,12 @@ def cmd_create(args: Namespace) -> None:
                 args=args
             )
             partition_filenames.append(filename)
-            print(f"Partition #{idx} saved to '{filename}'")
+
+            if args.partitions == 1:
+                print(f"Dataset file saved to '{filename}'")
+            
+            else:
+                print(f"Partition #{idx} saved to '{filename}'")
     
     else:
         pool = Pool(
@@ -368,7 +373,12 @@ def cmd_create(args: Namespace) -> None:
 
         for idx, filename in results:
             partition_filenames.append(filename)
-            tqdm.write(f"Partition #{idx} saved to '{filename}'")
+
+            if args.partitions == 1:
+                tqdm.write(f"Dataset file saved to '{filename}'")
+            
+            else:
+                tqdm.write(f"Partition #{idx} saved to '{filename}'")
         
     # Create virtual layout
     if not args.skip_virtual and args.partitions > 1:
@@ -395,8 +405,10 @@ def cmd_create(args: Namespace) -> None:
     if not args.skip_checksum:
         if args.verbose:
             print("Creating checksum file ...")
-        
-        with open("checksum.sha256", "w") as f:
+
+        checksum_filename = "checksum.sha256"
+
+        with open(checksum_filename, "w") as f:
             for partition_filename in partition_filenames:
                 partition_file = os.path.join(root_dir, partition_filename)
                 partition_file_sha256 = get_file_checksum(file=partition_file)
@@ -414,6 +426,8 @@ def cmd_create(args: Namespace) -> None:
                     f"{virtual_dataset_filename}\t"
                     f"{virtual_dataset_file_sha256}\n"
                 )
+        
+        print(f"Checksum file saved to '{checksum_filename}'")
 
     end_time = perf_counter()
     elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
