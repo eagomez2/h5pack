@@ -71,6 +71,83 @@ def get_parser() -> argparse.ArgumentParser:
         help="verbose output"
     )
 
+    # Virtual parser
+    virtual_parser = subparser.add_parser(
+        "virtual",
+        description="create virtual HDF5 datasets",
+        help="create virtual HDF5 datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+    virtual_parser.add_argument(
+        "-i", "--input",
+        type=str,
+        required=True,
+        nargs="+",
+        help="input .h5 file(s) or folder(s) containing .h5 file(s)"
+    )
+    virtual_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        required=True,
+        help="output HDF5 file(s) with .h5 extension"
+    )
+    virtual_parser.add_argument(
+        "-r", "--recursive",
+        action="store_true",
+        help="search folders recursively"
+    )
+    virtual_pattr_parser = virtual_parser.add_mutually_exclusive_group()
+    virtual_pattr_parser.add_argument(
+        "-m", "--select",
+        type=str,
+        metavar="PATTERN",
+        help="select pattern to filter out non-matching elements from --input"
+    )
+    virtual_pattr_parser.add_argument(
+        "-e", "--exclude",
+        type=str,
+        metavar="PATTERN",
+        help="exclude pattern to filter out matching elements from --input"
+    )
+    virtual_parser.add_argument(
+        "-u", "--unattended",
+        action="store_true",
+        help="unattended mode (no user prompts)"
+    )
+    virtual_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="verbose output"
+    )
+
+    # Checksum parser
+    checksum_parser = subparser.add_parser(
+        "checksum",
+        description="verify HDF5 datasets checksum",
+        help="create virtual HDF5 datasets checksum",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+
+    # Info parser
+    info_parser = subparser.add_parser(
+        "info",
+        description="inspect HDF5 datasets",
+        help="inspect HDF5 datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+
+    # Expand parder
+    expand_parser = subparser.add_parser(
+        "expand",
+        description="expand HDF5 datasets into individual files",
+        help="expand HDF5 datasets datasets into individual files",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+
     return parser
 
 
