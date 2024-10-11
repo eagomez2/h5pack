@@ -21,6 +21,7 @@ from ..core.display import (
     print_warning
 )
 from ..core.utils import (
+    get_file_checksum,
     stack_shape,
     total_to_list_slices,
     time_to_str
@@ -51,7 +52,7 @@ def create_partition_from_data(
             f".pt{str(idx).zfill(len(str(args.partitions)))}"
         )
     
-    h5_file = h5py.File(os.path.join(args.output, h5_filename), "w")
+    h5_file = h5py.File(h5_filename, "w")
 
     # Add root attrs
     for k, v in data_specs["attrs"].items():
@@ -374,15 +375,15 @@ def cmd_create(args: Namespace) -> None:
         if args.verbose:
             print("Creating virtual dataset ...")
         
-        virtual_dataset_file = add_extension(args.output, ext=".h5")
+        virtual_dataset_filename = add_extension(args.output, ext=".h5")
 
         create_virtual_dataset_from_partitions(
-            file=virtual_dataset_file,
+            file=virtual_dataset_filename,
             partitions=partition_filenames,
             verbose=args.verbose
         )
 
-        print(f"Virtual dataset saved to '{virtual_dataset_file}'")
+        print(f"Virtual dataset saved to '{virtual_dataset_filename}'")
     
     else:
         if args.verbose:
@@ -390,6 +391,30 @@ def cmd_create(args: Namespace) -> None:
                 "Skipping virtual layout generation (--skip-virtual enabled)"
             )
     
+    # Create checksum file
+    if not args.skip_checksum:
+        if args.verbose:
+            print("Creating checksum file ...")
+        
+        with open("checksum.sha256", "w") as f:
+            for partition_filename in partition_filenames:
+                partition_file = os.path.join(root_dir, partition_filename)
+                partition_file_sha256 = get_file_checksum(file=partition_file)
+                f.write(f"{partition_filename}\t{partition_file_sha256}\n")
+            
+            if not args.skip_virtual and args.partitions > 1:
+                virtual_dataset_file = os.path.join(
+                    root_dir,
+                    virtual_dataset_filename
+                )
+                virtual_dataset_file_sha256 = get_file_checksum(
+                    file=virtual_dataset_file
+                )
+                f.write(
+                    f"{virtual_dataset_filename}\t"
+                    f"{virtual_dataset_file_sha256}\n"
+                )
+
     end_time = perf_counter()
     elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
     print(f"{args.partitions} partition(s) created in {elapsed_time_repr}")

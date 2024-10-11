@@ -7,10 +7,7 @@ from typing import (
     List,
     Tuple
 )
-from .guards import (
-    are_lists_equal_len_or_error,
-    is_file_with_ext_or_error
-)
+from .guards import is_file_with_ext_or_error
 
 
 def make_list(x: Any) -> List[Any]:

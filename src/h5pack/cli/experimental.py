@@ -50,10 +50,9 @@ def get_parser() -> argparse.ArgumentParser:
              "are created"
     )
     create_parser.add_argument(
-        "--skip-trace",
+        "--skip-checksum",
         action="store_true",
-        help="skip generating a trace file in .csv format. This file can be "
-             "used to expand the dataset back to the original set of files"
+        help="skip generating the checksum file"
     )
     create_parser.add_argument(
         "-w", "--workers",
