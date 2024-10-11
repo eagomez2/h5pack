@@ -103,13 +103,20 @@ def create_virtual_dataset_from_partitions(
     
     for partition in partitions:
         with h5py.File(partition) as f:
-            partition_specs.append({"file": partition, "fields": {}})
+            partition_specs.append(
+                {
+                    "file": partition,
+                    "fields": {},
+                    "attrs": dict(f.attrs)
+                }
+            )
 
             for field_name, field_data in f["data"].items():
                 # Update virtual specs
                 if field_name not in virtual_specs["fields"]:
                     virtual_specs["fields"][field_name] = {
                         "dtype": field_data.dtype,
+                        "attrs": dict(field_data.attrs)
                     }
                 
                 virtual_specs["fields"][field_name]["shape"] = (
@@ -170,12 +177,18 @@ def create_virtual_dataset_from_partitions(
 
         # Create virtual datasets
         for layout_name, layout in layouts.items():
-            data_group.create_virtual_dataset(
+            virtual_dataset = data_group.create_virtual_dataset(
                 name=layout_name,
                 layout=layout
             )
+            
+            for k, v in virtual_specs["fields"][layout_name]["attrs"].items():
+                virtual_dataset.attrs[k] = v
 
-        # Add metadata
+        # Add root attrs and ovewrite whenever necessary
+        for k, v in partition_specs[0]["attrs"].items():
+            h5_file.attrs[k] = v
+
         h5_file.attrs["creation_date"] = (
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
