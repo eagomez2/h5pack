@@ -21,6 +21,7 @@ from ..core.display import (
     print_warning
 )
 from ..core.utils import (
+    stack_shape,
     total_to_list_slices,
     time_to_str
 )
@@ -98,77 +99,84 @@ def create_virtual_dataset_from_partitions(
     
     virtual_specs = {"file": file, "fields": {}}
     partition_specs = []
-    accum_idx = 0
-    
-    # TODO: Create stack_shape function for 1d and 2d
+    accum_idx = {}
     
     for partition in partitions:
         with h5py.File(partition) as f:
             partition_specs.append({"file": partition, "fields": {}})
 
             for field_name, field_data in f["data"].items():
-                # Get virtual specs
+                # Update virtual specs
                 if field_name not in virtual_specs["fields"]:
                     virtual_specs["fields"][field_name] = {
                         "dtype": field_data.dtype,
                     }
-
-                # Assumes elements are grouped by first index
-                if field_data.ndim == 1:
-                    partition_specs[-1]["fields"][field_name] = (
-                        {
-                            "dtype": field_data.dtype,
-                            "item_shape": None,
-                            "start_idx": accum_idx,
-                            "end_idx": accum_idx + field_data.shape[0]
-                        }
+                
+                virtual_specs["fields"][field_name]["shape"] = (
+                    field_data.shape
+                    if virtual_specs["fields"][field_name].get("shape") is None
+                    else  stack_shape(
+                        virtual_specs["fields"][field_name]["shape"],
+                        field_data.shape,
+                        axis=0
                     )
+                )
 
-                    virtual_specs["fields"][field_name] = {
-                        "shape": (
-                            virtual_specs["fields"][field_name]
-                            + field_data.shape[0]
+                # Update partition specs
+                if field_name not in accum_idx:
+                    accum_idx[field_name] = 0
+
+                # Assumes elements are grouped by first index (axis=0)
+                partition_specs[-1]["fields"][field_name] = (
+                    {
+                        "dtype": field_data.dtype,
+                        "shape": field_data.shape,
+                        "start_idx": accum_idx[field_name],
+                        "end_idx": (
+                            accum_idx[field_name] + field_data.shape[0]
                         )
                     }
+                )
                 
-                elif field_data.ndim == 2:
-                    partition_specs[-1]["fields"][field_name] = (
-                        {
-                            "dtype": field_data.dtype,
-                            "item_shape": field_data.shape[1],
-                            "start_idx": accum_idx,
-                            "end_idx": accum_idx + field_data.shape[0]
-                        }
-                    )
-                
-                else:
-                    raise NotImplementedError
+                accum_idx[field_name] = (
+                    accum_idx[field_name] + field_data.shape[0]
+                )
 
-            # NOTE: Assumes all datasets inside a file have the same length
-            # otherwise a per-field accum_idx is necessary
-            accum_idx += len(list(f["data"].keys())[0])
-    
-    # Calculate virtual layout shape based on specs
-    field_specs = []
+    # Create virtual layout(s)
+    layouts = {}
 
-    for field_name, field_data in partition_specs[0]["fields"].items():
-        field_specs.append(
-            {
-                "name": field_name,
-                "dtype": field_data["dtype"]
-            }
+    for field_name, field_specs in virtual_specs["fields"].items():
+        layouts[field_name] = h5py.VirtualLayout(
+            shape=field_specs["shape"],
+            dtype=field_specs["dtype"]
         )
 
-        if field_data["item_shape"] is None:
-            accum_shape = ...
-        
-        else:
-            ...
+        for specs in partition_specs:
+            src = h5py.VirtualSource(
+                specs["file"],
+                name=f"data/{field_name}",
+                shape=specs["fields"][field_name]["shape"],
+                dtype=specs["fields"][field_name]["dtype"]
+            )
 
-        import pdb;pdb.set_trace()
+            start_idx = specs["fields"][field_name]["start_idx"]
+            end_idx = specs["fields"][field_name]["end_idx"]
+            layouts[field_name][start_idx:end_idx, ...] = src
     
-    # Create virtual layouts
-    ...
+    # Fill virtual .h5 file
+    with h5py.File(file, "w", libver="latest") as h5_file:
+        # Create data group
+        data_group = h5_file.create_group("data")
+
+        # Create virtual datasets
+        for layout_name, layout in layouts.items():
+            data_group.create_virtual_dataset(
+                name=layout_name,
+                layout=layout
+            )
+
+        # Add metadata
+        ...
 
 
 def cmd_create(args: Namespace) -> None:
@@ -295,15 +303,6 @@ def cmd_create(args: Namespace) -> None:
     # Create dataset and parse data
     if args.verbose:
         print("Creating partitions ...")
-    
-    if not os.path.isdir(args.output):
-        if args.verbose:
-            print(f"Creating output folder '{args.output}' ...")
-
-        os.makedirs(args.output, exist_ok=True)
-
-        if args.verbose:
-            print(f"Output folder '{args.output}' successfully created")
     
     # Add root attrs
     if root_attrs is not None:
