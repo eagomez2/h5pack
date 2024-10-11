@@ -1,7 +1,10 @@
 import sys
 import argparse
 from h5pack import __version__
-from .utils import cmd_create
+from .utils import (
+    cmd_create,
+    cmd_virtual
+)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -99,7 +102,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     virtual_pattr_parser = virtual_parser.add_mutually_exclusive_group()
     virtual_pattr_parser.add_argument(
-        "-m", "--select",
+        "-s", "--select",
         type=str,
         metavar="PATTERN",
         help="select pattern to filter out non-matching elements from --input"
@@ -163,6 +166,9 @@ def main() -> int:
 
     if args.action == "create":
         cmd_create(args)
+    
+    elif args.action == "virtual":
+        cmd_virtual(args)
     
     else:
         raise AssertionError

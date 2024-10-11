@@ -1,6 +1,7 @@
 import os
 import json
 import h5py
+import fnmatch
 import polars as pl
 from tqdm import tqdm
 from typing import (
@@ -18,6 +19,7 @@ from multiprocessing import (
 from ..core.guards import is_file_with_ext
 from ..core.display import (
     exit_error,
+    exit_warning,
     print_warning
 )
 from ..core.utils import (
@@ -28,7 +30,8 @@ from ..core.utils import (
 )
 from ..core.io import (
     add_extension,
-    add_suffix
+    add_suffix,
+    get_dir_files
 )
 from ..data import (
     get_parsers_map,
@@ -432,3 +435,60 @@ def cmd_create(args: Namespace) -> None:
     end_time = perf_counter()
     elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
     print(f"{args.partitions} partition(s) created in {elapsed_time_repr}")
+
+
+def cmd_virtual(args: Namespace) -> None:
+    # All input file candidates
+    h5_files = []
+
+    if args.verbose:
+        print("Collecting input files ...")
+
+    for file_or_dir in args.input:
+        if is_file_with_ext(file_or_dir, ext=".h5"):
+            h5_files.append(file_or_dir)
+        
+        elif os.path.isdir(file_or_dir):
+            h5_files += get_dir_files(
+                dir=file_or_dir,
+                ext=".h5",
+                recursive=args.recursive
+            )
+    
+    if len(h5_files) == 0:
+        exit_warning(
+            "0 .h5 files found. Use --recursive if you intended to perform a "
+            "recursive search"
+        )
+    
+    else:
+        if args.verbose:
+            print(f"{len(h5_files)} .h5 file(s) found")
+
+    # Apply exclude/match patterns
+    if args.select is not None:
+        if args.verbose:
+            print(f"Applying --select filter '{args.select}'")
+
+        for f in h5_files:
+            if not fnmatch.fnmatch(f, args.select):
+                h5_files.remove(f)
+    
+    if args.exclude is not None:
+        if args.verbose:
+            print(f"Applying --exclude filter '{args.exclude}'")
+
+        for f in h5_files:
+            if fnmatch.fnmatch(f, args.exclude):
+                h5_files.remove(f)
+
+    
+
+    # Check all files have same data fields
+    ...
+
+    # Blend attrs and replace creation date and producer
+    ...
+
+    # Create virtual dataset
+    ...
