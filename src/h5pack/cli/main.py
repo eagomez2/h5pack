@@ -2,6 +2,7 @@ import sys
 import argparse
 from h5pack import __version__
 from .utils import (
+    cmd_checksum,
     cmd_create,
     cmd_virtual
 )
@@ -138,6 +139,16 @@ def get_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
+    checksum_parser.add_argument(
+        "input",
+        type=str,
+        help="checksum file"
+    )
+    checksum_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="verbose output"
+    )
 
     # Info parser
     info_parser = subparser.add_parser(
@@ -175,6 +186,9 @@ def main() -> int:
     
     elif args.action == "virtual":
         cmd_virtual(args)
+    
+    elif args.action == "checksum":
+        cmd_checksum(args)
     
     else:
         raise AssertionError

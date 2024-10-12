@@ -553,3 +553,43 @@ def cmd_virtual(args: Namespace) -> None:
         verbose=args.verbose
     )
     print(f"Virtual dataset saved to '{os.path.basename(output_file)}'")
+
+
+def cmd_checksum(args: Namespace) -> None:
+    # Check file exists
+    if not is_file_with_ext(args.input, ext=".sha256"):
+        exit_error(f"Input file '{args.input}' not found")
+    
+    root_dir = os.path.dirname(args.input)
+
+    if args.verbose:
+        print(f"Using root folder '{root_dir}'")
+
+    # Read lines and check they contain only two elements
+    with open(args.input, "r") as f:
+        for line in f:
+            h5_filename, saved_checksum = line.split("\t")
+            h5_file = os.path.join(root_dir, h5_filename)
+            saved_checksum = saved_checksum.rstrip("\n")
+
+            if not is_file_with_ext(h5_file, ext=".h5"):
+                exit_error(f"Invalid file '{h5_file}'")
+            
+            checksum = get_file_checksum(h5_file, hash="sha256")
+
+            if saved_checksum == checksum:
+                print(
+                    f"'{h5_filename}' checksum matches saved checksum "
+                    f"({checksum})"
+                )
+            
+            else:
+                print_warning(
+                    f"'{h5_file}' checksum does not match saved checksum:\n"
+                    f" - Saved checksum: {saved_checksum}\n"
+                    f" - Computed checksum: {checksum}"
+                )
+
+
+def cmd_info(args: Namespace) -> None:
+    ...
