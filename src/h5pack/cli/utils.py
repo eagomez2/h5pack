@@ -18,6 +18,7 @@ from multiprocessing import (
 )
 from ..core.guards import is_file_with_ext
 from ..core.display import (
+    ask_confirmation,
     exit_error,
     exit_warning,
     print_warning
@@ -91,6 +92,22 @@ def create_partition_from_data(
     return idx, h5_filename
 
 
+def are_partitions_compatible(
+        partitions: List[str],
+        verbose: bool = False
+) -> None:
+    # Check if partitions are compatible to create a virtual partition
+    field_specs = None
+
+    for partition in partitions:
+        # Check partition exists
+        if not is_file_with_ext(partition, ext=".h5"):
+            exit_error(f"Invalid partition file '{partition}'")
+
+        # Check fields
+        ...
+
+
 def create_virtual_dataset_from_partitions(
         file: str,
         partitions: List[str],
@@ -152,7 +169,7 @@ def create_virtual_dataset_from_partitions(
                 accum_idx[field_name] = (
                     accum_idx[field_name] + field_data.shape[0]
                 )
-
+    
     # Create virtual layout(s)
     layouts = {}
 
@@ -321,7 +338,11 @@ def cmd_create(args: Namespace) -> None:
             )
     
     if args.verbose:
-        print(f"{args.partitions} partition spec(s) completed")
+        print("Partition spec(s) completed")
+    
+    if not args.unattended:
+        print(f"{args.partitions} partition(s) will be created")
+        ask_confirmation()
     
     # Create dataset and parse data
     if args.verbose:
@@ -501,12 +522,28 @@ def cmd_virtual(args: Namespace) -> None:
                 f"{len(h5_files)} selected .h5 file(s) after applying "
                 "--exclude filter"
             )
+    
+    # TODO: Check all partitions are compatible
+    ...
+
+    partition_files_repr = "\n".join(
+        [
+            f"  {idx}. '{f}'" for idx, f in enumerate(h5_files, start=1)
+        ]
+    )
+    print(
+        "A virtual dataset will be created for the following file(s):\n"
+        f"{partition_files_repr}"
+    )
+
+    if not args.unattended:
+        ask_confirmation()
 
     # Check all files have same data fields
-    ...
-
-    # Blend attrs and replace creation date and producer
-    ...
-
-    # Create virtual dataset
-    ...
+    output_file = add_extension(args.output, ext=".h5")
+    create_virtual_dataset_from_partitions(
+        file=add_extension(args.output, ext=".h5"),
+        partitions=h5_files,
+        verbose=args.verbose
+    )
+    print(f"Virtual dataset saved to '{os.path.basename(output_file)}'")
