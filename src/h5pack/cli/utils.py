@@ -429,14 +429,20 @@ def cmd_create(args: Namespace) -> None:
     if not args.skip_checksum:
         if args.verbose:
             print("Creating checksum file ...")
-
-        checksum_filename = "checksum.sha256"
+        
+        checksum_filename = add_extension(
+            args.checksum_filename,
+            ext=".sha256"
+        )
 
         with open(checksum_filename, "w") as f:
             for partition_filename in partition_filenames:
                 partition_file = os.path.join(root_dir, partition_filename)
                 partition_file_sha256 = get_file_checksum(file=partition_file)
-                f.write(f"{partition_filename}\t{partition_file_sha256}\n")
+                f.write(
+                    f"{os.path.basename(partition_filename)}"
+                    f"\t{partition_file_sha256}\n"
+                )
             
             if not args.skip_virtual and args.partitions > 1:
                 virtual_dataset_file = os.path.join(
@@ -447,7 +453,7 @@ def cmd_create(args: Namespace) -> None:
                     file=virtual_dataset_file
                 )
                 f.write(
-                    f"{virtual_dataset_filename}\t"
+                    f"{os.path.basename(virtual_dataset_filename)}\t"
                     f"{virtual_dataset_file_sha256}\n"
                 )
         
