@@ -468,21 +468,39 @@ def cmd_virtual(args: Namespace) -> None:
     # Apply exclude/match patterns
     if args.select is not None:
         if args.verbose:
-            print(f"Applying --select filter '{args.select}'")
+            print(f"Applying --select filter '{args.select}' ...")
+        
+        selected_files = []
 
         for f in h5_files:
-            if not fnmatch.fnmatch(f, args.select):
-                h5_files.remove(f)
+            if fnmatch.fnmatch(f, args.select):
+                selected_files.append(f)
+        
+        h5_files = [f for f in h5_files if f in selected_files]
+        
+        if args.verbose:
+            print(
+                f"{len(h5_files)} selected .h5 file(s) after applying "
+                "--select filter"
+            )
     
     if args.exclude is not None:
         if args.verbose:
-            print(f"Applying --exclude filter '{args.exclude}'")
+            print(f"Applying --exclude filter '{args.exclude}' ...")
+
+        excluded_files = []
 
         for f in h5_files:
             if fnmatch.fnmatch(f, args.exclude):
-                h5_files.remove(f)
+                excluded_files.append(f)
+        
+        h5_files = [f for f in h5_files if f not in excluded_files]
 
-    
+        if args.verbose:
+            print(
+                f"{len(h5_files)} selected .h5 file(s) after applying "
+                "--exclude filter"
+            )
 
     # Check all files have same data fields
     ...
