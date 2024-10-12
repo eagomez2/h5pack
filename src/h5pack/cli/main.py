@@ -4,6 +4,7 @@ from h5pack import __version__
 from .utils import (
     cmd_checksum,
     cmd_create,
+    cmd_info,
     cmd_virtual
 )
 
@@ -158,6 +159,10 @@ def get_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
+    info_parser.add_argument(
+        "input",
+        help="input .h5 file"
+    )
 
     # Expand parder
     expand_parser = subparser.add_parser(
@@ -189,6 +194,9 @@ def main() -> int:
     
     elif args.action == "checksum":
         cmd_checksum(args)
+    
+    elif args.action == "info":
+        cmd_info(args)
     
     else:
         raise AssertionError

@@ -592,4 +592,49 @@ def cmd_checksum(args: Namespace) -> None:
 
 
 def cmd_info(args: Namespace) -> None:
-    ...
+    # Check file exists
+    if not is_file_with_ext(args.input, ext=".h5"):
+        exit_error(f"Invalid input file '{args.input}'")
+    
+    # Fixed lengths between key and value
+    top_ljust = 12
+    
+    # Get checksum
+    checksum = get_file_checksum(args.input, hash="sha256")
+    print("Input file:".ljust(top_ljust) +  f"'{args.input}'")
+    print("Checksum:".ljust(top_ljust) +  f"{checksum}")
+
+    # Open file
+    with h5py.File(args.input, "r") as h5_file:
+        # Get top level attributes
+        if len(h5_file.attrs) > 0:
+            print("File attribute(s):")
+            key_ljust = max([len(k) for k in h5_file.attrs]) + 6
+
+            for k, v in h5_file.attrs.items():
+                print(f"  - {k}:".ljust(key_ljust) + f"{v}")
+
+        # Get data group level attributes
+        for data_group_name, data_group_data in h5_file.items():
+            print(f"Data group '{data_group_name}':")
+
+            if len(data_group_data.attrs) > 0:
+                key_ljust = max([len(k) for k in data_group_data.attrs]) + 6
+                
+                print(f"'{data_group_name}' attribute(s):")
+
+                for k, v in data_group_data.items():
+                    print(f"  - {k}:".ljust(key_ljust) + f"{v}") 
+
+            # Get dataset level info
+            for dataset_name, dataset_data in data_group_data.items():
+                if len(dataset_data.attrs) > 0:
+                    key_ljust = max([len(k) for k in dataset_data.attrs]) + 8
+                    print(f"  - '{dataset_name}' attribute(s):")
+                
+                for k, v in dataset_data.attrs.items():
+                    print(f"    - {k}:".ljust(key_ljust) + f"{v}") 
+
+                print(f"  - '{dataset_name}' data attribute(s):")
+                print(f"    - shape: {dataset_data.shape}")
+                print(f"    - dtype: {dataset_data.dtype}")
