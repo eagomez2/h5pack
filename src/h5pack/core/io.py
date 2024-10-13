@@ -10,7 +10,10 @@ from typing import (
     Union
 )
 from .guards import is_file_or_error
-from .exceptions import FolderNotFoundError
+from .exceptions import (
+    FolderNotFoundError,
+    UnsupportedShapeError
+)
 from .utils import make_list
 
 
@@ -168,3 +171,41 @@ def read_audio(
     )
 
     return data.transpose(), fs_
+
+
+def write_audio(
+        audio: np.ndarray,
+        file: str,
+        fs: int,
+        subtype: Optional[str] = None,
+        fmt: Optional[str] = None,
+) -> None:
+    """Writes an audio tensor to a file.
+    
+    Args:
+        audio (np.ndarray): Audio array with shape
+            ``(1, num_channels, num_samples)``, ``(num_channel, num_samples)``
+            or ``(num_samples)``.
+        file (str): Output file.
+        fs (int): Sample rate used to write the audio file.
+        subtype (Optional[str]): Subtype used to write the audio file.
+        fmt (Optional[str]): Format used to write the audio file.
+    """
+    # Only mono, stereo or multichannel audios are supported as 2D tensors
+    if audio.ndim not in [1, 2]:
+        raise UnsupportedShapeError(
+            "Only 1D or 2D arrays can be written to disk as audio. Found "
+            f"{audio.shape=}"
+        )
+
+    # NOTE: Assumes layout (num_channels, num_samples)
+    if audio.ndim == 1:
+        audio = np.expand_dims(audio, axis=-1)
+    
+    elif audio.ndim == 2:
+            audio = audio.swapaxes(0, 1)
+
+    else:
+        raise AssertionError
+
+    sf.write(file=file, data=audio, samplerate=fs, subtype=subtype, format=fmt)

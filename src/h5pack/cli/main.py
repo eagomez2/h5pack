@@ -4,6 +4,7 @@ from h5pack import __version__
 from .utils import (
     cmd_checksum,
     cmd_create,
+    cmd_extract,
     cmd_info,
     cmd_virtual
 )
@@ -165,12 +166,27 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     # Expand parder
-    expand_parser = subparser.add_parser(
-        "expand",
-        description="expand HDF5 datasets into individual files",
-        help="expand HDF5 datasets datasets into individual files",
+    extract_parser = subparser.add_parser(
+        "extract",
+        description="extract HDF5 datasets into individual files",
+        help="extract HDF5 datasets datasets into individual files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
+    )
+    extract_parser.add_argument(
+        "input",
+        help="input .h5 file"
+    )
+    extract_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        required=True,
+        help="output folder"
+    )
+    extract_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="verbose output"
     )
 
     return parser
@@ -197,6 +213,9 @@ def main() -> int:
     
     elif args.action == "info":
         cmd_info(args)
+    
+    elif args.action == "extract":
+        cmd_extract(args)
     
     else:
         raise AssertionError

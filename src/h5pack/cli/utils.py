@@ -35,6 +35,7 @@ from ..core.io import (
     get_dir_files
 )
 from ..data import (
+    get_extractors_map,
     get_parsers_map,
     get_validators_map
 )
@@ -638,3 +639,63 @@ def cmd_info(args: Namespace) -> None:
                 print(f"  - '{dataset_name}' data attribute(s):")
                 print(f"    - shape: {dataset_data.shape}")
                 print(f"    - dtype: {dataset_data.dtype}")
+
+
+def cmd_extract(args: Namespace) -> None:
+    # Check file exists
+    if not is_file_with_ext(args.input, ext=".h5"):
+        exit_error(f"Invalid input file '{args.input}'")
+
+    # Generate output folder
+    if not os.path.isdir(args.output):
+        if args.verbose:
+            print(f"Creating output folder '{args.output}' ...")
+
+        os.makedirs(args.output, exist_ok=True)
+    
+    checksum = get_file_checksum(args.input, hash="sha256")
+    print(f"Extracting '{args.output}' ({checksum}) ...")
+
+    with h5py.File(args.input, mode="r") as h5_file:
+        if args.verbose:
+            print("Extracting file attribute(s) ...")
+        
+        meta_file = os.path.join(args.output, "meta")
+        key_ljust = max([len(k) for k in h5_file.attrs]) + 2
+
+        with open(meta_file, "w") as f:
+            for k, v in h5_file.attrs.items():
+                f.write(f"{k}".ljust(key_ljust) + f"{v}\n")
+
+        if args.verbose:
+            print(f"File attribute(s) saved to '{meta_file}'")
+        
+        os.makedirs(os.path.join(args.output, "data"), exist_ok=True)
+
+        for field_name in h5_file["data"]:
+            parser = h5_file["data"][field_name].attrs.get("parser")
+
+            if parser is None:
+                continue
+            
+            else:
+                if args.verbose:
+                    print(f"Extracting 'data/{field_name}' ({parser}) ...")
+
+                extractor = get_extractors_map()[parser]
+                output_dir = os.path.join(args.output, "data", field_name)
+                extractor(
+                    output_dir=output_dir,
+                    field_name=field_name,
+                    data=h5_file["data"],
+                    attrs=h5_file["data"][field_name].attrs,
+                    verbose=args.verbose
+                )
+
+                if args.verbose:
+                    print(
+                        f"Field 'data/{field_name}' extracted to "
+                        f"'{output_dir}'"
+                    )
+
+    print("Extraction process completed")

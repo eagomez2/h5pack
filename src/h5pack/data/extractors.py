@@ -1,0 +1,48 @@
+import os
+import h5py
+import polars as pl
+from tqdm import tqdm
+from ..core.io import write_audio
+
+
+def from_audiofloat32(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    os.makedirs(output_dir, exist_ok=True)
+    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filenames"]]
+    fs = attrs["sample_rate"]
+
+    if data[field_name].ndim == 2:
+        for row_idx, filename in tqdm(
+            zip(range(data[field_name].shape[0]), filenames),
+            total=len(filenames),
+            desc=f"Extracting '{field_name}'",
+            colour="green",
+            leave=False,
+            disable=not verbose
+        ):
+            audio = data[field_name][row_idx, :]
+            write_audio(
+                audio,
+                file=os.path.join(output_dir, filename),
+                fs=int(fs)
+            )
+    
+    elif data[field_name].ndim == 1:  # vlen
+        raise NotImplementedError
+
+
+def from_float32(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    os.makedirs(output_dir, exist_ok=True)
+    df = pl.DataFrame({field_name: list(data[field_name])})
+    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))

@@ -12,3 +12,7 @@ class ChannelCountError(Exception):
 
 class SampleRateError(Exception):
     pass
+
+
+class UnsupportedShapeError(Exception):
+    pass

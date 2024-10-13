@@ -3,8 +3,13 @@ __all__ = [
     "as_audiofloat64",
     "as_float32",
     "as_float64",
+    "from_audiofloat32",
 ]
 
+from .extractors import (
+    from_audiofloat32,
+    from_float32
+)
 
 from .parsers import (
     as_audiofloat32,
@@ -33,6 +38,14 @@ def get_parsers_map() -> dict:
             "as_float32": as_float32
         }
     }
+
+
+def get_extractors_map() -> dict:
+    return {
+        "as_audiofloat32": from_audiofloat32,
+        "as_float32": from_float32
+    }
+
 
 def get_validators_map() -> dict:
     return {
