@@ -145,7 +145,13 @@ def get_parser() -> argparse.ArgumentParser:
     checksum_parser.add_argument(
         "input",
         type=str,
+        nargs="+",
         help="checksum file"
+    )
+    checksum_parser.add_argument(
+        "-g", "--generate",
+        action="store_true",
+        help="generate sha256 hash of input files"
     )
     checksum_parser.add_argument(
         "-v", "--verbose",

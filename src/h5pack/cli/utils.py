@@ -487,7 +487,7 @@ def cmd_virtual(args: Namespace) -> None:
     root_attrs = None
 
     if args.attrs is not None:
-        if len(args.attrs) % 2 == 0:
+        if len(args.attrs) % 2 != 0:
             exit_error(
                 "--attrs should be an even number of items where each odd item"
                 " represents a key and each even item represents its value"
@@ -584,47 +584,77 @@ def cmd_virtual(args: Namespace) -> None:
 
 
 def cmd_checksum(args: Namespace) -> None:
-    # Check file exists
-    if not is_file_with_ext(args.input, ext=".sha256"):
-        exit_error(f"Input file '{args.input}' not found")
-    
-    root_dir = os.path.dirname(args.input)
+    # Check file(s) exists
+    if args.generate:
+        all_files = []
 
-    if args.verbose:
-        print(f"Using root folder '{root_dir}'")
-
-    # Read lines and check they contain only two elements
-    start_time = perf_counter()
-
-    with open(args.input, "r") as f:
-        for line in f:
-            h5_filename, saved_checksum = line.split("\t")
-            h5_file = os.path.join(root_dir, h5_filename)
-            saved_checksum = saved_checksum.rstrip("\n")
-
-            if not is_file_with_ext(h5_file, ext=".h5"):
-                exit_error(f"Invalid file '{h5_file}'")
-            
-            checksum = get_file_checksum(h5_file, hash="sha256")
-
-            if saved_checksum == checksum:
-                print(
-                    f"'{h5_filename}' checksum matches saved checksum "
-                    f"({checksum})"
-                )
+        for input in args.input:
+            if os.path.isfile(input):
+                all_files.append(input)
             
             else:
-                print_warning(
-                    f"'{h5_file}' checksum does not match saved checksum:\n"
-                    f" - Saved checksum: {saved_checksum}\n"
-                    f" - Computed checksum: {checksum}"
-                )
-    
-    end_time = perf_counter()
+                exit_error(f"Invalid input file '{input}'")
 
-    if args.verbose:
-        elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
-        print(f"Checksum verification completed in {elapsed_time_repr}")
+            start_time = perf_counter()
+
+            for file in all_files:
+                checksum = get_file_checksum(file, hash="sha256")
+                print(f"'{os.path.basename(file)}' => {checksum}")
+        
+        end_time = perf_counter()
+
+        if args.verbose:
+            elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
+            print(f"Checksum generation completed in {elapsed_time_repr}")
+    
+    else:
+        all_checksum_files = []
+
+        for input in args.input:
+            if not is_file_with_ext(input, ext=".sha256"):
+                exit_error(f"Invalid checksum file '{input}'")
+            
+            else:
+                all_checksum_files.append(input)
+
+        # Read lines and check they contain only two elements
+        start_time = perf_counter()
+
+        for checksum_file in all_checksum_files:
+            root_dir = os.path.dirname(checksum_file)
+
+            if args.verbose:
+                print(f"Using root folder '{root_dir}'")
+
+            with open(checksum_file, "r") as f:
+                for line in f:
+                    h5_filename, saved_checksum = line.split("\t")
+                    h5_file = os.path.join(root_dir, h5_filename)
+                    saved_checksum = saved_checksum.rstrip("\n")
+
+                    if not is_file_with_ext(h5_file, ext=".h5"):
+                        exit_error(f"Invalid file '{h5_file}'")
+                    
+                    checksum = get_file_checksum(h5_file, hash="sha256")
+
+                    if saved_checksum == checksum:
+                        print(
+                            f"'{h5_filename}' checksum matches saved checksum "
+                            f"({checksum})"
+                        )
+                    
+                    else:
+                        print_warning(
+                            f"'{h5_file}' checksum does not match saved "
+                            f"checksum:\n - Saved checksum: {saved_checksum}"
+                            f"\n - Computed checksum: {checksum}"
+                        )
+        
+        end_time = perf_counter()
+
+        if args.verbose:
+            elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
+            print(f"Checksum verification completed in {elapsed_time_repr}")
 
 
 def cmd_info(args: Namespace) -> None:
@@ -691,6 +721,8 @@ def cmd_extract(args: Namespace) -> None:
     checksum = get_file_checksum(args.input, hash="sha256")
     print(f"Extracting '{args.output}' ({checksum}) ...")
 
+    start_time = perf_counter()
+
     with h5py.File(args.input, mode="r") as h5_file:
         if args.verbose:
             print("Extracting file attribute(s) ...")
@@ -733,4 +765,6 @@ def cmd_extract(args: Namespace) -> None:
                         f"'{output_dir}'"
                     )
 
-    print("Extraction process completed")
+    end_time = perf_counter()
+    elapsed_time_repr = time_to_str(end_time - start_time)
+    print(f"Extraction process completed in {elapsed_time_repr}")
