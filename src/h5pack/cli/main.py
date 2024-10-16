@@ -109,6 +109,13 @@ def get_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="search folders recursively"
     )
+    virtual_parser.add_argument(
+        "-a", "--attrs",
+        type=str,
+        nargs="+",
+        metavar="KEY VALUE",
+        help="top level attributes to write as a list of 'key' 'value' pairs"
+    )
     virtual_pattr_parser = virtual_parser.add_mutually_exclusive_group()
     virtual_pattr_parser.add_argument(
         "-s", "--select",

@@ -24,6 +24,7 @@ from ..core.display import (
     print_warning
 )
 from ..core.utils import (
+    dict_from_interleaved_list,
     get_file_checksum,
     stack_shape,
     total_to_list_slices,
@@ -468,6 +469,12 @@ def cmd_create(args: Namespace) -> None:
 def cmd_virtual(args: Namespace) -> None:
     # All input file candidates
     h5_files = []
+
+    if args.attrs is not None and len(args.attrs) % 2 == 0:
+        exit_error(
+            "--attrs should be an even number of items where each odd item "
+            "represents a key and each even item represents its value"
+        )
 
     if args.verbose:
         print("Collecting input files ...")
