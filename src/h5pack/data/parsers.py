@@ -13,7 +13,7 @@ from ..core.io import (
 )
 
 
-def as_audiofloat32(
+def _as_audiodtype(
         partition_idx: int,
         partition_data_group: h5py.Group,
         partition_field_name: str,
@@ -21,6 +21,8 @@ def as_audiofloat32(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
+        dtype: np.dtype,
+        parser_name: str,
         verbose: bool = False
 ) -> None:
     # NOTE: Files are already validated at this point
@@ -47,17 +49,17 @@ def as_audiofloat32(
         dataset = partition_data_group.create_dataset(
             name=partition_field_name,
             shape=(len(files), num_samples),
-            dtype=np.float32
+            dtype=dtype
         )
     
     else:
         dataset = partition_data_group.create_dataset(
             name=partition_field_name,
             shape=(len(files),),
-            dtype=h5py.vlen_dtype(np.dtype(np.float32))
+            dtype=h5py.vlen_dtype(np.dtype(dtype))
         )
     
-    dataset.attrs["parser"] = "as_audiofloat32"
+    dataset.attrs["parser"] = parser_name
     dataset.attrs["sample_rate"] = str(fs)
 
     filenames_dataset = partition_data_group.create_dataset(
@@ -82,7 +84,7 @@ def as_audiofloat32(
             disable=not verbose
         )
     ):
-        data, _ = read_audio(file, dtype=np.float32)
+        data, _ = read_audio(file, dtype=dtype)
 
         if vlen:
             dataset[idx] = data
@@ -92,9 +94,77 @@ def as_audiofloat32(
 
         filenames_dataset[idx] = file
 
+
+def as_audioint16(
+        partition_idx: int,
+        partition_data_group: h5py.Group,
+        partition_field_name: str,
+        data_frame: pl.DataFrame,
+        data_column_name: str,
+        data_start_idx: int,
+        data_end_idx: int,
+        verbose: bool = False
+) -> None:
+    return _as_audiodtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        dtype=np.int16,
+        parser_name="as_audioint16",
+        verbose=verbose
+    )
+
+
+def as_audiofloat32(
+        partition_idx: int,
+        partition_data_group: h5py.Group,
+        partition_field_name: str,
+        data_frame: pl.DataFrame,
+        data_column_name: str,
+        data_start_idx: int,
+        data_end_idx: int,
+        verbose: bool = False
+) -> None:
+    return _as_audiodtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        dtype=np.float32,
+        parser_name="as_audiofloat32",
+        verbose=verbose
+    )
+
     
-def as_audiofloat64(data: pl.DataFrame, col: str) -> List[np.ndarray]:
-    ...
+def as_audiofloat64(
+        partition_idx: int,
+        partition_data_group: h5py.Group,
+        partition_field_name: str,
+        data_frame: pl.DataFrame,
+        data_column_name: str,
+        data_start_idx: int,
+        data_end_idx: int,
+        verbose: bool = False
+) -> List[np.ndarray]:
+    return _as_audiodtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        dtype=np.float64,
+        parser_name="as_audiofloat64",
+        verbose=verbose
+    )
 
 
 def as_float32(
@@ -145,4 +215,3 @@ def as_float64(
     verbose: bool = False
 ) -> None:
     ...
-

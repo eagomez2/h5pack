@@ -16,7 +16,7 @@ def validate_attrs(data: dict) -> None:
                 f"'{v.__class__.__name__}'"
             )
 
-def validate_file_as_audiofloat32(
+def _validate_file_as_audiodtype(
         df: pl.DataFrame,
         col: str,
         verbose: bool = False
@@ -53,6 +53,25 @@ def validate_file_as_audiofloat32(
             )
 
 
-def validate_file_as_audiofloat64() -> bool:
-    ...
+def validate_file_as_audioint16(
+        df: pl.DataFrame,
+        col: str,
+        verbose: bool = False     
+) -> None:
+    return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
 
+
+def validate_file_as_audiofloat32(
+        df: pl.DataFrame,
+        col: str,
+        verbose: bool = False     
+) -> None:
+    return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
+
+
+def validate_file_as_audiofloat64(
+        df: pl.DataFrame,
+        col:str,
+        verbose: bool = False
+) -> None:
+    return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)

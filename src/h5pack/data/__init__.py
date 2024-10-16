@@ -12,12 +12,14 @@ from .extractors import (
 )
 
 from .parsers import (
+    as_audioint16,
     as_audiofloat32,
     as_audiofloat64,
     as_float32
 )
 
 from .validators import (
+    validate_file_as_audioint16,
     validate_file_as_audiofloat32,
     validate_file_as_audiofloat64
 )
@@ -28,6 +30,7 @@ import polars as pl
 def get_parsers_map() -> dict:
     return {
         pl.String: {
+            "as_audioint16": as_audioint16,
             "as_audiofloat32": as_audiofloat32,
             "as_audiofloat64": as_audiofloat64
         },
@@ -49,6 +52,7 @@ def get_extractors_map() -> dict:
 
 def get_validators_map() -> dict:
     return {
+        "as_audioint16": [validate_file_as_audioint16],
         "as_audiofloat32": [validate_file_as_audiofloat32],
         "as_audiofloat64": [validate_file_as_audiofloat64]
     }
