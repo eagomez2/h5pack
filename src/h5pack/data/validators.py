@@ -29,6 +29,7 @@ def validate_file_as_audiofloat32(
         files,
         desc=f"Validating '{col}'",
         leave=False,
+        colour="green",
         unit="row",
         disable=not verbose
     ):

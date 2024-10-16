@@ -2,6 +2,7 @@ import os
 import h5py
 import polars as pl
 import numpy as np
+import multiprocessing as mp
 from typing import (
     List,
     Optional
@@ -49,14 +50,6 @@ def as_audiofloat32(
             shape=(len(files), num_samples),
             dtype=np.float32
         )
-        dataset.attrs["parser"] = "as_audiofloat32"
-        dataset.attrs["sample_rate"] = str(fs)
-
-        filenames_dataset = partition_data_group.create_dataset(
-            name=f"{partition_field_name}_filenames",
-            shape=(len(files),),
-            dtype=h5py.string_dtype()
-        )
     
     else:
         dataset = partition_data_group.create_dataset(
@@ -64,6 +57,15 @@ def as_audiofloat32(
             shape=(len(files),),
             dtype=h5py.vlen_dtype(np.dtype(np.float32))
         )
+    
+    dataset.attrs["parser"] = "as_audiofloat32"
+    dataset.attrs["sample_rate"] = str(fs)
+
+    filenames_dataset = partition_data_group.create_dataset(
+        name=f"{partition_field_name}_filenames",
+        shape=(len(files),),
+        dtype=h5py.string_dtype()
+    )
 
     for idx, file in enumerate(
         tqdm(
@@ -74,11 +76,18 @@ def as_audiofloat32(
             ),
             colour="green",
             leave=False,
+            position=0 if mp.current_process().name == "MainProcess" else partition_idx,
             disable=not verbose
         )
     ):
         data, _ = read_audio(file, dtype=np.float32)
-        dataset[idx, :] = data
+
+        if vlen:
+            dataset[idx] = data
+        
+        else:
+            dataset[idx, :] = data
+
         filenames_dataset[idx] = os.path.basename(file)
 
     
