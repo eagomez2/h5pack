@@ -446,7 +446,13 @@ def cmd_create(args: Namespace) -> None:
         )
 
         with open(checksum_filename, "w") as f:
-            for partition_filename in partition_filenames:
+            for partition_filename in tqdm(
+                partition_filenames,
+                desc="Computing checksum",
+                colour="green",
+                leave=False,
+                unit="file"
+            ):
                 partition_file = os.path.join(root_dir, partition_filename)
                 partition_file_sha256 = get_file_checksum(file=partition_file)
                 f.write(
@@ -588,6 +594,8 @@ def cmd_checksum(args: Namespace) -> None:
         print(f"Using root folder '{root_dir}'")
 
     # Read lines and check they contain only two elements
+    start_time = perf_counter()
+
     with open(args.input, "r") as f:
         for line in f:
             h5_filename, saved_checksum = line.split("\t")
@@ -611,6 +619,12 @@ def cmd_checksum(args: Namespace) -> None:
                     f" - Saved checksum: {saved_checksum}\n"
                     f" - Computed checksum: {checksum}"
                 )
+    
+    end_time = perf_counter()
+
+    if args.verbose:
+        elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
+        print(f"Checksum verification completed in {elapsed_time_repr}")
 
 
 def cmd_info(args: Namespace) -> None:

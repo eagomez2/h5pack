@@ -1,4 +1,3 @@
-import os
 import h5py
 import polars as pl
 import numpy as np
@@ -62,7 +61,7 @@ def as_audiofloat32(
     dataset.attrs["sample_rate"] = str(fs)
 
     filenames_dataset = partition_data_group.create_dataset(
-        name=f"{partition_field_name}_filenames",
+        name=f"{partition_field_name}_filepaths",
         shape=(len(files),),
         dtype=h5py.string_dtype()
     )
@@ -76,7 +75,10 @@ def as_audiofloat32(
             ),
             colour="green",
             leave=False,
-            position=0 if mp.current_process().name == "MainProcess" else partition_idx,
+            position=(
+                0 if mp.current_process().name == "MainProcess"
+                else partition_idx
+            ),
             disable=not verbose
         )
     ):

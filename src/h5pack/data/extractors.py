@@ -13,7 +13,7 @@ def from_audiofloat32(
         verbose: bool = False
 ) -> None:
     os.makedirs(output_dir, exist_ok=True)
-    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filenames"]]
+    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
     fs = attrs["sample_rate"]
 
     if data[field_name].ndim == 2:
@@ -25,6 +25,10 @@ def from_audiofloat32(
             leave=False,
             disable=not verbose
         ):
+            os.makedirs(
+                os.path.join(output_dir, os.path.dirname(filename)),
+                exist_ok=True
+            )
             audio = data[field_name][row_idx, :]
             write_audio(
                 audio,
@@ -33,7 +37,24 @@ def from_audiofloat32(
             )
     
     elif data[field_name].ndim == 1:  # vlen
-        raise NotImplementedError
+        for row_idx, filename in tqdm(
+            zip(range(data[field_name].shape[0]), filenames),
+            total=len(filenames),
+            desc=f"Extracting '{field_name}'",
+            colour="green",
+            leave=False,
+            disable=not verbose
+        ):
+            os.makedirs(
+                os.path.join(output_dir, os.path.dirname(filename)),
+                exist_ok=True
+            )
+            audio = data[field_name][row_idx]
+            write_audio(
+                audio,
+                file=os.path.join(output_dir, filename),
+                fs=int(fs)
+            ) 
 
 
 def from_float32(
