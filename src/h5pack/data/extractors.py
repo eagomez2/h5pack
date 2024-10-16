@@ -5,7 +5,7 @@ from tqdm import tqdm
 from ..core.io import write_audio
 
 
-def from_audiofloat32(
+def _from_audiodtype(
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -57,7 +57,55 @@ def from_audiofloat32(
             ) 
 
 
-def from_float32(
+def from_audioint16(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    return _from_audiodtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def from_audiofloat32(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    return _from_audiodtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def from_audiofloat64(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    return _from_audiodtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def _from_dtype(
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -67,3 +115,35 @@ def from_float32(
     os.makedirs(output_dir, exist_ok=True)
     df = pl.DataFrame({field_name: list(data[field_name])})
     df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+
+
+def from_float32(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    return _from_dtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def from_float64(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    return _from_dtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
