@@ -167,12 +167,14 @@ def as_audiofloat64(
     )
 
 
-def as_float32(
+def _as_dtype(
     partition_idx: int,
     partition_data_group: h5py.Group,
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
+    dtype: np.dtype,
+    parser_name: str,
     data_start_idx: Optional[int] = None,
     data_end_idx: Optional[int] = None,
     verbose: bool = False
@@ -185,9 +187,9 @@ def as_float32(
     dataset = partition_data_group.create_dataset(
         name=partition_field_name,
         shape=(len(metrics),),
-        dtype=np.float32
+        dtype=dtype
     )
-    dataset.attrs["parser"] = "as_float32"
+    dataset.attrs["parser"] = parser_name
 
     for idx, metric in enumerate(
         tqdm(
@@ -204,6 +206,30 @@ def as_float32(
         dataset[idx] = metric
 
 
+def as_float32(
+        partition_idx: int,
+        partition_data_group: h5py.Group,
+        partition_field_name: str,
+        data_frame: pl.DataFrame,
+        data_column_name: str,
+        data_start_idx: Optional[int] = None,
+        data_end_idx: Optional[int] = None,
+        verbose: bool = False
+) -> None:
+    _as_dtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        dtype=np.float32,
+        parser_name="as_float32",
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        verbose=verbose
+    )
+
+
 def as_float64(
     partition_idx: int,
     partition_data_group: h5py.Group,
@@ -214,4 +240,15 @@ def as_float64(
     data_end_idx: Optional[int] = None,
     verbose: bool = False
 ) -> None:
-    ...
+    _as_dtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        dtype=np.float64,
+        parser_name="as_float64",
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        verbose=verbose
+    )
