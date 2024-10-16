@@ -88,7 +88,7 @@ def as_audiofloat32(
         else:
             dataset[idx, :] = data
 
-        filenames_dataset[idx] = os.path.basename(file)
+        filenames_dataset[idx] = file
 
     
 def as_audiofloat64(data: pl.DataFrame, col: str) -> List[np.ndarray]:

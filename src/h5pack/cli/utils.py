@@ -34,6 +34,7 @@ from ..core.utils import (
 from ..core.io import (
     add_extension,
     add_suffix,
+    change_extension,
     get_dir_files
 )
 from ..data import (
@@ -429,7 +430,7 @@ def cmd_create(args: Namespace) -> None:
         print(f"Virtual dataset saved to '{virtual_dataset_filename}'")
     
     else:
-        if args.verbose:
+        if args.verbose and args.partitions > 1:
             print_warning(
                 "Skipping virtual layout generation (--skip-virtual enabled)"
             )
@@ -439,9 +440,9 @@ def cmd_create(args: Namespace) -> None:
         if args.verbose:
             print("Creating checksum file ...")
         
-        checksum_filename = add_extension(
-            args.checksum_filename,
-            ext=".sha256"
+        checksum_filename = change_extension(
+            args.output,
+            new_ext=".sha256"
         )
 
         with open(checksum_filename, "w") as f:

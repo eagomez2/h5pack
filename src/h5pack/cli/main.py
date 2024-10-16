@@ -61,12 +61,6 @@ def get_parser() -> argparse.ArgumentParser:
         help="skip generating the checksum file"
     )
     create_parser.add_argument(
-        "--checksum-filename",
-        type=str,
-        default="checksum.sha256",
-        help="default checksum filename"
-    )
-    create_parser.add_argument(
         "-w", "--workers",
         type=int,
         default=0,
