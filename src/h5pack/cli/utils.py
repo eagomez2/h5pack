@@ -6,6 +6,7 @@ import polars as pl
 from tqdm import tqdm
 from typing import (
     List,
+    Optional,
     Tuple
 )
 from time import perf_counter
@@ -113,6 +114,7 @@ def are_partitions_compatible(
 def create_virtual_dataset_from_partitions(
         file: str,
         partitions: List[str],
+        attrs: Optional[dict] = None,
         verbose: bool = False
 ) -> None:
     # Check all partition files exist
@@ -211,6 +213,11 @@ def create_virtual_dataset_from_partitions(
         # Add root attrs and ovewrite whenever necessary
         for k, v in partition_specs[0]["attrs"].items():
             h5_file.attrs[k] = v
+        
+        # For user provided attrs with --attrs argument in h5pack virtual        
+        if attrs is not None:
+            for k, v in attrs.items():
+                h5_file.attrs[k] = v
 
         h5_file.attrs["creation_date"] = (
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -469,12 +476,17 @@ def cmd_create(args: Namespace) -> None:
 def cmd_virtual(args: Namespace) -> None:
     # All input file candidates
     h5_files = []
+    
+    root_attrs = None
 
-    if args.attrs is not None and len(args.attrs) % 2 == 0:
-        exit_error(
-            "--attrs should be an even number of items where each odd item "
-            "represents a key and each even item represents its value"
-        )
+    if args.attrs is not None:
+        if len(args.attrs) % 2 == 0:
+            exit_error(
+                "--attrs should be an even number of items where each odd item"
+                " represents a key and each even item represents its value"
+            )
+    
+        root_attrs = dict_from_interleaved_list(args.attrs)
 
     if args.verbose:
         print("Collecting input files ...")
@@ -558,6 +570,7 @@ def cmd_virtual(args: Namespace) -> None:
     create_virtual_dataset_from_partitions(
         file=add_extension(args.output, ext=".h5"),
         partitions=h5_files,
+        attrs=root_attrs,
         verbose=args.verbose
     )
     print(f"Virtual dataset saved to '{os.path.basename(output_file)}'")
