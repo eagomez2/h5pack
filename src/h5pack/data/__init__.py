@@ -31,10 +31,12 @@ def get_parsers_map() -> dict:
             "as_audiofloat64": as_audiofloat64
         },
         pl.Float32: {
-            "as_float32": as_float32
+            "as_float32": as_float32,
+            "as_float64": as_float64
         },
         pl.Float64: {
-            "as_float32": as_float64
+            "as_float32": as_float32,
+            "as_float64": as_float64
         }
     }
 
