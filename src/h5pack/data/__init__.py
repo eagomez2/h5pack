@@ -3,7 +3,8 @@ from .extractors import (
     from_audiofloat32,
     from_audiofloat64,
     from_float32,
-    from_float64
+    from_float64,
+    from_utf8_str
 )
 
 from .parsers import (
@@ -11,7 +12,8 @@ from .parsers import (
     as_audiofloat32,
     as_audiofloat64,
     as_float32,
-    as_float64
+    as_float64,
+    as_utf8_str
 )
 
 from .validators import (
@@ -28,7 +30,8 @@ def get_parsers_map() -> dict:
         pl.String: {
             "as_audioint16": as_audioint16,
             "as_audiofloat32": as_audiofloat32,
-            "as_audiofloat64": as_audiofloat64
+            "as_audiofloat64": as_audiofloat64,
+            "as_utf8_str": as_utf8_str,
         },
         pl.Float32: {
             "as_float32": as_float32,
@@ -47,7 +50,8 @@ def get_extractors_map() -> dict:
         "as_audiofloat32": from_audiofloat32,
         "as_audiofloat64": from_audiofloat64,
         "as_float32": from_float32,
-        "as_float64": from_float64
+        "as_float64": from_float64,
+        "as_utf8_str": from_utf8_str,
     }
 
 

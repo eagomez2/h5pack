@@ -252,3 +252,40 @@ def as_float64(
         data_end_idx=data_end_idx,
         verbose=verbose
     )
+
+
+def as_utf8_str(
+    partition_idx: int,
+    partition_data_group: h5py.Group,
+    partition_field_name: str,
+    data_frame: pl.DataFrame,
+    data_column_name: str,
+    data_start_idx: Optional[int] = None,
+    data_end_idx: Optional[int] = None,
+    verbose: bool = False
+) -> None:
+    values = (
+        data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
+    )
+
+    # Add group data
+    dataset = partition_data_group.create_dataset(
+        name=partition_field_name,
+        shape=((len(values),)),
+        dtype=h5py.string_dtype(encoding="utf-8")
+    )
+    dataset.attrs["parser"] = "as_utf8_str"
+
+    for idx, value in enumerate(
+        tqdm(
+            values, 
+            desc=(
+                f"Writing '{partition_field_name}' in partition "
+                f"#{partition_idx}"
+            ),
+            colour="green",
+            leave=False,
+            disable=not verbose
+        )
+    ):
+        dataset[idx] = value

@@ -147,3 +147,19 @@ def from_float64(
         attrs=attrs,
         verbose=verbose
     )
+
+
+def from_utf8_str(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    os.makedirs(output_dir, exist_ok=True)
+    decoded_data = [
+        i.decode("utf-8") if isinstance(i, bytes)
+        else i for i in data[field_name]
+    ]
+    df = pl.DataFrame({field_name: decoded_data})
+    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
