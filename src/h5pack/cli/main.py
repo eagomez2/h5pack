@@ -45,6 +45,11 @@ def get_parser() -> argparse.ArgumentParser:
         help="number of partitions to generate"
     )
     create_parser.add_argument(
+        "-d", "--dataset",
+        type=str,
+        help="dataset name if .json configuration contains many"
+    )
+    create_parser.add_argument(
         "--skip-validation",
         action="store_true",
         help="skip validating files before generating the partition(s)"

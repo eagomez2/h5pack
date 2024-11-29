@@ -50,6 +50,7 @@ def has_ext_or_error(file: str, ext: Union[str, List[str]]) -> None:
             extensions.
     """
     if not has_ext(file, ext=ext):
+        ext = [ext] if not isinstance(ext, list) else ext
         ext_repr = ", ".join([f"'{e}'" for e in ext])
 
         raise FileExtensionError(

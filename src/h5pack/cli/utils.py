@@ -250,7 +250,25 @@ def cmd_create(args: Namespace) -> None:
         
     except Exception as e:
         exit_error(f"Input file could not be parsed: {e}")
-
+    
+    # Get dataset
+    if "datasets" in specs:
+        if args.dataset is None:
+            exit_error(
+                "Configuration file contains multiple datasets. Specify "
+                "-d/--dataset with the target dataset name"
+            )
+        
+        elif args.dataset not in specs["datasets"]:
+            datasets_repr = ", ".join(f"'{d}'" for d in specs["datasets"])
+            exit_error(
+                f"Invalid dataset '{args.dataset}'. Current configuration file"
+                f" contains the following datasets: {datasets_repr}"
+            )
+        
+        else:
+            specs = specs["datasets"][args.dataset]
+        
     # Validate attrs key
     root_attrs = specs.get("attrs", None)
 
