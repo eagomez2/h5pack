@@ -6,7 +6,7 @@ Utility to create and expand `.h5` audio datasets.
 datasets:
   first_example_dataset:
     attrs:
-      author: &autor_name "Esteban Gómez"
+      author: &author_name "Esteban Gómez"
       description: "First dataset description"
       version: &version "0.0.1"
 
@@ -19,7 +19,7 @@ datasets:
   
   second_example_dataset:
     attrs:
-      author: *author_name*
+      author: *author_name
       description: "Second dataset description"
       version: *version
     
