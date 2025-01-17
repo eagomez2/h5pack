@@ -1,5 +1,5 @@
 import os
-import json
+import yaml
 import h5py
 import fnmatch
 import polars as pl
@@ -231,7 +231,7 @@ def create_virtual_dataset_from_partitions(
 
 def cmd_create(args: Namespace) -> None:
     # Check specs file exist
-    if not is_file_with_ext(args.input, ext=".json"):
+    if not is_file_with_ext(args.input, ext=[".yaml", ".yml"]):
         exit_error(f"Input file '{args.input}' not found")
     
     # Infer root based on input file
@@ -246,7 +246,7 @@ def cmd_create(args: Namespace) -> None:
     
     try:
         with open(args.input, "r") as f:
-            specs = json.load(f)
+            specs = yaml.safe_load(f)
         
     except Exception as e:
         exit_error(f"Input file could not be parsed: {e}")

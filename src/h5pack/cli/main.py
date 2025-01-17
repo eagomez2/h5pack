@@ -30,7 +30,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-i", "--input",
         type=str,
         required=True,
-        help=".json configuration file containing dataset specifications"
+        help=".yaml configuration file containing dataset specifications"
     )
     create_parser.add_argument(
         "-o", "--output",

@@ -209,8 +209,11 @@ def total_to_list_slices(total: int, slices: int) -> List[Tuple[int, int]]:
 
     for idx in range(slices):
         start_idx = idx * size
-        end_idx = min((idx + 1) * size, slices * size + remainder)
-        idx_slices.append((start_idx, end_idx)) 
+        end_idx = (
+            start_idx + size + remainder if idx + 1 == slices
+            else start_idx + size
+        )
+        idx_slices.append((start_idx, end_idx))
     
     return idx_slices
 
