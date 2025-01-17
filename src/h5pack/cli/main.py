@@ -1,5 +1,6 @@
 import sys
 import argparse
+from datetime import datetime
 from h5pack import __version__
 from .utils import (
     cmd_checksum,
@@ -208,7 +209,10 @@ def main() -> int:
     if (len(sys.argv) == 1
             or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
     ):
-        print(f"h5pack version {__version__} developed by Esteban Gómez")
+        print(
+            f"h5pack version {__version__} 2024-{datetime.now().year} "
+            "developed by Esteban Gómez"
+        )
         sys.exit(0)
     
     parser = get_parser()
