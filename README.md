@@ -35,5 +35,5 @@ datasets:
 - `data` needs a `.csv` in the `file` key and every field in `fields` needs a `column` and a `parser` description.
 - Multiple datasets can be added in a single file under the `datasets` key.
 
-## Copyight
+## Copyright
 Created by Esteban Gómez.
