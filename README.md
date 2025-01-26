@@ -24,6 +24,7 @@ datasets:
       version: *version
     
     data:
+      file: "second_dataset.csv"
       fields:
         audio:
           column: "file"
