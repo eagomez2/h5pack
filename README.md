@@ -36,4 +36,4 @@ datasets:
 - Multiple datasets can be added in a single file under the `datasets` key.
 
 ## Copyright
-Created by Esteban Gómez.
+Created by Esteban Gómez (esteban.gomezmellado@aalto.fi).

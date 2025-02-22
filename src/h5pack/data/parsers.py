@@ -206,6 +206,30 @@ def _as_dtype(
         dataset[idx] = metric
 
 
+def as_int16(
+        partition_idx: int,
+        partition_data_group: h5py.Group,
+        partition_field_name: str,
+        data_frame: pl.DataFrame,
+        data_column_name: str,
+        data_start_idx: Optional[int] = None,
+        data_end_idx: Optional[int] = None,
+        verbose: bool = False
+) -> None:
+    _as_dtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        dtype=np.int16,
+        parser_name="as_int16",
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        verbose=verbose
+    )
+
+
 def as_float32(
         partition_idx: int,
         partition_data_group: h5py.Group,

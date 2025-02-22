@@ -11,6 +11,7 @@ from .parsers import (
     as_audioint16,
     as_audiofloat32,
     as_audiofloat64,
+    as_int16,
     as_float32,
     as_float64,
     as_utf8_str
@@ -33,6 +34,9 @@ def get_parsers_map() -> dict:
             "as_audiofloat64": as_audiofloat64,
             "as_utf8_str": as_utf8_str,
         },
+        pl.Int64: {
+            "as_int16": as_int16
+        },
         pl.Float32: {
             "as_float32": as_float32,
             "as_float64": as_float64
@@ -40,7 +44,7 @@ def get_parsers_map() -> dict:
         pl.Float64: {
             "as_float32": as_float32,
             "as_float64": as_float64
-        }
+        },
     }
 
 
