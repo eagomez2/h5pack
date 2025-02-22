@@ -2,6 +2,7 @@ from .extractors import (
     from_audioint16,
     from_audiofloat32,
     from_audiofloat64,
+    from_int16,
     from_float32,
     from_float64,
     from_utf8_str
@@ -53,6 +54,7 @@ def get_extractors_map() -> dict:
         "as_audioint16": from_audioint16,
         "as_audiofloat32": from_audiofloat32,
         "as_audiofloat64": from_audiofloat64,
+        "as_int16": from_int16,
         "as_float32": from_float32,
         "as_float64": from_float64,
         "as_utf8_str": from_utf8_str,
