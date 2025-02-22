@@ -1,3 +1,4 @@
+import polars as pl
 from .extractors import (
     from_audioint16,
     from_audiofloat32,
@@ -7,7 +8,6 @@ from .extractors import (
     from_float64,
     from_utf8_str
 )
-
 from .parsers import (
     as_audioint16,
     as_audiofloat32,
@@ -17,14 +17,11 @@ from .parsers import (
     as_float64,
     as_utf8_str
 )
-
 from .validators import (
     validate_file_as_audioint16,
     validate_file_as_audiofloat32,
     validate_file_as_audiofloat64
 )
-
-import polars as pl
 
 
 def get_parsers_map() -> dict:
@@ -33,9 +30,18 @@ def get_parsers_map() -> dict:
             "as_audioint16": as_audioint16,
             "as_audiofloat32": as_audiofloat32,
             "as_audiofloat64": as_audiofloat64,
-            "as_utf8_str": as_utf8_str,
+            "as_utf8_str": as_utf8_str
+        },
+        pl.Int16: {
+            "as_int16": as_int16
+        },
+        pl.Int32: {
+            "as_int16": as_int16
         },
         pl.Int64: {
+            "as_int16": as_int16
+        },
+        pl.Int128: {
             "as_int16": as_int16
         },
         pl.Float32: {
@@ -45,7 +51,7 @@ def get_parsers_map() -> dict:
         pl.Float64: {
             "as_float32": as_float32,
             "as_float64": as_float64
-        },
+        }
     }
 
 
@@ -57,7 +63,7 @@ def get_extractors_map() -> dict:
         "as_int16": from_int16,
         "as_float32": from_float32,
         "as_float64": from_float64,
-        "as_utf8_str": from_utf8_str,
+        "as_utf8_str": from_utf8_str
     }
 
 
