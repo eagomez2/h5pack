@@ -39,7 +39,7 @@ datasets:
 If this package contributed to your work, please consider citing it:
 
 ```
-@misc{moduleprofiler,
+@misc{h5pack,
   author = {Esteban Gómez},
   title  = {h5pack},
   year   = 2024,
