@@ -1,5 +1,8 @@
+from typing import List
+
+
 class __Singleton__(type):
-    """A singleton class to be used as ``metaclass``. """
+    """A singleton class to be used as `metaclass`."""
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
@@ -57,6 +60,15 @@ class __Config__(metaclass=__Singleton__):
 
         self._DEFAULT_AUDIO_IO_DTYPE = "float32"
         self._DEFAULT_AUDIO_SUBTYPE = "FLOAT"
+        self._ALLOWED_AUDIO_EXTENSIONS = [
+            ".aif",
+            ".aiff",
+            ".mp3",
+            ".flac",
+            ".ogg",
+            ".wav",
+            ".wave"
+        ]
         self._SINGLE_PROCESS_PROGRESS_BAR_COLOR = "green"
         self._MULTI_PROCESS_PROGRESS_BAR_COLOR = "cyan"
 
@@ -86,3 +98,12 @@ def _get_sppbar_color() -> str:
         str: Single process progress bar color.
     """
     return __Config__()._SINGLE_PROCESS_PROGRESS_BAR_COLOR
+
+
+def get_allowed_audio_extensions() -> List[str]:
+    """Returns the list of allowed audio file extensions.
+    
+    Returns:
+        List[str]: List of allowed audio extensions.
+    """
+    return __Config__()._ALLOWED_AUDIO_EXTENSIONS

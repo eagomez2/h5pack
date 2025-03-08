@@ -231,10 +231,10 @@ def create_virtual_dataset_from_partitions(
 
 def cmd_create(args: Namespace) -> None:
     # Check specs file exist
-    if not is_file_with_ext(args.input, ext=[".yaml", ".yml"]):
-        exit_error(f"Input file '{args.input}' not found")
+    if not is_file_with_ext(args.input, ext=".yaml"):
+        exit_error(f"Invalid input file '{args.input}'")
     
-    # Infer root based on input file
+    # Infer root based on input .yaml file
     root_dir = os.path.dirname(os.path.abspath(args.input))
 
     if args.verbose:
@@ -251,25 +251,22 @@ def cmd_create(args: Namespace) -> None:
     except Exception as e:
         exit_error(f"Input file could not be parsed: {e}")
     
-    # Get dataset
-    if "datasets" in specs:
+    # Validate dataset key and get dataset specs
+    if "datasets" not in specs:
         if args.dataset is None:
-            exit_error(
-                "Configuration file contains multiple datasets. Specify "
-                "-d/--dataset with the target dataset name"
-            )
+            exit_error(f"Missing 'dataset' key in '{args.input}'")
         
-        elif args.dataset not in specs["datasets"]:
-            datasets_repr = ", ".join(f"'{d}'" for d in specs["datasets"])
-            exit_error(
-                f"Invalid dataset '{args.dataset}'. Current configuration file"
-                f" contains the following datasets: {datasets_repr}"
-            )
+    elif args.dataset not in specs["datasets"]:
+        datasets_repr = ", ".join(f"'{d}'" for d in specs["datasets"])
+        exit_error(
+            f"Invalid dataset '{args.dataset}'. Current configuration file"
+            f" contains the following datasets: {datasets_repr}"
+        )
         
-        else:
-            specs = specs["datasets"][args.dataset]
+    else:
+        specs = specs["datasets"][args.dataset]
         
-    # Validate attrs key
+    # Validate attrs key (optional)
     root_attrs = specs.get("attrs", None)
 
     if root_attrs is not None:

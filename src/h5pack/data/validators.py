@@ -1,5 +1,6 @@
 import polars as pl
 from tqdm import tqdm
+from ..core.config import get_allowed_audio_extensions
 from ..core.guards import is_file_with_ext_or_error
 from ..core.io import read_audio_metadata
 from ..core.exceptions import (
@@ -9,6 +10,10 @@ from ..core.exceptions import (
 
 
 def validate_attrs(data: dict) -> None:
+    """Validate metadata attributes that will be written to the resulting `.h5`
+    files.
+        data (dict): Attributes to be written to the `.h5` file.
+    """
     for k, v in data.items():
         if not isinstance(v, str):
             raise TypeError(
@@ -21,6 +26,14 @@ def _validate_file_as_audiodtype(
         col: str,
         verbose: bool = False
 ) -> None:
+    """Generic validator of audio types.
+    
+    Args:
+        df (pl.DataFrame): `DataFrame` containing the data with the column with
+            audio file paths.
+        col (str): Column name.
+        verbose (bool): Enable verbose mode if `True`.
+    """
     # Get all files
     files = df[col].to_list()
     observed_fs = []
@@ -33,7 +46,7 @@ def _validate_file_as_audiodtype(
         unit="row",
         disable=not verbose
     ):
-        is_file_with_ext_or_error(file, ext=".wav")
+        is_file_with_ext_or_error(file, ext=get_allowed_audio_extensions())
         meta = read_audio_metadata(file)
 
         if meta["num_channels"] != 1:
