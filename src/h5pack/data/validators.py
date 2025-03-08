@@ -71,6 +71,7 @@ def validate_file_as_audioint16(
         col: str,
         verbose: bool = False     
 ) -> None:
+    """Alias of generic method to validate audio as `int16`."""
     return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
 
 
@@ -79,6 +80,7 @@ def validate_file_as_audiofloat32(
         col: str,
         verbose: bool = False     
 ) -> None:
+    """Alias of generic method to validate audio as `float32`."""
     return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
 
 
@@ -87,4 +89,5 @@ def validate_file_as_audiofloat64(
         col:str,
         verbose: bool = False
 ) -> None:
+    """Alias of generic method to validate audio as `float64`."""
     return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)

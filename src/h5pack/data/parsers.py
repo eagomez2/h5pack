@@ -25,6 +25,23 @@ def _as_audiodtype(
         parser_name: str,
         verbose: bool = False
 ) -> None:
+    """Parses audio file paths to extract audio data that will be written to
+    a `.h5`file.
+    
+    Args:
+        partition_idx (int): Partition index.
+        partition_data_group (h5py.Group): Data group where the audio data will
+            be written.
+        partition_field_name (str): Field name where the data will be stored.
+        data_frame (pl.DataFrame): `DataFrame` containing the list of audio
+            file paths.
+        data_column_name (str): Column name where the audio data is stored.
+        data_start_idx (int): Index of first row to parse.
+        data_end_idx (int): Index of last row to parse.
+        dtype (np.dtype): Data type used to read the audio data.
+        parser_name (str): Name of parser method.
+        verbose (bool): Enable verbose mode it `True`.
+    """
     # NOTE: Files are already validated at this point
     files = data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
 
@@ -42,6 +59,7 @@ def _as_audiodtype(
             vlen = True
             break
     
+    # NOTE: All audios have the same sample rate
     fs = read_audio_metadata(files[0])["fs"]
 
     # Add group data
@@ -105,6 +123,7 @@ def as_audioint16(
         data_end_idx: int,
         verbose: bool = False
 ) -> None:
+    """Alias of generic parser for audio data as `int16`."""
     return _as_audiodtype(
         partition_idx=partition_idx,
         partition_data_group=partition_data_group,
@@ -129,6 +148,7 @@ def as_audiofloat32(
         data_end_idx: int,
         verbose: bool = False
 ) -> None:
+    """Alias of generic parser for audio data as `float32`."""
     return _as_audiodtype(
         partition_idx=partition_idx,
         partition_data_group=partition_data_group,
@@ -153,6 +173,7 @@ def as_audiofloat64(
         data_end_idx: int,
         verbose: bool = False
 ) -> List[np.ndarray]:
+    """Alias of generic parser for audio data as `float64`."""
     return _as_audiodtype(
         partition_idx=partition_idx,
         partition_data_group=partition_data_group,
@@ -179,6 +200,23 @@ def _as_dtype(
     data_end_idx: Optional[int] = None,
     verbose: bool = False
 ) -> None:
+    """Parses columns having single objects data types such as a single `int16`
+    value or `str`.
+    
+    Args:
+        partition_idx (int): Partition index.
+        partition_data_group (h5py.Group): Data group where the audio data will
+            be written.
+        partition_field_name (str): Field name where the data will be stored.
+        data_frame (pl.DataFrame): `DataFrame` containing the list of audio
+            file paths.
+        data_column_name (str): Column name where the audio data is stored.
+        data_start_idx (int): Index of first row to parse.
+        data_end_idx (int): Index of last row to parse.
+        dtype (np.dtype): Data type used to read the audio data.
+        parser_name (str): Name of parser method.
+        verbose (bool): Enable verbose mode it `True`.
+    """
     metrics = (
         data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
     )
@@ -216,6 +254,7 @@ def as_int16(
         data_end_idx: Optional[int] = None,
         verbose: bool = False
 ) -> None:
+    """Alias of generic parser for single value data as `int16`."""
     _as_dtype(
         partition_idx=partition_idx,
         partition_data_group=partition_data_group,
@@ -240,6 +279,7 @@ def as_float32(
         data_end_idx: Optional[int] = None,
         verbose: bool = False
 ) -> None:
+    """Alias of generic parser for single value data as `float32`."""
     _as_dtype(
         partition_idx=partition_idx,
         partition_data_group=partition_data_group,
@@ -264,6 +304,7 @@ def as_float64(
     data_end_idx: Optional[int] = None,
     verbose: bool = False
 ) -> None:
+    """Alias of generic parser for single value data as `float64`."""
     _as_dtype(
         partition_idx=partition_idx,
         partition_data_group=partition_data_group,
@@ -288,6 +329,7 @@ def as_utf8_str(
     data_end_idx: Optional[int] = None,
     verbose: bool = False
 ) -> None:
+    """Alias of generic parser for single value data as `str`."""
     values = (
         data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
     )

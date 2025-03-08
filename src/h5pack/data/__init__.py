@@ -25,6 +25,12 @@ from .validators import (
 
 
 def get_parsers_map() -> dict:
+    """Mapping between parsers defined by the user and parser functions based
+    on `polars` data types used to read each column in the input `.csv` file.
+
+    Returns:
+        dict: Mapping `str` values and the corresponding parsers.
+    """
     return {
         pl.String: {
             "as_audioint16": as_audioint16,
@@ -56,6 +62,11 @@ def get_parsers_map() -> dict:
 
 
 def get_extractors_map() -> dict:
+    """Mapping between extractor identifiers and extractor methods.
+    
+    Returns:
+        dict: Mapping between extractor identifiers and extractor methods.
+    """
     return {
         "as_audioint16": from_audioint16,
         "as_audiofloat32": from_audiofloat32,
@@ -68,6 +79,13 @@ def get_extractors_map() -> dict:
 
 
 def get_validators_map() -> dict:
+    """Maping between validator identifiers and validator methods.
+    
+    Returns:
+        dict: Mapping between validator identifiers and validator methods.
+            Each method can be a `list` of one or more methods that are applied
+            in series.
+    """
     return {
         "as_audioint16": [validate_file_as_audioint16],
         "as_audiofloat32": [validate_file_as_audiofloat32],
