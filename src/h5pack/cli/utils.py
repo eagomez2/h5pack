@@ -345,7 +345,7 @@ def cmd_create(args: Namespace) -> None:
     else:
         if args.verbose:
             print_warning(
-               "Skipping data validation (--skip-validation enabled)"
+                "Skipping data validation (--skip-validation enabled)"
             )
         
     # Generate partition specs

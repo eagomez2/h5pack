@@ -48,7 +48,7 @@ def get_parser() -> argparse.ArgumentParser:
     create_parser.add_argument(
         "-d", "--dataset",
         type=str,
-        help="dataset name if .json configuration contains many"
+        help="dataset name if .yaml configuration contains many"
     )
     create_parser.add_argument(
         "--skip-validation",
