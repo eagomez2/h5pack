@@ -42,14 +42,15 @@ from ..data import (
     get_parsers_map,
     get_validators_map
 )
-from ..data.validators import validate_attrs
+from ..data.validators import validate_specs_file
 
 
 def create_partition_from_data(
         idx: int,
         data_specs: dict,
         data_df: pl.DataFrame,
-        args: Namespace
+        args: Namespace,
+        ctx: dict = {}
 ) -> Tuple[int, str]:
     # Create file
     h5_filename = add_extension(args.output, ext=".h5")
@@ -88,7 +89,9 @@ def create_partition_from_data(
             data_column_name=field_data["column"],
             data_start_idx=start_idx,
             data_end_idx=end_idx,
-            verbose=args.verbose
+            ctx=ctx,
+            verbose=args.verbose,
+            **field_data.get("parser_args", {})
         )
     
     h5_file.close()
@@ -230,86 +233,58 @@ def create_virtual_dataset_from_partitions(
 
 
 def cmd_create(args: Namespace) -> None:
+    """Creates a HDF5 dataset in one or multiple partitions given a set of user
+    input aguments.
+
+    Args:
+        args (Namespace): User input arguments provided through the console.
+    """
     # Check specs file exist
     if not is_file_with_ext(args.input, ext=".yaml"):
         exit_error(f"Invalid input file '{args.input}'")
     
-    # Infer root based on input .yaml file
-    root_dir = os.path.dirname(os.path.abspath(args.input))
+    # Infer root based on input .yaml file and add to parsing context
+    ctx = {
+        "root_dir": os.path.dirname(os.path.abspath(args.input))
+    }
 
     if args.verbose:
-        print(f"Using root folder '{root_dir}'")
+        print(f"Using root folder '{ctx['root_dir']}'")
 
     # Validate specs file
     if args.verbose:
         print(f"Validating input file '{args.input}' ...")
     
-    try:
-        with open(args.input, "r") as f:
-            specs = yaml.safe_load(f)
-        
-    except Exception as e:
-        exit_error(f"Input file could not be parsed: {e}")
-    
-    # Validate dataset key and get dataset specs
-    if "datasets" not in specs:
-        if args.dataset is None:
-            exit_error(f"Missing 'dataset' key in '{args.input}'")
-        
-    elif args.dataset not in specs["datasets"]:
-        datasets_repr = ", ".join(f"'{d}'" for d in specs["datasets"])
-        exit_error(
-            f"Invalid dataset '{args.dataset}'. Current configuration file"
-            f" contains the following datasets: {datasets_repr}"
-        )
-        
-    else:
-        specs = specs["datasets"][args.dataset]
-        
-    # Validate attrs key (optional)
-    root_attrs = specs.get("attrs", None)
-
-    if root_attrs is not None:
-        try:
-            validate_attrs(root_attrs)
-        
-        except TypeError as e:
-            exit_error(f"Input attributes error: {e}")
-    
-    # Validate data key
-    data = specs.get("data", None)
-
-    if data is None:
-        exit_error("Missing 'data' key in input file")
-    
-    for k in ("file", "fields"):
-        if k not in data:
-            exit_error(f"Missing '{k}' key in 'data'")
-
-    data_file = os.path.join(root_dir, data["file"])
-
-    if not is_file_with_ext(data_file, ext=".csv"):
-        exit_error(f"Data file '{data_file}' not found")
- 
-    for field_name, field_data in data["fields"].items():
-        # Check fields exist
-        for k in ("column", "parser"):
-            if k not in field_data:
-                exit_error(f"Missing '{k}' key in data field '{field_name}'")
+    specs = validate_specs_file(file=args.input, ctx=ctx)
     
     if args.verbose:
         print("Input file validation completed")
     
+    # Check if selected dataset exists
+    if args.dataset not in specs["datasets"]:
+        datasets_repr = ", ".join(f"'{d}'" for d in specs["datasets"] )
+        exit_error(
+            f"Dataset '{args.dataset}' not found in '{args.input}'. Available "
+            f"datasets: {datasets_repr}"
+        )
+    
     # Get input data
+    data_file = os.path.join(
+        ctx["root_dir"],
+        specs["datasets"][args.dataset]["data"]["file"]
+    )
     data_df = pl.read_csv(data_file, has_header=True)
+    data = specs["datasets"][args.dataset]["data"]
 
+    # Validate data fields
     if not args.skip_validation:
         if args.verbose:
             print("Validating input data ...")
 
         for field_name, field_data in data["fields"].items():
-            col_name = data["fields"][field_name]["column"]
-            parser_name = data["fields"][field_name]["parser"]
+            col_name = field_data["column"]
+            parser_name = field_data["parser"]
+            parser_args = field_data.get("parser_args", {})  # Optional
 
             if col_name not in data_df.columns:
                 exit_error(
@@ -329,8 +304,9 @@ def cmd_create(args: Namespace) -> None:
                         validator(
                             data_df,
                             col=col_name,
-                            ctx={"root_dir": root_dir},
-                            verbose=args.verbose
+                            ctx=ctx,
+                            verbose=args.verbose,
+                            **parser_args
                         )
                     
                     except Exception as e:
@@ -349,7 +325,7 @@ def cmd_create(args: Namespace) -> None:
             print_warning(
                 "Skipping data validation (--skip-validation enabled)"
             )
-        
+    
     # Generate partition specs
     if args.verbose:
         print(f"Generating {args.partitions} partition spec(s) ...")
@@ -379,12 +355,16 @@ def cmd_create(args: Namespace) -> None:
         print("Creating partitions ...")
     
     # Add root attrs
-    if root_attrs is not None:
-        data["attrs"] = root_attrs
-        data["attrs"]["producer"] = f"h5pack {__version__}"
-        data["attrs"]["creation_date"] = (
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        )
+    h5pack_attrs = {
+        "producer": f"h5pack {__version__}",
+        "creation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    if data.get("attrs", None) is not None:
+        data["attrs"].update(h5pack_attrs)
+    
+    else:
+        data["attrs"] = h5pack_attrs
     
     start_time = perf_counter()
     partition_filenames = []
@@ -395,7 +375,8 @@ def cmd_create(args: Namespace) -> None:
                 idx=partition_idx,
                 data_specs=data,
                 data_df=data_df,
-                args=args
+                args=args,
+                ctx=ctx
             )
             partition_filenames.append(filename)
 
@@ -418,7 +399,13 @@ def cmd_create(args: Namespace) -> None:
             jobs.append(
                 pool.apply_async(
                     create_partition_from_data,
-                    args=(partition_idx, data, data_df, args)
+                    args=(
+                        partition_idx,
+                        data,
+                        data_df,
+                        args,
+                        ctx
+                    )
                 )
             )
 
@@ -473,7 +460,10 @@ def cmd_create(args: Namespace) -> None:
                 leave=False,
                 unit="file"
             ):
-                partition_file = os.path.join(root_dir, partition_filename)
+                partition_file = os.path.join(
+                    ctx["root_dir"],
+                    partition_filename
+                )
                 partition_file_sha256 = get_file_checksum(file=partition_file)
                 f.write(
                     f"{os.path.basename(partition_filename)}"
@@ -482,7 +472,7 @@ def cmd_create(args: Namespace) -> None:
             
             if not args.skip_virtual and args.partitions > 1:
                 virtual_dataset_file = os.path.join(
-                    root_dir,
+                    ctx["root_dir"],
                     virtual_dataset_filename
                 )
                 virtual_dataset_file_sha256 = get_file_checksum(

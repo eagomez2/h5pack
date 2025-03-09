@@ -1,3 +1,4 @@
+import os
 import h5py
 import polars as pl
 import numpy as np
@@ -23,6 +24,7 @@ def _as_audiodtype(
         data_end_idx: int,
         dtype: np.dtype,
         parser_name: str,
+        ctx: dict = {},
         verbose: bool = False
 ) -> None:
     """Parses audio file paths to extract audio data that will be written to
@@ -40,16 +42,24 @@ def _as_audiodtype(
         data_end_idx (int): Index of last row to parse.
         dtype (np.dtype): Data type used to read the audio data.
         parser_name (str): Name of parser method.
+        ctx (dict): Dictionary containing context variables.
         verbose (bool): Enable verbose mode if `True`.
     """
     # NOTE: Files are already validated at this point
     files = data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
+    
+    # Prepend root from context if path is relative
+    files = [
+        f if os.path.isabs(f) else os.path.join(ctx["root_dir"], f)
+        for f in files
+    ]
 
     # Check if files are fixed length or vlen
     observed_lens = []
     vlen = False
 
-    for file in files:
+    for idx, file in enumerate(files):
+        # Get number of channels
         num_samples = read_audio_metadata(file)["num_samples_per_channel"]
 
         if num_samples not in observed_lens:
@@ -77,6 +87,7 @@ def _as_audiodtype(
             dtype=h5py.vlen_dtype(np.dtype(dtype))
         )
     
+    # Add auxiliary meta data for audio filemeta data for audio files
     dataset.attrs["parser"] = parser_name
     dataset.attrs["sample_rate"] = str(fs)
 
@@ -86,6 +97,7 @@ def _as_audiodtype(
         dtype=h5py.string_dtype()
     )
 
+    # Store audio data
     for idx, file in enumerate(
         tqdm(
             files,
@@ -121,6 +133,7 @@ def as_audioint16(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
+        ctx: dict = {},
         verbose: bool = False
 ) -> None:
     """Alias of generic parser for audio data as `int16`."""
@@ -134,6 +147,7 @@ def as_audioint16(
         data_end_idx=data_end_idx,
         dtype=np.int16,
         parser_name="as_audioint16",
+        ctx=ctx,
         verbose=verbose
     )
 
@@ -146,6 +160,7 @@ def as_audiofloat32(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
+        ctx: dict = {},
         verbose: bool = False
 ) -> None:
     """Alias of generic parser for audio data as `float32`."""
@@ -159,6 +174,7 @@ def as_audiofloat32(
         data_end_idx=data_end_idx,
         dtype=np.float32,
         parser_name="as_audiofloat32",
+        ctx=ctx,
         verbose=verbose
     )
 
@@ -171,6 +187,7 @@ def as_audiofloat64(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
+        ctx: dict = {}, 
         verbose: bool = False
 ) -> List[np.ndarray]:
     """Alias of generic parser for audio data as `float64`."""
@@ -184,6 +201,7 @@ def as_audiofloat64(
         data_end_idx=data_end_idx,
         dtype=np.float64,
         parser_name="as_audiofloat64",
+        ctx=ctx,
         verbose=verbose
     )
 
@@ -198,6 +216,7 @@ def _as_dtype(
     parser_name: str,
     data_start_idx: Optional[int] = None,
     data_end_idx: Optional[int] = None,
+    ctx: dict = {}, 
     verbose: bool = False
 ) -> None:
     """Parses columns having single objects data types such as a single `int16`
@@ -215,6 +234,7 @@ def _as_dtype(
         data_end_idx (int): Index of last row to parse.
         dtype (np.dtype): Data type used to read the audio data.
         parser_name (str): Name of parser method.
+        ctx (dict): Dictionary containing context variables.
         verbose (bool): Enable verbose mode it `True`.
     """
     metrics = (
@@ -252,6 +272,7 @@ def as_int16(
         data_column_name: str,
         data_start_idx: Optional[int] = None,
         data_end_idx: Optional[int] = None,
+        ctx: dict = {},
         verbose: bool = False
 ) -> None:
     """Alias of generic parser for single value data as `int16`."""
@@ -265,6 +286,7 @@ def as_int16(
         parser_name="as_int16",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
+        ctx=ctx,
         verbose=verbose
     )
 
@@ -277,6 +299,7 @@ def as_float32(
         data_column_name: str,
         data_start_idx: Optional[int] = None,
         data_end_idx: Optional[int] = None,
+        ctx: dict = {},
         verbose: bool = False
 ) -> None:
     """Alias of generic parser for single value data as `float32`."""
@@ -290,6 +313,7 @@ def as_float32(
         parser_name="as_float32",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
+        ctx=ctx,
         verbose=verbose
     )
 
@@ -302,6 +326,7 @@ def as_float64(
     data_column_name: str,
     data_start_idx: Optional[int] = None,
     data_end_idx: Optional[int] = None,
+    ctx: dict = {},
     verbose: bool = False
 ) -> None:
     """Alias of generic parser for single value data as `float64`."""
@@ -315,6 +340,7 @@ def as_float64(
         parser_name="as_float64",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
+        ctx=ctx,
         verbose=verbose
     )
 
@@ -327,6 +353,7 @@ def as_utf8_str(
     data_column_name: str,
     data_start_idx: Optional[int] = None,
     data_end_idx: Optional[int] = None,
+    ctx: dict = {},
     verbose: bool = False
 ) -> None:
     """Alias of generic parser for single value data as `str`."""

@@ -1,8 +1,13 @@
 import os
+import yaml
 import polars as pl
 from tqdm import tqdm
 from ..core.config import get_allowed_audio_extensions
-from ..core.guards import is_file_with_ext_or_error
+from ..core.display import exit_error
+from ..core.guards import (
+    is_file_with_ext,
+    is_file_with_ext_or_error
+)
 from ..core.io import read_audio_metadata
 from ..core.exceptions import (
     ChannelCountError,
@@ -10,17 +15,75 @@ from ..core.exceptions import (
 )
 
 
-def validate_attrs(data: dict) -> None:
-    """Validate metadata attributes that will be written to the resulting `.h5`
-    files.
-        data (dict): Attributes to be written to the `.h5` file.
+def validate_specs_file(file: str, ctx: dict) -> dict:
+    """Validate specification file in `.yaml format.
+    
+    Args:
+        file (str): Input `.yaml` file.
+        ctx (dict): Context.
+    
+    Returns:
+        (dict): Validate specs data.
     """
-    for k, v in data.items():
-        if not isinstance(v, str):
-            raise TypeError(
-                f"Only str keys are supported. Found key '{k}' of type "
-                f"'{v.__class__.__name__}'"
+    # Open .yaml file
+    try:
+        with open(file, "r") as f:
+            specs = yaml.safe_load(f)
+    
+    except Exception as e:
+        exit_error(f"Input file could not be parsed: {e}")
+    
+    # Check 'datasets' key exists (mandatory)
+    if "datasets" not in specs:
+        exit_error(f"Missing 'dataset' key in '{file}'")
+    
+    # Validate individual datasets
+    datasets = specs["datasets"]
+
+    for dataset_name, dataset_config in datasets.items():
+        # Validate attrs if any (attrs are optional)
+        if "attrs" in dataset_config:
+            for attr_name, attr_value in dataset_config["attrs"].items():
+                if not isinstance(attr_value, str):
+                    exit_error(
+                        "Attributes can only be of type str. Found key "
+                        f"'{attr_name}' of 'attrs' of dataset '{dataset_name}'"
+                        f" of type '{attr_value.__class__.__name__}'"
+                    )
+
+        if "file" not in dataset_config["data"]:
+            exit_error(f"Missing 'file' key in dataset '{dataset_name}'")
+        
+        # Use context root dir to validate data file
+        data_file = os.path.join(
+            ctx["root_dir"],
+            dataset_config["data"]["file"]
+        )
+
+        if not is_file_with_ext(data_file, ext=".csv"):
+            exit_error(
+                f"Invalid data file '{data_file}' in dataset "
+                f"'{dataset_name}'"
             )
+        
+        if "fields" not in dataset_config["data"]:
+            exit_error(f"Missing 'fields' key in dataset '{dataset_name}'")
+        
+        for field_name, field_data in dataset_config["data"]["fields"].items():
+            if "column" not in field_data:
+                exit_error(
+                    f"Missing 'column' key for field '{field_name}' in "
+                    f"dataset '{dataset_name}'"
+                )
+            
+            if "parser" not in field_data:
+                exit_error(
+                    f"Missing 'parser' key for field '{field_name}' in dataset"
+                    f"'{dataset_name}'"
+                )
+    
+    return specs
+
 
 def _validate_file_as_audiodtype(
         df: pl.DataFrame,
@@ -101,7 +164,8 @@ def validate_file_as_audiofloat32(
         df=df,
         col=col,
         ctx=ctx,
-        verbose=verbose)
+        verbose=verbose
+    )
 
 
 def validate_file_as_audiofloat64(
