@@ -16,6 +16,93 @@
 - `h5pack info`: Displays the contents of an HDF5 file generated with `h5pack`, providing a quick overview of its structure.
 - `h5pack checksum`: Verifies the integrity of an HDF5 file by checking its checksum to detect potential corruption.
 
+# Table of contents
+- [Installation](#installation)
+  - [Install through pip](#install-through-pip)
+  - [Install through uv](#install-through-uvx)
+  - [Install in developer mode](#install-in-developer-mode)
+- [Quickstart](#quickstart)
+- [Documentation](#documentation)
+- [Cite](#cite)
+- [License](#license)
+
+# Installation
+The following section shows different ways to install `h5pack`.
+
+## Install through `pip` 
+To install `h5pack`, run:
+```bash
+pip install h5pack
+```
+
+Verify the installation with:
+```bash
+h5pack --version
+```
+
+This should output:
+```bash
+h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez
+```
+Where:
+- `x.y.z` represents the major, minor, and patch version
+- `yyyy-zzzz` indicates the development start year and the current
+
+## Install through `uv`
+Alternatively, you can install the tool using `uv`. This is adequate for when you can to keep it isolated from your python environment setup and just run it to analyze a certain data collection.
+
+1. Install `uv` and `uvx` following the instructions for your operating system in [`uv` website](https://docs.astral.sh/uv/getting-started/installation/).
+2. Run:
+```bash
+uv tool install h5pack
+```
+
+3. Verify the installation with
+```bash
+uv tool run h5pack --version
+```
+
+or you can use the shortcut version `uvx`:
+
+```bash
+uvx h5pack --version
+```
+
+This should output:
+```bash
+h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez
+```
+Where:
+- `x.y.z` represents the major, minor, and patch version
+- `yyyy-zzzz` indicates the development start year and the current
+
+
+## Install in developer mode
+Developer mode installation is intended for those developing new features for the tool. To set it up:
+1. Clone the repository to your desired folder using:
+```bash
+git clone <repository_url>
+```
+2. Navigate to the root directory (where `pyproject.toml` is located):
+```bash
+cd <repository_folder>
+```
+3. Install in developer mode with:
+```bash
+python -m flit install -s
+```
+This will allow immediate reflection of any code modifications when the tool is executed in the terminal.
+
+Before proceeding, ensure that Flit is installed. If not, install it with:
+```bash
+python -m pip install flit
+```
+For more information on `flit`, refer to the [Flit Command Line Interface documentation](https://flit.pypa.io/en/stable/).
+
+# Quickstart
+
+# Documentation
+
 ## Example `.yaml` file
 ```yaml
 datasets:
