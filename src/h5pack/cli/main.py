@@ -237,7 +237,3 @@ def main() -> int:
     
     else:
         raise AssertionError
-
-
-if __name__ == "__main__":
-    main()
