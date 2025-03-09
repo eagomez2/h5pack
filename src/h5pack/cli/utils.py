@@ -685,7 +685,6 @@ def cmd_info(args: Namespace) -> None:
     print("Input file:".ljust(top_ljust) +  f"'{args.input}'")
     print("Checksum:".ljust(top_ljust) +  f"{checksum}")
 
-    # Open file
     with h5py.File(args.input, "r") as h5_file:
         # Check if producer is .h5, otherwise file will not be correctly parsed
         if not h5_file.attrs.get("producer", "").startswith("h5pack"):
@@ -732,6 +731,15 @@ def cmd_extract(args: Namespace) -> None:
     # Check file exists
     if not is_file_with_ext(args.input, ext=".h5"):
         exit_error(f"Invalid input file '{args.input}'")
+    
+    with h5py.File(args.input, mode="r") as h5_file:
+        # Check if producer is .h5, otherwise file will not be correctly parsed
+        if not h5_file.attrs.get("producer", "").startswith("h5pack"):
+            exit_error(
+                "This file was not created using h5pack, so it may not be "
+                "formatted as expected and cannot be reliably parsed by this "
+                "tool"
+            )
 
     # Generate output folder
     if not os.path.isdir(args.output):
@@ -740,6 +748,7 @@ def cmd_extract(args: Namespace) -> None:
 
         os.makedirs(args.output, exist_ok=True)
     
+    # Perform extraction
     checksum = get_file_checksum(args.input, hash="sha256")
     print(f"Extracting '{args.output}' ({checksum}) ...")
 
