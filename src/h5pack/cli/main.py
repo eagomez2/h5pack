@@ -122,13 +122,13 @@ def get_parser() -> argparse.ArgumentParser:
         "-s", "--select",
         type=str,
         metavar="PATTERN",
-        help="select pattern to filter out non-matching elements from --input"
+        help="select pattern include matching elements from --input"
     )
     virtual_pattr_parser.add_argument(
-        "-e", "--exclude",
+        "-f", "--filter",
         type=str,
         metavar="PATTERN",
-        help="exclude pattern to filter out matching elements from --input"
+        help="filter pattern to remove matching elements from --input"
     )
     virtual_parser.add_argument(
         "-u", "--unattended",

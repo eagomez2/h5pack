@@ -1,5 +1,4 @@
 import os
-import yaml
 import h5py
 import fnmatch
 import polars as pl
@@ -494,6 +493,7 @@ def cmd_virtual(args: Namespace) -> None:
     # All input file candidates
     h5_files = []
     
+    # Process user provided attributes
     root_attrs = None
 
     if args.attrs is not None:
@@ -532,7 +532,7 @@ def cmd_virtual(args: Namespace) -> None:
     # Apply exclude/match patterns
     if args.select is not None:
         if args.verbose:
-            print(f"Applying --select filter '{args.select}' ...")
+            print(f"Applying --select pattern '{args.select}' ...")
         
         selected_files = []
 
@@ -548,17 +548,17 @@ def cmd_virtual(args: Namespace) -> None:
                 "--select filter"
             )
     
-    if args.exclude is not None:
+    if args.filter is not None:
         if args.verbose:
-            print(f"Applying --exclude filter '{args.exclude}' ...")
+            print(f"Applying --filter pattern '{args.filter}' ...")
 
-        excluded_files = []
+        filtered_files = []
 
         for f in h5_files:
-            if fnmatch.fnmatch(f, args.exclude):
-                excluded_files.append(f)
+            if fnmatch.fnmatch(f, args.filter):
+                filtered_files.append(f)
         
-        h5_files = [f for f in h5_files if f not in excluded_files]
+        h5_files = [f for f in h5_files if f not in filtered_files]
 
         if args.verbose:
             print(

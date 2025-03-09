@@ -1,5 +1,5 @@
 # h5pack
-Utility to create and expand `.h5` audio datasets.
+Utility to create, analyze and expand `.h5` audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file.
 
 ## Example `.yaml` file
 ```yaml
