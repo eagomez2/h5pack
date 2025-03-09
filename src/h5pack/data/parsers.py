@@ -40,7 +40,7 @@ def _as_audiodtype(
         data_end_idx (int): Index of last row to parse.
         dtype (np.dtype): Data type used to read the audio data.
         parser_name (str): Name of parser method.
-        verbose (bool): Enable verbose mode it `True`.
+        verbose (bool): Enable verbose mode if `True`.
     """
     # NOTE: Files are already validated at this point
     files = data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]

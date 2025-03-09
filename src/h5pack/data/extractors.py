@@ -12,11 +12,23 @@ def _from_audiodtype(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Extracts audio of any data type and renders it to a folder.
+    
+    Args:
+        output_dir (str): Output folder.
+        field_name (str): Field name to extract data from.
+        data (h5py.Dataset): Data from which the data will be extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the audio data.
+        verbose (bool): Enable verbose mode if `True`.
+    """
+    # Make output folder if it does not exist
     os.makedirs(output_dir, exist_ok=True)
+
+    # Get file path and sample rate
     filenames = [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
     fs = attrs["sample_rate"]
 
-    if data[field_name].ndim == 2:
+    if data[field_name].ndim == 2:  # Fixed length audio
         for row_idx, filename in tqdm(
             zip(range(data[field_name].shape[0]), filenames),
             total=len(filenames),
@@ -36,7 +48,7 @@ def _from_audiodtype(
                 fs=int(fs)
             )
     
-    elif data[field_name].ndim == 1:  # vlen
+    elif data[field_name].ndim == 1:  # vlen audio
         for row_idx, filename in tqdm(
             zip(range(data[field_name].shape[0]), filenames),
             total=len(filenames),
@@ -64,6 +76,7 @@ def from_audioint16(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for audio data as `int16`."""
     return _from_audiodtype(
         output_dir=output_dir,
         field_name=field_name,
@@ -80,6 +93,7 @@ def from_audiofloat32(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for audio data as `float32`."""
     return _from_audiodtype(
         output_dir=output_dir,
         field_name=field_name,
@@ -96,6 +110,7 @@ def from_audiofloat64(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for audio data as `float64`."""
     return _from_audiodtype(
         output_dir=output_dir,
         field_name=field_name,
@@ -112,6 +127,15 @@ def _from_dtype(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Extracts any single value data type and renders it to a `.csv` file.
+    
+    Args:
+        output_dir (str): Output folder.
+        field_name (str): Field name to extract data from.
+        data (h5py.Dataset): Data from which the data will be extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the data.
+        verbose (bool): Enable verbose mode if `True`.
+    """
     os.makedirs(output_dir, exist_ok=True)
     df = pl.DataFrame({field_name: list(data[field_name])})
     df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
@@ -124,6 +148,7 @@ def from_int16(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for single value data as `int16`."""
     return _from_dtype(
         output_dir=output_dir,
         field_name=field_name,
@@ -140,6 +165,7 @@ def from_float32(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for single value data as `float32`."""
     return _from_dtype(
         output_dir=output_dir,
         field_name=field_name,
@@ -156,6 +182,7 @@ def from_float64(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for single value data as `float64`."""
     return _from_dtype(
         output_dir=output_dir,
         field_name=field_name,
@@ -172,6 +199,7 @@ def from_utf8_str(
         attrs: h5py.AttributeManager,
         verbose: bool = False
 ) -> None:
+    """Alias of generic extractor for single value data as `str`."""
     os.makedirs(output_dir, exist_ok=True)
     decoded_data = [
         i.decode("utf-8") if isinstance(i, bytes)
