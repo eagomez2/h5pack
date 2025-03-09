@@ -1,3 +1,4 @@
+import os
 import polars as pl
 from tqdm import tqdm
 from ..core.config import get_allowed_audio_extensions
@@ -24,6 +25,7 @@ def validate_attrs(data: dict) -> None:
 def _validate_file_as_audiodtype(
         df: pl.DataFrame,
         col: str,
+        ctx: dict,
         verbose: bool = False
 ) -> None:
     """Generic validator of audio types.
@@ -32,6 +34,7 @@ def _validate_file_as_audiodtype(
         df (pl.DataFrame): `DataFrame` containing the data with the column with
             audio file paths.
         col (str): Column name.
+        ctx (dict): Validation context.
         verbose (bool): Enable verbose mode if `True`.
     """
     # Get all files
@@ -46,6 +49,12 @@ def _validate_file_as_audiodtype(
         unit="row",
         disable=not verbose
     ):
+        # Solve path
+        file = (
+            os.path.join(ctx["root_dir"], file) if not os.path.isabs(file)
+            else file
+        )
+
         is_file_with_ext_or_error(file, ext=get_allowed_audio_extensions())
         meta = read_audio_metadata(file)
 
@@ -69,25 +78,42 @@ def _validate_file_as_audiodtype(
 def validate_file_as_audioint16(
         df: pl.DataFrame,
         col: str,
+        ctx: dict,
         verbose: bool = False     
 ) -> None:
     """Alias of generic method to validate audio as `int16`."""
-    return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
+    return _validate_file_as_audiodtype(
+        df=df,
+        col=col,
+        ctx=ctx,
+        verbose=verbose
+    )
 
 
 def validate_file_as_audiofloat32(
         df: pl.DataFrame,
         col: str,
+        ctx: dict,
         verbose: bool = False     
 ) -> None:
     """Alias of generic method to validate audio as `float32`."""
-    return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
+    return _validate_file_as_audiodtype(
+        df=df,
+        col=col,
+        ctx=ctx,
+        verbose=verbose)
 
 
 def validate_file_as_audiofloat64(
         df: pl.DataFrame,
         col:str,
+        ctx: dict,
         verbose: bool = False
 ) -> None:
     """Alias of generic method to validate audio as `float64`."""
-    return _validate_file_as_audiodtype(df=df, col=col, verbose=verbose)
+    return _validate_file_as_audiodtype(
+        df=df,
+        col=col,
+        ctx=ctx,
+        verbose=verbose
+    )

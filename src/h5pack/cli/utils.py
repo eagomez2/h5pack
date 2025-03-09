@@ -326,7 +326,12 @@ def cmd_create(args: Namespace) -> None:
             if validators is not None:
                 for validator in validators:
                     try:
-                        validator(data_df, col=col_name, verbose=args.verbose)
+                        validator(
+                            data_df,
+                            col=col_name,
+                            ctx={"root_dir": root_dir},
+                            verbose=args.verbose
+                        )
                     
                     except Exception as e:
                         exit_error(
