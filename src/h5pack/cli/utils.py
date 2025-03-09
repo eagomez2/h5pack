@@ -51,6 +51,19 @@ def create_partition_from_data(
         args: Namespace,
         ctx: dict = {}
 ) -> Tuple[int, str]:
+    """Creates a single partition file from a given `DataFrame` and
+    accompanying set of specifications.
+
+    Args:
+        idx (int): Partition index.
+        data_specs (dict): Set of specifications used to process the data.
+        data_df (pl.DataFrame): Input `DataFrame` containing the raw data.
+        args (Namespace): User provided arguments.
+        ctx (dict): Context information.
+    
+    Returns:
+        (Tuple[int, str]): Partition index and generated `.h5` filename.
+    """
     # Create file
     h5_filename = add_extension(args.output, ext=".h5")
 
@@ -120,6 +133,15 @@ def create_virtual_dataset_from_partitions(
         attrs: Optional[dict] = None,
         verbose: bool = False
 ) -> None:
+    """Creates a virtual dataset given a set of partitions.
+    
+    Args:
+        file (str): Virtual dataset output file.
+        partitions (List[str]): List of partitions to accumulate in a single
+            virtual dataset.
+        attrs (Optional[dict]): Virtual dataset attributes.
+        verbose (bool): If `True`, enabled verbose mode.
+    """
     # Check all partition files exist
     for partition in partitions:
         if not is_file_with_ext(partition, ext=".h5"):
@@ -236,7 +258,7 @@ def cmd_create(args: Namespace) -> None:
     input aguments.
 
     Args:
-        args (Namespace): Input user arguments provided through the console.
+        args (Namespace): User input arguments provided through the console.
     """
     # Check specs file exist
     if not is_file_with_ext(args.input, ext=".yaml"):
@@ -490,6 +512,12 @@ def cmd_create(args: Namespace) -> None:
 
 
 def cmd_virtual(args: Namespace) -> None:
+    """Creates a virtual dataset that can accumulate multiple `.h5` files in
+    a single view.
+
+    Args:
+        args (Namespace): User input arguments provided through the console.
+    """
     # All input file candidates
     h5_files = []
     
@@ -594,6 +622,11 @@ def cmd_virtual(args: Namespace) -> None:
 
 
 def cmd_checksum(args: Namespace) -> None:
+    """Creates or verifies checksums assocoiated with `.h5` files.
+
+    Args:
+        args (Namespace): User input arguments provided through the console.
+    """
     # Check file(s) exists
     if args.generate:
         all_files = []
@@ -728,6 +761,11 @@ def cmd_info(args: Namespace) -> None:
 
 
 def cmd_extract(args: Namespace) -> None:
+    """Extracts raw data from a `.h5` file.
+
+    Args:
+        args (Namespace): User input arguments provided through the console.
+    """
     # Check file exists
     if not is_file_with_ext(args.input, ext=".h5"):
         exit_error(f"Invalid input file '{args.input}'")

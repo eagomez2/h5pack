@@ -19,7 +19,7 @@
 # Table of contents
 - [Installation](#installation)
   - [Install through pip](#install-through-pip)
-  - [Install through uv](#install-through-uvx)
+  - [Install through uv](#install-through-uv)
   - [Install in developer mode](#install-in-developer-mode)
 - [Quickstart](#quickstart)
 - [Documentation](#documentation)
