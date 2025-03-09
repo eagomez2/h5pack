@@ -152,6 +152,12 @@ def bytes_to_str(bytes: int) -> str:
 
 
 def get_available_hashes() -> dict:
+    """Get available hashing algorithms.
+    
+    Returns:
+        dict: `dict` where each key is a hashing algorithm name and each value
+            is the corresponding method.
+    """
     return {
         "md5": hashlib.md5(),
         "sha256": hashlib.sha256(),
@@ -163,6 +169,15 @@ def get_available_hashes() -> dict:
 
 
 def get_array_checksum(x: np.ndarray, hash: str = "sha256") -> str:
+    """Computes the checkoint of an array-
+    
+    Args:
+        x (np.ndarray): Input array.
+        hash (str): Hashing algorithm name.
+    
+    Returns:
+        (str): Hash of the input array.
+    """
     available_hashes = get_available_hashes()
 
     if hash not in available_hashes:
@@ -181,6 +196,15 @@ def get_array_checksum(x: np.ndarray, hash: str = "sha256") -> str:
 
 
 def get_file_checksum(file: str, hash: str = "sha256") -> str:
+    """Calculates the checksum of a file.
+    
+    Args:
+        file (str): Input file.
+        hash (str): Hashing algorithm to use.
+    
+    Returns:
+        (str): File hash.
+    """
     available_hashes = get_available_hashes()
 
     if hash not in available_hashes:
@@ -201,6 +225,16 @@ def get_file_checksum(file: str, hash: str = "sha256") -> str:
 
 
 def total_to_list_slices(total: int, slices: int) -> List[Tuple[int, int]]:
+    """Splits of a list of indices into `slices` slices.
+    
+    Args:
+        total (int): Total number of indices.
+        slices (int): Number of slices.
+    
+    Returns:
+        (List[Tuple[int, int]]): List of tuples containing start and end index
+            of each slice.
+    """
     if total < slices:
         raise ValueError("Total should be equal or greater than slices")
 
@@ -218,7 +252,24 @@ def total_to_list_slices(total: int, slices: int) -> List[Tuple[int, int]]:
     return idx_slices
 
 
-def stack_shape(*shapes, axis: int = -1) -> Tuple[int]:
+def stack_shape(*shapes: Tuple[int, ...], axis: int = -1) -> Tuple[int, ...]:
+    """Computes the resulting shape after stacking multiple shapes along a
+    specified axis.
+
+    Args:
+        shapes (Tuple[int, ...]): A variable number of tuples, each
+            representing a shape.
+        axis (int): The axis along which the shapes should be stacked.
+
+    Returns:
+        (Tuple[int, ...]): A tuple representing the resulting shape after
+            stacking.
+
+    Raises:
+        ValueError: If any shape is not a tuple.
+        ValueError: If shapes have different lengths.
+        ValueError: If dimensions other than `axis` are not identical.
+    """
     if not all(isinstance(s, tuple) for s in shapes):
         raise ValueError("Each shape should be a tuple")
 

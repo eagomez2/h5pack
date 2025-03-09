@@ -207,8 +207,9 @@ def get_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
-    if (len(sys.argv) == 1
-            or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
+    if (
+        len(sys.argv) == 1
+        or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
     ):
         print(
             f"h5pack version {__version__} 2024-{datetime.now().year} "

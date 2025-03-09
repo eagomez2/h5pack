@@ -53,18 +53,44 @@ def printc_exit(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
 
 
 def print_error(s: str, writer: Optional[tqdm] = None) -> None:
+    """Prints an error message.
+    
+    Args:
+        s (str): Error message to print.
+        writer (Optional[tqdm]): Writer to use.
+    """
     return printc(f"<error>{s}</error>", writer=writer)
 
 
 def exit_error(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
+    """Prints an error message and shuts down the program execution.
+    
+    Args:
+        s (str): Error message to print.
+        code (int): Error code to return.
+        writer (Optional[tqdm]): Writer to use.
+    """
     return printc_exit(f"<error>{s}</error>", code=code, writer=writer)
 
 
 def print_warning(s: str, writer: Optional[tqdm] = None) -> None:
+    """Prints an warning message.
+    
+    Args:
+        s (str): Warning message to print.
+        writer (Optional[tqdm]): Writer to use.
+    """
     return printc(f"<warning>{s}</warning>", writer=writer)
 
 
 def exit_warning(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
+    """Prints a warning message and shuts down the program execution.
+    
+    Args:
+        s (str): Warning message to print.
+        code (int): Warning code to return.
+        writer (Optional[tqdm]): Writer to use.
+    """
     return printc_exit(f"<warning>{s}</warning>", code=code, writer=writer)
 
 def ask_confirmation(
