@@ -6,7 +6,11 @@ from .extractors import (
     from_int16,
     from_float32,
     from_float64,
-    from_utf8_str
+    from_utf8str,
+    from_listint8,
+    from_listint16,
+    from_listfloat32,
+    from_listfloat64
 )
 from .parsers import (
     as_audioint16,
@@ -15,7 +19,11 @@ from .parsers import (
     as_int16,
     as_float32,
     as_float64,
-    as_utf8_str
+    as_listint8,
+    as_listint16,
+    as_listfloat32,
+    as_listfloat64,
+    as_utf8str
 )
 from .validators import (
     validate_file_as_audioint16,
@@ -36,7 +44,11 @@ def get_parsers_map() -> dict:
             "as_audioint16": as_audioint16,
             "as_audiofloat32": as_audiofloat32,
             "as_audiofloat64": as_audiofloat64,
-            "as_utf8_str": as_utf8_str
+            "as_utf8str": as_utf8str,
+            "as_listint16": as_listint16,
+            "as_listint8": as_listint8,
+            "as_listfloat32": as_listfloat32,
+            "as_listfloat64": as_listfloat64,
         },
         pl.Int16: {
             "as_int16": as_int16
@@ -74,7 +86,11 @@ def get_extractors_map() -> dict:
         "as_int16": from_int16,
         "as_float32": from_float32,
         "as_float64": from_float64,
-        "as_utf8_str": from_utf8_str
+        "as_utf8str": from_utf8str,
+        "as_listint8": from_listint8,
+        "as_listint16": from_listint16,
+        "as_listfloat32": from_listfloat32,
+        "as_listfloat64": from_listfloat64
     }
 
 

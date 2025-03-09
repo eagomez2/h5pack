@@ -192,7 +192,7 @@ def from_float64(
     )
 
 
-def from_utf8_str(
+def from_utf8str(
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -207,3 +207,94 @@ def from_utf8_str(
     ]
     df = pl.DataFrame({field_name: decoded_data})
     df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+
+
+def _from_listdtype(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    """Extracts any list of numeric data types and renders it to a `.csv` file.
+    
+    Args:
+        output_dir (str): Output folder.
+        field_name (str): Field name to extract data from.
+        data (h5py.Dataset): Data from which the data will be extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the data.
+        verbose (bool): Enable verbose mode if `True`.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    df = pl.DataFrame(
+        {field_name: [str(r) for r in data[field_name][:].tolist()]}
+    )
+    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+
+
+def from_listint8(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    """Alias of generic extractor for lists of data as `int8`."""
+    return _from_listdtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def from_listint16(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    """Alias of generic extractor for lists of data as `int16`."""
+    return _from_listdtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def from_listfloat32(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    """Alias of generic extractor for lists of data as `float32`."""
+    return _from_listdtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
+def from_listfloat64(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    """Alias of generic extractor for lists of data as `float64`."""
+    return _from_listdtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
