@@ -122,7 +122,8 @@ def _as_audiodtype(
         else:
             dataset[idx, :] = data
 
-        filenames_dataset[idx] = file
+        # Store filename only
+        filenames_dataset[idx] = os.path.basename(file)
 
 
 def as_audioint16(
