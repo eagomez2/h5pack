@@ -237,7 +237,7 @@ def cmd_create(args: Namespace) -> None:
     input aguments.
 
     Args:
-        args (Namespace): User input arguments provided through the console.
+        args (Namespace): Input user arguments provided through the console.
     """
     # Check specs file exist
     if not is_file_with_ext(args.input, ext=".yaml"):
@@ -668,6 +668,11 @@ def cmd_checksum(args: Namespace) -> None:
 
 
 def cmd_info(args: Namespace) -> None:
+    """Inspects a `.h5` file generated with `h5pack`.
+    
+    Args:
+        args (Namespace): Input user arguments provided through the console.
+    """
     # Check file exists
     if not is_file_with_ext(args.input, ext=".h5"):
         exit_error(f"Invalid input file '{args.input}'")
@@ -682,7 +687,14 @@ def cmd_info(args: Namespace) -> None:
 
     # Open file
     with h5py.File(args.input, "r") as h5_file:
-        # Get top level attributes
+        # Check if producer is .h5, otherwise file will not be correctly parsed
+        if not h5_file.attrs.get("producer", "").startswith("h5pack"):
+            exit_error(
+                "This file was not created using h5pack, so it may not be "
+                "formatted as expected and cannot be reliably parsed by this "
+                "tool"
+            )
+
         if len(h5_file.attrs) > 0:
             print("File attribute(s):")
             key_ljust = max([len(k) for k in h5_file.attrs]) + 6

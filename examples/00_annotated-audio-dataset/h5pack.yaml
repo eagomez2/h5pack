@@ -14,6 +14,6 @@ datasets:  # Mandatory key that hold several datasets
         audio:
           column: file  # Column name in the .csv file
           parser: as_audioint16  # Parser used to parse the data
-        noise_type:
-          column: noise_type
+        split:
+          column: split
           parser: as_utf8_str
