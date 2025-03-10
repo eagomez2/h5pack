@@ -1,0 +1,76 @@
+site_name: h5pack
+nav:
+  - About: index.md
+  - Tutorial: tutorial.md
+  - Documentation:
+    - Introduction: docs-intro.md
+    - h5pack create: docs-create.md
+    - h5pack extract: docs-extract.md
+    - h5pack info: docs-info.md
+    - h5pack virtual: docs-virtual.md
+    - h5pack checksum: docs-checksum.md
+  - Changelog: https://github.com/eagomez2/h5pack/releases
+  - License: license.md
+copyright: |
+  &copy; 2025 <a href="https://www.estebangomez.me" target="_blank">Esteban Gómez</a>, <a href="https://www.aalto.fi/en/department-of-information-and-communications-engineering/speech-interaction-technology" target="_blank">Speech Interaction Technology, Aalto University</a>
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+      primary: teal
+      accent: indigo
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+      primary: teal
+      accent: lime
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - md_in_html
+  - attr_list
+  - pymdownx.arithmatex:
+      generic: true
+plugins:
+  - search
+  - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
+      # custom_templates: templates
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: false
+            line_length: 79
+  - autorefs
+extra_javascript:
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
+  - js/tablesort.js
