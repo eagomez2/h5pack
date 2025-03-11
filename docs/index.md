@@ -88,7 +88,7 @@ folder. Inside this you will fine two components:
 
 - `h5pack.yaml` describes the layout we want to use:
 
-```yaml
+```yaml title="h5pack.yaml"
 datasets:
   annotated_audio_dataset:
     attrs:
