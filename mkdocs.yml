@@ -1,7 +1,6 @@
 site_name: h5pack
 nav:
   - About: index.md
-  - Tutorial: tutorial.md
   - Documentation:
     - Introduction: docs-intro.md
     - h5pack create: docs-create.md

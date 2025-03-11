@@ -16,4 +16,4 @@ datasets:  # Mandatory key that hold several datasets
           parser: as_audioint16  # Parser used to parse the data
         split:
           column: split
-          parser: as_utf8_str
+          parser: as_utf8str
