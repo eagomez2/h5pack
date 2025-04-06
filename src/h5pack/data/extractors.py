@@ -141,6 +141,23 @@ def _from_dtype(
     df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
 
 
+def from_int8(
+        output_dir: str,
+        field_name: str,
+        data: h5py.Dataset,
+        attrs: h5py.AttributeManager,
+        verbose: bool = False
+) -> None:
+    """Alias of generic extractor for single value data as `int8`."""
+    return _from_dtype(
+        output_dir=output_dir,
+        field_name=field_name,
+        data=data,
+        attrs=attrs,
+        verbose=verbose
+    )
+
+
 def from_int16(
         output_dir: str,
         field_name: str,

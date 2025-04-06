@@ -3,6 +3,7 @@ from .extractors import (
     from_audioint16,
     from_audiofloat32,
     from_audiofloat64,
+    from_int8,
     from_int16,
     from_float32,
     from_float64,
@@ -16,6 +17,7 @@ from .parsers import (
     as_audioint16,
     as_audiofloat32,
     as_audiofloat64,
+    as_int8,
     as_int16,
     as_float32,
     as_float64,
@@ -50,6 +52,9 @@ def get_parsers_map() -> dict:
             "as_listfloat32": as_listfloat32,
             "as_listfloat64": as_listfloat64,
         },
+        pl.Int8: {
+            "as_int8": as_int8
+        },
         pl.Int16: {
             "as_int16": as_int16
         },
@@ -83,6 +88,7 @@ def get_extractors_map() -> dict:
         "as_audioint16": from_audioint16,
         "as_audiofloat32": from_audiofloat32,
         "as_audiofloat64": from_audiofloat64,
+        "as_int8": from_int8,
         "as_int16": from_int16,
         "as_float32": from_float32,
         "as_float64": from_float64,
