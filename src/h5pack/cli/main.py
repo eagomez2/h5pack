@@ -39,11 +39,17 @@ def get_parser() -> argparse.ArgumentParser:
         required=True,
         help="output HDF5 partition file(s) with .h5 extension"
     ) 
-    create_parser.add_argument(
+    create_partitions_parser = create_parser.add_mutually_exclusive_group()
+    create_partitions_parser.add_argument(
         "-p", "--partitions",
         type=int,
         default=1,
         help="number of partitions to generate"
+    )
+    create_partitions_parser.add_argument(
+        "-f", "--files-per-partition",
+        type=int,
+        help="number of files per partition"
     )
     create_parser.add_argument(
         "-d", "--dataset",
@@ -213,7 +219,8 @@ def main() -> int:
     ):
         print(
             f"h5pack version {__version__} 2024-{datetime.now().year} "
-            "developed by Esteban Gómez"
+            "developed by Esteban Gómez (Speech Interaction Technology, Aalto "
+            "University)"
         )
         sys.exit(0)
     

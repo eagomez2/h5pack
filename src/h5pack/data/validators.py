@@ -5,7 +5,7 @@ from tqdm import tqdm
 from ..core.config import get_allowed_audio_extensions
 from ..core.display import exit_error
 from ..core.guards import (
-    is_file_with_ext,
+    has_ext,
     is_file_with_ext_or_error
 )
 from ..core.io import read_audio_metadata
@@ -60,7 +60,9 @@ def validate_specs_file(file: str, ctx: dict) -> dict:
             dataset_config["data"]["file"]
         )
 
-        if not is_file_with_ext(data_file, ext=".csv"):
+        # NOTE: Only the extension is validated since existance of file should
+        # be validated at runtime
+        if not has_ext(data_file, ext=".csv"):
             exit_error(
                 f"Invalid data file '{data_file}' in dataset "
                 f"'{dataset_name}'"

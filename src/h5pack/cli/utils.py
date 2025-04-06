@@ -1,4 +1,5 @@
 import os
+import math
 import h5py
 import fnmatch
 import polars as pl
@@ -269,6 +270,12 @@ def cmd_create(args: Namespace) -> None:
         "root_dir": os.path.dirname(os.path.abspath(args.input))
     }
 
+    # NOTE: args.files_per_partition and args.partitions are mutually exclusive
+    # but if args.files_per_partition is set, both arguments will be different
+    # from None since args.partitions has a default value
+    if args.files_per_partition is not None:
+        args.partitions = None
+
     if args.verbose:
         print(f"Using root folder '{ctx['root_dir']}'")
 
@@ -294,6 +301,10 @@ def cmd_create(args: Namespace) -> None:
         ctx["root_dir"],
         specs["datasets"][args.dataset]["data"]["file"]
     )
+
+    if not is_file_with_ext(data_file, ".csv"):
+        exit_error(f"Invalid input file '{data_file}'")
+
     data_df = pl.read_csv(data_file, has_header=True)
     data = specs["datasets"][args.dataset]["data"]
 
@@ -350,15 +361,21 @@ def cmd_create(args: Namespace) -> None:
     # Generate partition specs
     if args.verbose:
         print(f"Generating {args.partitions} partition spec(s) ...")
-
+    
     for field_name, field_data in data["fields"].items():
         try:
             # Calculate partition slices
             col_name = data["fields"][field_name]["column"]
-            data["fields"][field_name]["slices"] = total_to_list_slices(
-                total=data_df[col_name].len(), slices=args.partitions
+            num_rows = data_df[col_name].len()
+            num_partitions = (
+                math.ceil(num_rows / args.files_per_partition)
+                if args.files_per_partition is not None else args.partitions
             )
-        
+            data["fields"][field_name]["slices"] = total_to_list_slices(
+                total=num_rows,
+                slices=num_partitions
+            )
+            
         except Exception as e:
             exit_error(
                 f"Partition slices for field '{field_name}' failed: {e}"
@@ -368,7 +385,7 @@ def cmd_create(args: Namespace) -> None:
         print("Partition spec(s) completed")
     
     if not args.unattended:
-        print(f"{args.partitions} partition(s) will be created")
+        print(f"{num_partitions} partition(s) will be created")
         ask_confirmation()
     
     # Create dataset and parse data
@@ -391,7 +408,7 @@ def cmd_create(args: Namespace) -> None:
     partition_filenames = []
     
     if args.workers == 1:
-        for partition_idx in range(args.partitions):
+        for partition_idx in range(num_partitions):
             idx, filename = create_partition_from_data(
                 idx=partition_idx,
                 data_specs=data,
@@ -401,7 +418,7 @@ def cmd_create(args: Namespace) -> None:
             )
             partition_filenames.append(filename)
 
-            if args.partitions == 1:
+            if num_partitions == 1:
                 print(f"Dataset file saved to '{filename}'")
             
             else:
@@ -416,7 +433,7 @@ def cmd_create(args: Namespace) -> None:
 
         jobs = []
 
-        for partition_idx in range(args.partitions):
+        for partition_idx in range(num_partitions):
             jobs.append(
                 pool.apply_async(
                     create_partition_from_data,
@@ -436,14 +453,14 @@ def cmd_create(args: Namespace) -> None:
         for idx, filename in results:
             partition_filenames.append(filename)
 
-            if args.partitions == 1:
+            if num_partitions == 1:
                 tqdm.write(f"Dataset file saved to '{filename}'")
             
             else:
                 tqdm.write(f"Partition #{idx} saved to '{filename}'")
         
     # Create virtual layout
-    if not args.skip_virtual and args.partitions > 1:
+    if not args.skip_virtual and num_partitions > 1:
         if args.verbose:
             print("Creating virtual dataset ...")
         
@@ -458,7 +475,7 @@ def cmd_create(args: Namespace) -> None:
         print(f"Virtual dataset saved to '{virtual_dataset_filename}'")
     
     else:
-        if args.verbose and args.partitions > 1:
+        if args.verbose and num_partitions > 1:
             print_warning(
                 "Skipping virtual layout generation (--skip-virtual enabled)"
             )
@@ -491,7 +508,7 @@ def cmd_create(args: Namespace) -> None:
                     f"\t{partition_file_sha256}\n"
                 )
             
-            if not args.skip_virtual and args.partitions > 1:
+            if not args.skip_virtual and num_partitions > 1:
                 virtual_dataset_file = os.path.join(
                     ctx["root_dir"],
                     virtual_dataset_filename
