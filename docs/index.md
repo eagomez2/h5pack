@@ -117,19 +117,19 @@ From this layout:
 
 Currently the following parsers are supported:
 
-| Parser name       | Resulting data type             | Example `.csv` column |
-|-------------------|---------------------------------|-----------------------|
-| `as_audioint16`   | Audio files stored as `int16`   | `/path/to/file.wav`   |
-| `as_audiofloat32` | Audio files stored as `float32` | `/path/to/file.wav`   |
-| `as_audiofloat64` | Audio files stored as `float64` | `/path/to/file.wav`   |
-| `as_int16`        | Single `int16` value            | `32767`               |
-| `as_float32`      | Single `float32` value          | `0.707`               |
-| `as_float64`      | Single `float64` value          | `0.707`               |
-| `as_listint8`     | List of `int8` values           | `127`                 |
-| `as_listint16`    | List of `int16` values          | `[32767, 32767]`      |
-| `as_listfloat32`  | List of `float32` values        | `[0.707, 1.414, ...]` |
-| `as_listfloat64`  | List of `float64` values        | `[0.707, 1.414, ...]` |
-| `as_utf8str`      | Single `str` value              | `hello_world`         |
+| Parser name       | Resulting data type             | Example `.csv` row value |
+|-------------------|---------------------------------|--------------------------|
+| `as_audioint16`   | Audio files stored as `int16`   | `/path/to/file.wav`      |
+| `as_audiofloat32` | Audio files stored as `float32` | `/path/to/file.wav`      |
+| `as_audiofloat64` | Audio files stored as `float64` | `/path/to/file.wav`      |
+| `as_int16`        | Single `int16` value            | `32767`                  |
+| `as_float32`      | Single `float32` value          | `0.707`                  |
+| `as_float64`      | Single `float64` value          | `3.146`                  |
+| `as_listint8`     | List of `int8` values           | `127`                    |
+| `as_listint16`    | List of `int16` values          | `[32767, 32767]`         |
+| `as_listfloat32`  | List of `float32` values        | `[0.707, 1.414, ...]`    |
+| `as_listfloat64`  | List of `float64` values        | `[0.505, 2.125, ...]`    |
+| `as_utf8str`      | Single `str` value              | `hello_world`            |
 
 Without further ado, run the following to create your first `.h5` file:
 
