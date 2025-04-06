@@ -122,6 +122,7 @@ Currently the following parsers are supported:
 | `as_audioint16`   | Audio files stored as `int16`   | `/path/to/file.wav`      |
 | `as_audiofloat32` | Audio files stored as `float32` | `/path/to/file.wav`      |
 | `as_audiofloat64` | Audio files stored as `float64` | `/path/to/file.wav`      |
+| `as_int8`         | Single `int8` value             | `64`                     |
 | `as_int16`        | Single `int16` value            | `32767`                  |
 | `as_float32`      | Single `float32` value          | `0.707`                  |
 | `as_float64`      | Single `float64` value          | `3.146`                  |
