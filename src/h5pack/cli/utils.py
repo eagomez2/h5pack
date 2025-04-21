@@ -156,7 +156,8 @@ def create_virtual_dataset_from_partitions(
         with h5py.File(partition) as f:
             partition_specs.append(
                 {
-                    "file": partition,
+                    # NOTE: Relative path may create empty virtual dataset
+                    "file": os.path.abspath(partition),
                     "fields": {},
                     "attrs": dict(f.attrs)
                 }
