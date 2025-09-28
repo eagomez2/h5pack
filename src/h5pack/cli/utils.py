@@ -68,10 +68,10 @@ def create_partition_from_data(
     # Create file
     h5_filename = add_extension(args.output, ext=".h5")
 
-    if args.partitions != 1:
+    if ctx["num_partitions"] != 1:
         h5_filename = add_suffix(
             h5_filename,
-            f".pt{str(idx).zfill(len(str(args.partitions)))}"
+            f".pt{str(idx).zfill(len(str(ctx['num_partitions'])))}"
         )
     
     h5_file = h5py.File(h5_filename, "w")
@@ -103,10 +103,10 @@ def create_partition_from_data(
             data_start_idx=start_idx,
             data_end_idx=end_idx,
             ctx=ctx,
-            verbose=args.verbose,
             **field_data.get("parser_args", {})
         )
     
+    # Close file
     h5_file.close()
 
     return idx, h5_filename
@@ -131,8 +131,7 @@ def are_partitions_compatible(
 def create_virtual_dataset_from_partitions(
         file: str,
         partitions: List[str],
-        attrs: Optional[dict] = None,
-        verbose: bool = False
+        attrs: Optional[dict] = None
 ) -> None:
     """Creates a virtual dataset given a set of partitions.
     
@@ -263,7 +262,7 @@ def cmd_pack(args: Namespace) -> None:
         args (Namespace): User input arguments provided through the console.
     """
     # Check specs file exist
-    if not is_file_with_ext(args.input, ext=".yaml"):
+    if not is_file_with_ext(args.input, ext=[".yml", ".yaml"]):
         exit_error(f"Invalid input file '{args.input}'")
     
     # Infer root based on input .yaml file and add to parsing context
@@ -271,23 +270,18 @@ def cmd_pack(args: Namespace) -> None:
         "root_dir": os.path.dirname(os.path.abspath(args.input))
     }
 
+    print(f"Using root folder '{ctx['root_dir']}'")
+
     # NOTE: args.files_per_partition and args.partitions are mutually exclusive
     # but if args.files_per_partition is set, both arguments will be different
     # from None since args.partitions has a default value
     if args.files_per_partition is not None:
         args.partitions = None
 
-    if args.verbose:
-        print(f"Using root folder '{ctx['root_dir']}'")
-
-    # Validate specs file
-    if args.verbose:
-        print(f"Validating input file '{args.input}' ...")
-    
+    # Validate specifications
+    print(f"Validating input file '{args.input}' ...")
     specs = validate_specs_file(file=args.input, ctx=ctx)
-    
-    if args.verbose:
-        print("Input file validation completed")
+    print("Input file validation completed")
     
     # Check if selected dataset exists
     if args.dataset not in specs["datasets"]:
@@ -304,15 +298,14 @@ def cmd_pack(args: Namespace) -> None:
     )
 
     if not is_file_with_ext(data_file, ".csv"):
-        exit_error(f"Invalid input file '{data_file}'")
+        exit_error(f"Invalid data file '{data_file}'")
 
     data_df = pl.read_csv(data_file, has_header=True)
     data = specs["datasets"][args.dataset]["data"]
 
     # Validate data fields
     if not args.skip_validation:
-        if args.verbose:
-            print("Validating input data ...")
+        print("Validating input data ...")
 
         for field_name, field_data in data["fields"].items():
             col_name = field_data["column"]
@@ -326,9 +319,7 @@ def cmd_pack(args: Namespace) -> None:
                 )
             
             # Validate field
-            if args.verbose:
-                print(f"Validating data of '{field_name}' field ...")
-
+            print(f"Validating data of '{field_name}' field ...")
             validators = get_validators_map().get(parser_name, None)
 
             if validators is not None:
@@ -338,7 +329,6 @@ def cmd_pack(args: Namespace) -> None:
                             data_df,
                             col=col_name,
                             ctx=ctx,
-                            verbose=args.verbose,
                             **parser_args
                         )
                     
@@ -347,21 +337,16 @@ def cmd_pack(args: Namespace) -> None:
                             f"Data validation of '{field_name}' failed: {e}"
                         )
             
-            if args.verbose:
-                print(f"Validation of '{field_name}' field data completed")
+            print(f"Validation of '{field_name}' field data completed")
         
-        if args.verbose:
-            print("Input data validation completed")
+        print("Input data validation completed")
     
     else:
-        if args.verbose:
-            print_warning(
-                "Skipping data validation (--skip-validation enabled)"
-            )
+        print_warning("Skipping data validation (--skip-validation enabled)")
+    
     
     # Generate partition specs
-    if args.verbose:
-        print(f"Generating {args.partitions} partition spec(s) ...")
+    print(f"Generating {args.partitions} partition spec(s) ...")
     
     for field_name, field_data in data["fields"].items():
         try:
@@ -372,6 +357,7 @@ def cmd_pack(args: Namespace) -> None:
                 math.ceil(num_rows / args.files_per_partition)
                 if args.files_per_partition is not None else args.partitions
             )
+            ctx.update({"num_partitions": num_partitions})
             data["fields"][field_name]["slices"] = total_to_list_slices(
                 total=num_rows,
                 slices=num_partitions
@@ -382,16 +368,14 @@ def cmd_pack(args: Namespace) -> None:
                 f"Partition slices for field '{field_name}' failed: {e}"
             )
     
-    if args.verbose:
-        print("Partition spec(s) completed")
+    print("Partition spec(s) completed")
     
     if not args.unattended:
         print(f"{num_partitions} partition(s) will be created")
         ask_confirmation()
     
     # Create dataset and parse data
-    if args.verbose:
-        print("Creating partitions ...")
+    print("Creating partitions ...")
     
     # Add root attrs
     h5pack_attrs = {
@@ -405,9 +389,10 @@ def cmd_pack(args: Namespace) -> None:
     else:
         data["attrs"] = h5pack_attrs
     
+    # Generate partitions
     start_time = perf_counter()
     partition_filenames = []
-    
+
     if args.workers == 1:
         for partition_idx in range(num_partitions):
             idx, filename = create_partition_from_data(
@@ -462,29 +447,26 @@ def cmd_pack(args: Namespace) -> None:
         
     # Create virtual layout
     if not args.skip_virtual and num_partitions > 1:
-        if args.verbose:
-            print("Creating virtual dataset ...")
+        print("Creating virtual dataset ...")
         
         virtual_dataset_filename = add_extension(args.output, ext=".h5")
 
         create_virtual_dataset_from_partitions(
             file=virtual_dataset_filename,
-            partitions=partition_filenames,
-            verbose=args.verbose
+            partitions=partition_filenames
         )
 
         print(f"Virtual dataset saved to '{virtual_dataset_filename}'")
     
     else:
-        if args.verbose and num_partitions > 1:
+        if num_partitions > 1:
             print_warning(
                 "Skipping virtual layout generation (--skip-virtual enabled)"
             )
     
     # Create checksum file
     if not args.skip_checksum:
-        if args.verbose:
-            print("Creating checksum file ...")
+        print("Creating checksum file ...")
         
         checksum_filename = change_extension(
             args.output,
@@ -526,7 +508,7 @@ def cmd_pack(args: Namespace) -> None:
 
     end_time = perf_counter()
     elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
-    print(f"{args.partitions} partition(s) created in {elapsed_time_repr}")
+    print(f"{num_partitions} partition(s) created in {elapsed_time_repr}")
 
 
 def cmd_virtual(args: Namespace) -> None:

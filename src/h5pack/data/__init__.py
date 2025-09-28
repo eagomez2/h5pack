@@ -77,7 +77,6 @@ def get_parsers_map() -> dict:
         }
     }
 
-
 def get_extractors_map() -> dict:
     """Mapping between extractor identifiers and extractor methods.
     

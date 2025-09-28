@@ -61,7 +61,7 @@ def _as_audiodtype(
     vlen = False
 
     for idx, file in enumerate(files):
-        # Get number of channels
+        # Get number of samples
         num_samples = read_audio_metadata(file)["num_samples_per_channel"]
 
         if num_samples not in observed_lens:
@@ -108,7 +108,7 @@ def _as_audiodtype(
                 f"#{partition_idx}"
             ),
             colour="green",
-            leave=False,
+            leave=True,
             position=(
                 0 if mp.current_process().name == "MainProcess"
                 else partition_idx

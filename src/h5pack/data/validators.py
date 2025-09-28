@@ -35,21 +35,20 @@ def validate_specs_file(file: str, ctx: dict) -> dict:
     
     # Check 'datasets' key exists (mandatory)
     if "datasets" not in specs:
-        exit_error(f"Missing 'dataset' key in '{file}'")
+        exit_error(f"Missing 'datasets' key in '{file}'")
     
     # Validate individual datasets
     datasets = specs["datasets"]
 
     for dataset_name, dataset_config in datasets.items():
         # Validate attrs if any (attrs are optional)
-        if "attrs" in dataset_config:
-            for attr_name, attr_value in dataset_config["attrs"].items():
-                if not isinstance(attr_value, str):
-                    exit_error(
-                        "Attributes can only be of type str. Found key "
-                        f"'{attr_name}' of 'attrs' of dataset '{dataset_name}'"
-                        f" of type '{attr_value.__class__.__name__}'"
-                    )
+        for attr_name, attr_value in dataset_config.get("attrs", {}).items():
+            if not isinstance(attr_value, str):
+                exit_error(
+                    "Attributes can only be of type str. Found key "
+                    f"'{attr_name}' of 'attrs' of dataset '{dataset_name}'"
+                    f" of type '{attr_value.__class__.__name__}'"
+                )
 
         if "file" not in dataset_config["data"]:
             exit_error(f"Missing 'file' key in dataset '{dataset_name}'")
@@ -71,6 +70,9 @@ def validate_specs_file(file: str, ctx: dict) -> dict:
         if "fields" not in dataset_config["data"]:
             exit_error(f"Missing 'fields' key in dataset '{dataset_name}'")
         
+        if len(dataset_config["data"]["fields"]) == 0:
+            exit_error(f"0 fields found in dataset '{dataset_name}'")
+        
         for field_name, field_data in dataset_config["data"]["fields"].items():
             if "column" not in field_data:
                 exit_error(
@@ -90,8 +92,7 @@ def validate_specs_file(file: str, ctx: dict) -> dict:
 def _validate_file_as_audiodtype(
         df: pl.DataFrame,
         col: str,
-        ctx: dict,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Generic validator of audio types.
     
@@ -100,7 +101,6 @@ def _validate_file_as_audiodtype(
             audio file paths.
         col (str): Column name.
         ctx (dict): Validation context.
-        verbose (bool): Enable verbose mode if `True`.
     """
     # Get all files
     files = df[col].to_list()
@@ -111,8 +111,7 @@ def _validate_file_as_audiodtype(
         desc=f"Validating '{col}'",
         leave=False,
         colour="green",
-        unit="row",
-        disable=not verbose
+        unit="row"
     ):
         # Solve path
         file = (
@@ -144,42 +143,36 @@ def validate_file_as_audioint16(
         df: pl.DataFrame,
         col: str,
         ctx: dict,
-        verbose: bool = False     
 ) -> None:
     """Alias of generic method to validate audio as `int16`."""
     return _validate_file_as_audiodtype(
         df=df,
         col=col,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def validate_file_as_audiofloat32(
         df: pl.DataFrame,
         col: str,
-        ctx: dict,
-        verbose: bool = False     
+        ctx: dict
 ) -> None:
     """Alias of generic method to validate audio as `float32`."""
     return _validate_file_as_audiodtype(
         df=df,
         col=col,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def validate_file_as_audiofloat64(
         df: pl.DataFrame,
         col:str,
-        ctx: dict,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic method to validate audio as `float64`."""
     return _validate_file_as_audiodtype(
         df=df,
         col=col,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
