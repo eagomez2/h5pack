@@ -123,22 +123,6 @@ def create_partition_from_data(
     return idx, h5_filename
 
 
-def are_partitions_compatible(
-        partitions: List[str],
-        verbose: bool = False
-) -> None:
-    # Check if partitions are compatible to create a virtual partition
-    field_specs = None
-
-    for partition in partitions:
-        # Check partition exists
-        if not is_file_with_ext(partition, ext=".h5"):
-            exit_error(f"Invalid partition file '{partition}'")
-
-        # Check fields
-        ...
-
-
 def create_virtual_dataset_from_partitions(
         file: str,
         partitions: List[str],
@@ -399,6 +383,9 @@ def cmd_pack(args: Namespace) -> None:
     
     else:
         data["attrs"] = h5pack_attrs
+    
+    # Add user attrs
+    data["attrs"].update(specs["datasets"][args.dataset]["attrs"])
     
     # Generate partitions
     start_time = perf_counter()
