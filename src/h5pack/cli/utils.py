@@ -74,6 +74,10 @@ def create_partition_from_data(
             f".pt{str(idx).zfill(len(str(ctx['num_partitions'])))}"
         )
     
+    # Create output folder if it doesn't exist
+    if os.path.dirname(args.output) != "":
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+
     h5_file = h5py.File(h5_filename, "w")
 
     # Add root attrs
