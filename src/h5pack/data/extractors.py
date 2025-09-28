@@ -7,7 +7,9 @@ from ..core.io import write_audio
 
 def _from_audiodtype(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager
@@ -20,6 +22,16 @@ def _from_audiodtype(
         data (h5py.Dataset): Data from which the data will be extracted.
         attrs (h5py.AttributeManager): Attributes associated to the audio data.
     """
+    # Add fields to yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": f"{field_name}_filepath",
+                "parser": attrs["parser"]
+            }
+        }
+    )
+
     # Make output folder if it does not exist
     os.makedirs(output_dir, exist_ok=True)
  
@@ -84,7 +96,9 @@ def _from_audiodtype(
 
 def from_audioint16(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager
@@ -92,7 +106,9 @@ def from_audioint16(
     """Alias of generic extractor for audio data as `int16`."""
     return _from_audiodtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs
@@ -101,6 +117,7 @@ def from_audioint16(
 
 def from_audiofloat32(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -118,6 +135,7 @@ def from_audiofloat32(
 
 def from_audiofloat64(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -135,6 +153,7 @@ def from_audiofloat64(
 
 def _from_dtype(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -155,6 +174,7 @@ def _from_dtype(
 
 def from_int8(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -172,6 +192,7 @@ def from_int8(
 
 def from_int16(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
@@ -223,12 +244,25 @@ def from_float64(
 
 def from_utf8str(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for single value data as `str`."""
+    # Update .yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": field_name,
+                "parser": attrs["parser"]
+            }
+        }
+    )
+
+    # Write data to .csv
     df = pl.read_csv(output_csv)
     decoded_data = [
         i.decode("utf-8") if isinstance(i, bytes)

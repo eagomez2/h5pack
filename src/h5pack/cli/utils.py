@@ -1,5 +1,6 @@
 import os
 import math
+import yaml
 import h5py
 import fnmatch
 import polars as pl
@@ -790,18 +791,25 @@ def cmd_unpack(args: Namespace) -> None:
 
     start_time = perf_counter()
 
+    # Prepare h5pack.yaml
+    dataset_name = os.path.basename(args.output)
+    h5pack_yaml = {
+        "datasets": {
+            dataset_name: {
+                "attrs": {},
+                "data": {"file": "dataset.csv", "fields": {}}  # Fixed name
+            }
+        }
+    }
+
     with h5py.File(args.input, mode="r") as h5_file:
         # Extract attributes
         print("Extracting file attribute(s) ...")
-        
-        attrs_file = os.path.join(args.output, "attributes")
-        key_ljust = max([len(k) for k in h5_file.attrs]) + 2
 
-        with open(attrs_file, "w") as f:
-            for k, v in h5_file.attrs.items():
-                f.write(f"{k}".ljust(key_ljust) + f"{v}\n")
-
-        print(f"File attribute(s) saved to '{attrs_file}'")
+        h5pack_yaml["datasets"][dataset_name]["attrs"].update(
+            {k: v for k, v in h5_file.attrs.items()
+            if k not in ("producer", "creation_date")}  # Reserved names
+        )
         
         # Extract data
         os.makedirs(os.path.join(args.output, "data"), exist_ok=True)
@@ -822,8 +830,10 @@ def cmd_unpack(args: Namespace) -> None:
                 extractor = get_extractors_map()[parser]
                 output_dir = os.path.join(args.output, "data", field_name)
                 extractor(
-                    output_dir=output_dir,
                     output_csv=dataset,
+                    output_yaml=h5pack_yaml,
+                    output_dir=output_dir,
+                    dataset_name=dataset_name,
                     field_name=field_name,
                     data=h5_file["data"],
                     attrs=h5_file["data"][field_name].attrs,
@@ -833,6 +843,10 @@ def cmd_unpack(args: Namespace) -> None:
                     f"Field 'data/{field_name}' extracted to "
                     f"'{output_dir}'"
                 )
+            
+        # Save h5pack.yaml to reconstruct the dataset
+        with open(os.path.join(args.output, "h5pack.yaml"), "w") as f:
+            yaml.dump(h5pack_yaml, f, sort_keys=False)
 
     end_time = perf_counter()
     elapsed_time_repr = time_to_str(end_time - start_time)
