@@ -518,7 +518,7 @@ def cmd_pack(args: Namespace) -> None:
         print(f"Checksum file saved to '{checksum_filename}'")
 
     end_time = perf_counter()
-    elapsed_time_repr = time_to_str(end_time - start_time, abbrev=True)
+    elapsed_time_repr = time_to_str(end_time - start_time)
     print(f"{num_partitions} partition(s) created in {elapsed_time_repr}")
 
 
@@ -795,7 +795,6 @@ def cmd_unpack(args: Namespace) -> None:
     # Generate output folder
     if not os.path.isdir(args.output):
         print(f"Creating output folder '{args.output}' ...")
-
         os.makedirs(args.output, exist_ok=True)
     
     # Perform extraction
@@ -805,19 +804,24 @@ def cmd_unpack(args: Namespace) -> None:
     start_time = perf_counter()
 
     with h5py.File(args.input, mode="r") as h5_file:
-        if args.verbose:
-            print("Extracting file attribute(s) ...")
+        # Extract attributes
+        print("Extracting file attribute(s) ...")
         
-        meta_file = os.path.join(args.output, "meta")
+        attrs_file = os.path.join(args.output, "attributes")
         key_ljust = max([len(k) for k in h5_file.attrs]) + 2
 
-        with open(meta_file, "w") as f:
+        with open(attrs_file, "w") as f:
             for k, v in h5_file.attrs.items():
                 f.write(f"{k}".ljust(key_ljust) + f"{v}\n")
 
-        print(f"File attribute(s) saved to '{meta_file}'")
+        print(f"File attribute(s) saved to '{attrs_file}'")
         
+        # Extract data
         os.makedirs(os.path.join(args.output, "data"), exist_ok=True)
+
+        # Create empty dataset .csv
+        dataset = os.path.join(args.output, "dataset.csv")
+        open(dataset, "w").close()
 
         for field_name in h5_file["data"]:
             parser = h5_file["data"][field_name].attrs.get("parser")
@@ -832,17 +836,16 @@ def cmd_unpack(args: Namespace) -> None:
                 output_dir = os.path.join(args.output, "data", field_name)
                 extractor(
                     output_dir=output_dir,
+                    output_csv=dataset,
                     field_name=field_name,
                     data=h5_file["data"],
                     attrs=h5_file["data"][field_name].attrs,
-                    verbose=args.verbose
                 )
 
-                if args.verbose:
-                    print(
-                        f"Field 'data/{field_name}' extracted to "
-                        f"'{output_dir}'"
-                    )
+                print(
+                    f"Field 'data/{field_name}' extracted to "
+                    f"'{output_dir}'"
+                )
 
     end_time = perf_counter()
     elapsed_time_repr = time_to_str(end_time - start_time)

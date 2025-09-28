@@ -13,7 +13,7 @@ from .utils import (
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="create/expand/inspect hierarchical data format datasets",
+        description="pack/unpack/inspect hierarchical data format datasets",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )

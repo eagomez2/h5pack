@@ -94,7 +94,7 @@ def _as_audiodtype(
     dataset.attrs["sample_rate"] = str(fs)
 
     filenames_dataset = partition_data_group.create_dataset(
-        name=f"{partition_field_name}_filepaths",
+        name=f"{partition_field_name}_filepath",
         shape=(len(files),),
         dtype=h5py.string_dtype()
     )

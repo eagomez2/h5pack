@@ -6,11 +6,11 @@ from ..core.io import write_audio
 
 
 def _from_audiodtype(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Extracts audio of any data type and renders it to a folder.
     
@@ -19,14 +19,29 @@ def _from_audiodtype(
         field_name (str): Field name to extract data from.
         data (h5py.Dataset): Data from which the data will be extracted.
         attrs (h5py.AttributeManager): Attributes associated to the audio data.
-        verbose (bool): Enable verbose mode if `True`.
     """
     # Make output folder if it does not exist
     os.makedirs(output_dir, exist_ok=True)
-
+ 
     # Get file path and sample rate
-    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
+    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filepath"]]
     fs = attrs["sample_rate"]
+
+    # Write paths to csv
+    if os.path.getsize(output_csv) > 0:  # Polars cannot read empty .csv
+        df = pl.read_csv(output_csv, n_rows=0)
+    
+    else:
+        df = pl.DataFrame()
+
+    df = df.with_columns(
+        pl.Series(
+            name=f"{field_name}_filepath",
+            values=[os.path.join("data", field_name, f) for f in filenames],
+            dtype=pl.String
+        )
+    )
+    df.write_csv(output_csv)
 
     if data[field_name].ndim == 2:  # Fixed length audio
         for row_idx, filename in tqdm(
@@ -35,7 +50,6 @@ def _from_audiodtype(
             desc=f"Extracting '{field_name}'",
             colour="green",
             leave=False,
-            disable=not verbose
         ):
             os.makedirs(
                 os.path.join(output_dir, os.path.dirname(filename)),
@@ -54,8 +68,7 @@ def _from_audiodtype(
             total=len(filenames),
             desc=f"Extracting '{field_name}'",
             colour="green",
-            leave=False,
-            disable=not verbose
+            leave=False
         ):
             os.makedirs(
                 os.path.join(output_dir, os.path.dirname(filename)),
@@ -70,62 +83,62 @@ def _from_audiodtype(
 
 
 def from_audioint16(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for audio data as `int16`."""
     return _from_audiodtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def from_audiofloat32(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for audio data as `float32`."""
     return _from_audiodtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
     )
 
 
 def from_audiofloat64(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for audio data as `float64`."""
     return _from_audiodtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def _from_dtype(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Extracts any single value data type and renders it to a `.csv` file.
     
@@ -134,7 +147,6 @@ def _from_dtype(
         field_name (str): Field name to extract data from.
         data (h5py.Dataset): Data from which the data will be extracted.
         attrs (h5py.AttributeManager): Attributes associated to the data.
-        verbose (bool): Enable verbose mode if `True`.
     """
     os.makedirs(output_dir, exist_ok=True)
     df = pl.DataFrame({field_name: list(data[field_name])})
@@ -142,96 +154,96 @@ def _from_dtype(
 
 
 def from_int8(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for single value data as `int8`."""
     return _from_dtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def from_int16(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for single value data as `int16`."""
     return _from_dtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def from_float32(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for single value data as `float32`."""
     return _from_dtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def from_float64(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for single value data as `float64`."""
     return _from_dtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
     )
 
 
 def from_utf8str(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for single value data as `str`."""
-    os.makedirs(output_dir, exist_ok=True)
+    df = pl.read_csv(output_csv)
     decoded_data = [
         i.decode("utf-8") if isinstance(i, bytes)
         else i for i in data[field_name]
     ]
-    df = pl.DataFrame({field_name: decoded_data})
-    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+    df = df.with_columns(pl.Series(field_name, decoded_data, pl.Utf8))
+    df.write_csv(output_csv)
 
 
 def _from_listdtype(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Extracts any list of numeric data types and renders it to a `.csv` file.
     
@@ -240,7 +252,6 @@ def _from_listdtype(
         field_name (str): Field name to extract data from.
         data (h5py.Dataset): Data from which the data will be extracted.
         attrs (h5py.AttributeManager): Attributes associated to the data.
-        verbose (bool): Enable verbose mode if `True`.
     """
     os.makedirs(output_dir, exist_ok=True)
     df = pl.DataFrame(
@@ -250,19 +261,19 @@ def _from_listdtype(
 
 
 def from_listint8(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for lists of data as `int8`."""
     return _from_listdtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
@@ -270,48 +281,46 @@ def from_listint16(
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for lists of data as `int16`."""
     return _from_listdtype(
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def from_listfloat32(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for lists of data as `float32`."""
     return _from_listdtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
 
 
 def from_listfloat64(
+        output_csv: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager,
-        verbose: bool = False
+        attrs: h5py.AttributeManager
 ) -> None:
     """Alias of generic extractor for lists of data as `float64`."""
     return _from_listdtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs,
-        verbose=verbose
+        attrs=attrs
     )
