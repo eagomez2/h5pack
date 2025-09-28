@@ -839,10 +839,7 @@ def cmd_unpack(args: Namespace) -> None:
                     attrs=h5_file["data"][field_name].attrs,
                 )
 
-                print(
-                    f"Field 'data/{field_name}' extracted to "
-                    f"'{output_dir}'"
-                )
+                print(f"Field 'data/{field_name}' successfully extracted")
             
         # Save h5pack.yaml to reconstruct the dataset
         with open(os.path.join(args.output, "h5pack.yaml"), "w") as f:
