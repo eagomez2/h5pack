@@ -74,6 +74,11 @@ def get_parser() -> argparse.ArgumentParser:
         help="skip generating the checksum file"
     )
     pack_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="allow overwriting existing files"
+    )
+    pack_parser.add_argument(
         "-w", "--workers",
         type=int,
         default=0,
@@ -168,6 +173,11 @@ def get_parser() -> argparse.ArgumentParser:
     info_parser.add_argument(
         "input",
         help="input .h5 file"
+    )
+    info_parser.add_argument(
+        "-s", "--skip-checksum",
+        action="store_true",
+        help="skip computing file checksum"
     )
 
     # Unpack parser

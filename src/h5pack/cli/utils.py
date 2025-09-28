@@ -68,6 +68,13 @@ def create_partition_from_data(
     # Create file
     h5_filename = add_extension(args.output, ext=".h5")
 
+    # Check if file already exists
+    if os.path.isfile(h5_filename) and not args.overwrite:
+        exit_error(
+            f"File '{h5_filename}' already exists. Use --overwrite to allow "
+            "replacing existing files"
+        )
+
     if ctx["num_partitions"] != 1:
         h5_filename = add_suffix(
             h5_filename,
@@ -718,9 +725,11 @@ def cmd_info(args: Namespace) -> None:
     top_ljust = 12
     
     # Get checksum
-    checksum = get_file_checksum(args.input, hash="sha256")
     print("Input file:".ljust(top_ljust) +  f"'{args.input}'")
-    print("Checksum:".ljust(top_ljust) +  f"{checksum}")
+
+    if not args.skip_checksum:
+        checksum = get_file_checksum(args.input, hash="sha256")
+        print("Checksum:".ljust(top_ljust) +  f"{checksum}")
 
     with h5py.File(args.input, "r") as h5_file:
         # Check if producer is .h5, otherwise file will not be correctly parsed
@@ -785,8 +794,7 @@ def cmd_unpack(args: Namespace) -> None:
 
     # Generate output folder
     if not os.path.isdir(args.output):
-        if args.verbose:
-            print(f"Creating output folder '{args.output}' ...")
+        print(f"Creating output folder '{args.output}' ...")
 
         os.makedirs(args.output, exist_ok=True)
     
@@ -807,8 +815,7 @@ def cmd_unpack(args: Namespace) -> None:
             for k, v in h5_file.attrs.items():
                 f.write(f"{k}".ljust(key_ljust) + f"{v}\n")
 
-        if args.verbose:
-            print(f"File attribute(s) saved to '{meta_file}'")
+        print(f"File attribute(s) saved to '{meta_file}'")
         
         os.makedirs(os.path.join(args.output, "data"), exist_ok=True)
 
@@ -819,8 +826,7 @@ def cmd_unpack(args: Namespace) -> None:
                 continue
             
             else:
-                if args.verbose:
-                    print(f"Extracting 'data/{field_name}' ({parser}) ...")
+                print(f"Extracting 'data/{field_name}' ({parser}) ...")
 
                 extractor = get_extractors_map()[parser]
                 output_dir = os.path.join(args.output, "data", field_name)
