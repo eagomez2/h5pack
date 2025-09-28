@@ -255,7 +255,7 @@ def create_virtual_dataset_from_partitions(
         h5_file.attrs["producer"] = f"h5pack {__version__}"
 
 
-def cmd_create(args: Namespace) -> None:
+def cmd_pack(args: Namespace) -> None:
     """Creates a HDF5 dataset in one or multiple partitions given a set of user
     input aguments.
 
@@ -778,7 +778,7 @@ def cmd_info(args: Namespace) -> None:
                 print(f"    - dtype: {dataset_data.dtype}")
 
 
-def cmd_extract(args: Namespace) -> None:
+def cmd_unpack(args: Namespace) -> None:
     """Extracts raw data from a `.h5` file.
 
     Args:
