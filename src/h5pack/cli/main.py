@@ -2,9 +2,10 @@ import sys
 import argparse
 from datetime import datetime
 from h5pack import __version__
+from .pack import cmd_pack
 from .utils import (
     cmd_checksum,
-    cmd_pack,
+    # cmd_pack,
     cmd_unpack,
     cmd_info,
     cmd_virtual
@@ -22,15 +23,15 @@ def get_parser() -> argparse.ArgumentParser:
     # Pack parser
     pack_parser = subparser.add_parser(
         "pack",
-        description="pack files into HDF5 datasets",
-        help="pack files into HDF5 datasets",
+        description="pack data into HDF5 dataset files",
+        help="pack data into HDF5 dataset files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
     pack_parser.add_argument(
-        "-i", "--input",
+        "-c", "--config",
         type=str,
-        required=True,
+        default="h5pack.yaml",
         help=".yaml configuration file containing dataset specifications"
     )
     pack_parser.add_argument(
@@ -44,7 +45,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-p", "--partitions",
         type=int,
         default=1,
-        help="number of partitions to generate"
+        help="number of partitions to create"
     )
     pack_parser.add_argument(
         "-f", "--files-per-partition",
@@ -81,7 +82,7 @@ def get_parser() -> argparse.ArgumentParser:
     pack_parser.add_argument(
         "-w", "--workers",
         type=int,
-        default=0,
+        default=1,
         help="number of workers (0 means 1 worker per core)"
     )
     pack_parser.add_argument(

@@ -1,7 +1,12 @@
 import os
 import yaml
 import polars as pl
-from tqdm import tqdm
+from rich.progress import (
+    Progress,
+    BarColumn,
+    TextColumn,
+    TimeRemainingColumn
+)
 from ..core.config import get_allowed_audio_extensions
 from ..core.display import exit_error
 from ..core.guards import (
@@ -15,11 +20,11 @@ from ..core.exceptions import (
 )
 
 
-def validate_specs_file(file: str, ctx: dict) -> dict:
-    """Validate specification file in `.yaml format.
+def validate_config_file(file: str, ctx: dict) -> dict:
+    """Validate configuration file in `.yaml format.
     
     Args:
-        file (str): Input `.yaml` file.
+        file (str): Configuration `.yaml` file.
         ctx (dict): Context.
     
     Returns:
@@ -31,7 +36,7 @@ def validate_specs_file(file: str, ctx: dict) -> dict:
             specs = yaml.safe_load(f)
     
     except Exception as e:
-        exit_error(f"Input file could not be parsed: {e}")
+        exit_error(f"Configuration file could not be parsed: {e}")
     
     # Check 'datasets' key exists (mandatory)
     if "datasets" not in specs:
@@ -49,6 +54,9 @@ def validate_specs_file(file: str, ctx: dict) -> dict:
                     f"'{attr_name}' of 'attrs' of dataset '{dataset_name}'"
                     f" of type '{attr_value.__class__.__name__}'"
                 )
+        
+        if "data" not in dataset_config:
+            exit_error(f"Missing 'data' key in dataset '{dataset_name}'")
 
         if "file" not in dataset_config["data"]:
             exit_error(f"Missing 'file' key in dataset '{dataset_name}'")
@@ -105,38 +113,40 @@ def _validate_file_as_audiodtype(
     # Get all files
     files = df[col].to_list()
     observed_fs = []
+    progress_bar = ctx["progress_bar"]
 
-    for file in tqdm(
-        files,
-        desc=f"Validating '{col}'",
-        leave=False,
-        colour="green",
-        unit="row"
-    ):
-        # Solve path
-        file = (
-            os.path.join(ctx["root_dir"], file) if not os.path.isabs(file)
-            else file
-        )
+    with progress_bar:
+        # Add task
+        task = progress_bar.add_task(f"Validating '{col}'", total=len(files))
 
-        is_file_with_ext_or_error(file, ext=get_allowed_audio_extensions())
-        meta = read_audio_metadata(file)
-
-        if meta["num_channels"] != 1:
-            raise ChannelCountError(
-                f"Currently only mono files are supported but '{file}' has "
-                f"{meta['num_channels']} channels"
+        for file in files:
+            # Make step
+            progress_bar.advance(task)
+            
+            # Solve path
+            file = (
+                os.path.join(ctx["root_dir"], file) if not os.path.isabs(file)
+                else file
             )
 
-        if meta["fs"] not in observed_fs:
-            observed_fs.append(meta["fs"])
+            is_file_with_ext_or_error(file, ext=get_allowed_audio_extensions())
+            meta = read_audio_metadata(file)
 
-        if len(observed_fs) > 1:
-            raise SampleRateError(
-                "All files should have the same sample rate. Previous files "
-                f"had sample rate {observed_fs[0]} but current file '{file}' "
-                f"has sample rate {observed_fs[-1]}"
-            )
+            if meta["num_channels"] != 1:
+                raise ChannelCountError(
+                    f"Currently only mono files are supported but '{file}' has"
+                    f" {meta['num_channels']} channels"
+                )
+
+            if meta["fs"] not in observed_fs:
+                observed_fs.append(meta["fs"])
+
+            if len(observed_fs) > 1:
+                raise SampleRateError(
+                    "All files should have the same sample rate. Previous "
+                    f"files had sample rate {observed_fs[0]} but current file "
+                    f"'{file}' has sample rate {observed_fs[-1]}"
+                )
 
 
 def validate_file_as_audioint16(

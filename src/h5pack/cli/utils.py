@@ -16,7 +16,9 @@ from argparse import Namespace
 from h5pack import __version__
 from multiprocessing import (
     Pool,
-    RLock
+    Manager,
+    RLock,
+    Queue
 )
 from ..core.guards import is_file_with_ext
 from ..core.display import (
@@ -43,7 +45,80 @@ from ..data import (
     get_parsers_map,
     get_validators_map
 )
-from ..data.validators import validate_specs_file
+from ..data.validators import validate_config_file
+
+
+def create_partition_from_data_(
+        idx: int,
+        specs: dict,
+        data: pl.DataFrame,
+        args: Namespace,
+        ctx: dict = {}
+) -> Tuple[int, str]:
+    """Creates a single partition file from a given `DataFrame` and
+    accompanying set of specifications.
+
+    Args:
+        idx (int): Partition index.
+        specs (dict): Set of specifications used to process the data.
+        data (pl.DataFrame): Input `DataFrame` containing the raw data.
+        args (Namespace): User provided arguments.
+        ctx (dict): Context information.
+    
+    Returns:
+        (Tuple[int, str]): Partition index and generated `.h5` filename.
+    """
+    # Create file
+    h5_filename = add_extension(args.output, ext=".h5")
+
+    if ctx["num_partitions"] != 1:
+        h5_filename = add_suffix(
+            h5_filename,
+            f".pt{str(idx).zfill(len(str(ctx['num_partitions'])))}"
+        )
+    
+    # Create output folder if it doesn't exist
+    if os.path.dirname(args.output) != "":
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+
+    h5_file = h5py.File(h5_filename, "w")
+
+    # Add root attrs
+    for k, v in specs["attrs"].items():
+        h5_file.attrs[k] = v
+    
+    # Add data group
+    data_group = h5_file.create_group("data")
+
+    # Add data
+    for field_name, field_data in specs["fields"].items():
+        # Get parser
+        parser = (
+            get_parsers_map()[data[field_data["column"]].dtype][
+                field_data["parser"]
+            ]
+        )
+
+        # Get data slice indices
+        start_idx, end_idx = field_data["slices"][idx]
+
+        # Parse field data
+        parser(
+            partition_idx=idx,
+            partition_data_group=data_group,
+            partition_field_name=field_name,
+            data_frame=data,
+            data_column_name=field_data["column"],
+            data_start_idx=start_idx,
+            data_end_idx=end_idx,
+            ctx=ctx,
+            **field_data.get("parser_args", {})
+        )
+ 
+    # Close file
+    h5_file.close()
+
+    return idx, h5_filename
 
 
 def create_partition_from_data(
@@ -51,7 +126,7 @@ def create_partition_from_data(
         data_specs: dict,
         data_df: pl.DataFrame,
         args: Namespace,
-        ctx: dict = {}
+        ctx: dict = {},
 ) -> Tuple[int, str]:
     """Creates a single partition file from a given `DataFrame` and
     accompanying set of specifications.
@@ -62,6 +137,7 @@ def create_partition_from_data(
         data_df (pl.DataFrame): Input `DataFrame` containing the raw data.
         args (Namespace): User provided arguments.
         ctx (dict): Context information.
+        queue (Queue): Queue used for multiprocessing.
     
     Returns:
         (Tuple[int, str]): Partition index and generated `.h5` filename.
@@ -136,7 +212,6 @@ def create_virtual_dataset_from_partitions(
         partitions (List[str]): List of partitions to accumulate in a single
             virtual dataset.
         attrs (Optional[dict]): Virtual dataset attributes.
-        verbose (bool): If `True`, enabled verbose mode.
     """
     # Check all partition files exist
     for partition in partitions:
@@ -392,7 +467,7 @@ def cmd_pack(args: Namespace) -> None:
     start_time = perf_counter()
     partition_filenames = []
 
-    if args.workers == 1:
+    if args.workers == 1:  # Single worker
         for partition_idx in range(num_partitions):
             idx, filename = create_partition_from_data(
                 idx=partition_idx,
@@ -409,40 +484,108 @@ def cmd_pack(args: Namespace) -> None:
             else:
                 print(f"Partition #{idx} saved to '{filename}'")
     
-    else:
+    else:  # Multiple workers
+        manager = Manager()
+        queue = manager.Queue()
+        lock = RLock()
+
+        # Create pool
         pool = Pool(
             processes=None if args.workers == 0 else args.workers,
-            initargs=(RLock(),),
+            initargs=(lock,),
             initializer=tqdm.set_lock
         )
 
-        jobs = []
+        # Launch jobs
+        ctx["queue"] = queue
 
-        for partition_idx in range(num_partitions):
-            jobs.append(
-                pool.apply_async(
-                    create_partition_from_data,
-                    args=(
-                        partition_idx,
-                        data,
-                        data_df,
-                        args,
-                        ctx
-                    )
+        jobs = [
+            pool.apply_async(
+                create_partition_from_data,
+                args=(
+                    partition_idx,
+                    data,
+                    data_df,
+                    args,
+                    ctx
                 )
             )
+            for partition_idx in range(num_partitions)
+        ]
 
-        pool.close()
-        results = [job.get() for job in jobs]
+        # Create one progress bar per partition
+        progress_bars = [
+            tqdm(
+                position=partition_idx,
+                colour="green",
+                leave=False
+            )
+            for partition_idx in range(num_partitions)
+        ]
 
-        for idx, filename in results:
-            partition_filenames.append(filename)
+        finished_jobs = 0
+        completed_jobs = set()
 
-            if num_partitions == 1:
-                tqdm.write(f"Dataset file saved to '{filename}'")
+        while finished_jobs < num_partitions:
+            # Update bars from the queue
+            while not queue.empty():
+                partition_idx, status = queue.get()
+
+                if partition_idx not in completed_jobs:
+                    progress_bars[partition_idx].total = status["total"]
+                    progress_bars[partition_idx].set_description(
+                        status["description"]
+                    ) 
+                    progress_bars[partition_idx].update(status["step"])
+                    progress_bars[partition_idx].refresh()
             
-            else:
-                tqdm.write(f"Partition #{idx} saved to '{filename}'")
+            # Check completed jobs
+            for job_idx, job in enumerate(jobs):
+                if job.ready() and job_idx not in completed_jobs:
+                    completed_jobs.add(job_idx)
+                    finished_jobs += 1
+                    progress_bars[job_idx].clear()
+                    partition_idx, filename = job.get()
+                    tqdm.write(
+                        f"Partition #{partition_idx} saved to '{filename}'"
+                    )
+        
+        pool.close()
+        pool.join()
+
+        # pool = Pool(
+        #     processes=None if args.workers == 0 else args.workers,
+        #     initargs=(RLock(),),
+        #     initializer=tqdm.set_lock
+        # )
+
+        # jobs = []
+
+        # for partition_idx in range(num_partitions):
+        #     jobs.append(
+        #         pool.apply_async(
+        #             create_partition_from_data,
+        #             args=(
+        #                 partition_idx,
+        #                 data,
+        #                 data_df,
+        #                 args,
+        #                 ctx
+        #             )
+        #         )
+        #     )
+
+        # pool.close()
+        # results = [job.get() for job in jobs]
+
+        # for idx, filename in results:
+        #     partition_filenames.append(filename)
+
+        #     if num_partitions == 1:
+        #         tqdm.write(f"Dataset file saved to '{filename}'")
+            
+        #     else:
+        #         tqdm.write(f"Partition #{idx} saved to '{filename}'")
         
     # Create virtual layout
     if not args.skip_virtual and num_partitions > 1:
