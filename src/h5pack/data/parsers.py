@@ -7,7 +7,6 @@ from typing import (
     List,
     Optional
 )
-from tqdm import tqdm
 from ..core.io import (
     read_audio,
     read_audio_metadata
@@ -229,26 +228,9 @@ def _as_dtype(
     )
     dataset.attrs["parser"] = parser_name
 
-    # Check whether we are running in multiprocessing mode
-    queue = ctx.get("queue")
-    total = len(metrics)
-
-    if queue is not None:
-        ...
-    
-    else:
-        for idx, metric in enumerate(
-            tqdm(
-                metrics,
-                desc=(
-                    f"Writing '{partition_field_name}' in partition "
-                    f"#{partition_idx}"
-                ),
-                colour="green",
-                leave=False
-            )
-        ):
-            dataset[idx] = metric
+    for idx, metric in enumerate(metrics):
+        dataset[idx] = metric
+        ctx["queue"].put((partition_idx, 1))
 
 
 def as_int8(
@@ -442,22 +424,14 @@ def _as_listdtype(
 
     dataset.attrs["parser"] = parser_name
 
-    for idx, data in enumerate(
-        tqdm(
-            lists,
-            desc=(
-                f"Writing '{partition_field_name}' in partition "
-                f"#{partition_idx}"
-            ),
-            colour="green",
-            leave=False
-        )
-    ):
+    for idx, data in enumerate(lists):
         if vlen:
             dataset[idx] = data
 
         else:
             dataset[idx, :] = data
+        
+        ctx["queue"].put((partition_idx, 1))
 
 
 def as_listint8(
