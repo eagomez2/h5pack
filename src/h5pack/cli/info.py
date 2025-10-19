@@ -1,19 +1,7 @@
-import os
 import h5py
-import fnmatch
 from argparse import Namespace
-from ..core.io import (
-    add_extension,
-    get_dir_files
-)
 from ..core.guards import is_file_with_ext
-from ..core.display import (
-    ask_confirmation,
-    exit_error,
-    exit_warning
-)
-from ..core.utils import dict_from_interleaved_list
-from .utils import create_virtual_dataset_from_partitions
+from ..core.display import exit_error
 
 
 def cmd_info(args: Namespace) -> None:
