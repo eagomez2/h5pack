@@ -2,14 +2,13 @@ import sys
 import argparse
 from datetime import datetime
 from h5pack import __version__
+from .checksum import cmd_checksum
 from .pack import cmd_pack
 from .virtual import cmd_virtual
 from .utils import (
-    cmd_checksum,
-    # cmd_pack,
+    # cmd_checksum,
     cmd_unpack,
     cmd_info,
-    # cmd_virtual
 )
 
 
@@ -146,21 +145,24 @@ def get_parser() -> argparse.ArgumentParser:
     # Checksum parser
     checksum_parser = subparser.add_parser(
         "checksum",
-        description="verify HDF5 datasets checksum",
-        help="create virtual HDF5 datasets checksum",
+        help="create/verify virtual HDF5 datasets checksum",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
     checksum_parser.add_argument(
         "input",
         type=str,
-        nargs="+",
-        help="checksum file"
+        help=".sha256 file (to verify) or file or folder (to calculate)"
     )
     checksum_parser.add_argument(
-        "-g", "--generate",
+        "--save",
+        type=str,
+        help="save calculated checksum to a .sha256 file"
+    )
+    checksum_parser.add_argument(
+        "-r", "--recursive",
         action="store_true",
-        help="generate sha256 hash of input files"
+        help="search folders recursively if input is a folder"
     )
 
     # Info parser

@@ -324,7 +324,7 @@ def cmd_pack(args: Namespace) -> None:
             pool.close()
             pool.join()
 
-    print("\033[F\033[K", end="") # Clear blank line from Rich
+    print("\033[F\033[K", end="")  # Clear blank line from Rich
 
     # --------------------------------------------------------------------------
     # SECTION: CREATE VIRTUAL DATASET
@@ -379,7 +379,7 @@ def cmd_pack(args: Namespace) -> None:
                     )
                     checksum_progress_bar.advance(task_id)
                 
-                if not args.skip_virtual and num_partitions > 1:
+                if args.create_virtual and num_partitions > 1:
                     virtual_dataset_file = os.path.join(
                         ctx["root_dir"],
                         virtual_dataset_filename
