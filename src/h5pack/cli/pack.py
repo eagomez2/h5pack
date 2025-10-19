@@ -38,7 +38,7 @@ from ..data import (
     get_validators_map
 )
 from .utils import (
-    create_partition_from_data_,
+    create_partition_from_data,
     create_virtual_dataset_from_partitions
 )
 
@@ -256,7 +256,7 @@ def cmd_pack(args: Namespace) -> None:
                 container = {}
 
                 def worker():
-                    container["result"] = create_partition_from_data_(
+                    container["result"] = create_partition_from_data(
                         idx=partition_idx,
                         specs=specs,
                         data=data_df,
@@ -295,7 +295,7 @@ def cmd_pack(args: Namespace) -> None:
             pool = Pool(processes=args.workers)
             jobs = [
                 pool.apply_async(
-                    func=create_partition_from_data_,
+                    func=create_partition_from_data,
                     args=(partition_idx, specs, data_df, args, ctx)
                 )
                 for partition_idx in range(num_partitions)
