@@ -87,6 +87,25 @@ def get_parser() -> argparse.ArgumentParser:
         help="unattended mode (no user prompts)"
     )
 
+    # Unpack parser
+    unpack_parser = subparser.add_parser(
+        "unpack",
+        description="unpack HDF5 datasets into individual files",
+        help="unpack HDF5 datasets datasets into individual files",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+    unpack_parser.add_argument(
+        "input",
+        help="input .h5 file"
+    )
+    unpack_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        required=True,
+        help="output folder"
+    )
+
     # Virtual parser
     virtual_parser = subparser.add_parser(
         "virtual",
@@ -139,6 +158,19 @@ def get_parser() -> argparse.ArgumentParser:
         help="unattended mode (no user prompts)"
     )
 
+    # Info parser
+    info_parser = subparser.add_parser(
+        "info",
+        description="inspect HDF5 datasets",
+        help="inspect HDF5 datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+    info_parser.add_argument(
+        "input",
+        help="input .h5 file"
+    ) 
+
     # Checksum parser
     checksum_parser = subparser.add_parser(
         "checksum",
@@ -160,38 +192,6 @@ def get_parser() -> argparse.ArgumentParser:
         "-r", "--recursive",
         action="store_true",
         help="search folders recursively if input is a folder"
-    )
-
-    # Info parser
-    info_parser = subparser.add_parser(
-        "info",
-        description="inspect HDF5 datasets",
-        help="inspect HDF5 datasets",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
-    )
-    info_parser.add_argument(
-        "input",
-        help="input .h5 file"
-    )
-
-    # Unpack parser
-    unpack_parser = subparser.add_parser(
-        "unpack",
-        description="unpack HDF5 datasets into individual files",
-        help="unpack HDF5 datasets datasets into individual files",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
-    )
-    unpack_parser.add_argument(
-        "input",
-        help="input .h5 file"
-    )
-    unpack_parser.add_argument(
-        "-o", "--output",
-        type=str,
-        required=True,
-        help="output folder"
     )
 
     return parser
