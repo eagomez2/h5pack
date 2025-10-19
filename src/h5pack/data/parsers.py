@@ -106,8 +106,8 @@ def _as_audiodtype(
         else:
             dataset[idx, :] = data
 
-            # Store filename only
-            filenames_dataset[idx] = os.path.basename(file)
+        # Store filename only
+        filenames_dataset[idx] = os.path.basename(file)
         
         # Update progress bar
         ctx["queue"].put((partition_idx, 1))

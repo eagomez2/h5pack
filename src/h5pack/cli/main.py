@@ -5,10 +5,8 @@ from h5pack import __version__
 from .checksum import cmd_checksum
 from .info import cmd_info
 from .pack import cmd_pack
+from .unpack import cmd_unpack
 from .virtual import cmd_virtual
-from .utils import (
-    cmd_unpack,
-)
 
 
 def get_parser() -> argparse.ArgumentParser:

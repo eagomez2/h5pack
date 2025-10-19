@@ -1,12 +1,6 @@
 import os
 import yaml
 import polars as pl
-from rich.progress import (
-    Progress,
-    BarColumn,
-    TextColumn,
-    TimeRemainingColumn
-)
 from ..core.config import get_allowed_audio_extensions
 from ..core.display import exit_error
 from ..core.guards import (
