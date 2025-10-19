@@ -249,6 +249,10 @@ def cmd_pack(args: Namespace) -> None:
         partition_filenames = []
         start_time = perf_counter()
 
+        # Assign workers equal to cpu cores if value is 0
+        if args.workers == 0:
+            args.workers = os.cpu_count()
+
         if args.workers == 1:  # Sequential
             for partition_idx in range(num_partitions):
                 container = {}

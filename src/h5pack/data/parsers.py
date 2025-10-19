@@ -374,18 +374,12 @@ def as_utf8str(
     )
     dataset.attrs["parser"] = "as_utf8str"
 
-    for idx, value in enumerate(
-        tqdm(
-            values, 
-            desc=(
-                f"Writing '{partition_field_name}' in partition "
-                f"#{partition_idx}"
-            ),
-            colour="green",
-            leave=False
-        )
-    ):
+    for idx, value in enumerate(values):
+        # Store data
         dataset[idx] = value
+
+        # Update progress bar
+        ctx["queue"].put((partition_idx, 1))
 
 
 def _as_listdtype(
