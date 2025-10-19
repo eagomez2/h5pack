@@ -14,7 +14,7 @@ dependencies = [
     "soundfile >= 0.13.1",
     "polars >= 1.33.1",
     "pyyaml >= 6.0.3",
-    "tqdm >= 4.67.1"
+    "rich >= 14.2.0"
 ]
 requires-python = ">=3.9"
 

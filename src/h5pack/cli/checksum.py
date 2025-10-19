@@ -10,9 +10,9 @@ from ..core.display import (
     exit_error,
     exit_warning,
     print_warning,
-    print_error
+    print_error,
 )
-from .utils import (
+from ..core.utils import (
     get_file_checksum,
     time_to_str
 )

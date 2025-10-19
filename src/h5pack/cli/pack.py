@@ -34,9 +34,7 @@ from ..core.utils import (
     total_to_list_slices
 )
 from ..data.validators import validate_config_file
-from ..data import (
-    get_validators_map
-)
+from ..data import get_validators_map
 from .utils import (
     create_partition_from_data,
     create_virtual_dataset_from_partitions
