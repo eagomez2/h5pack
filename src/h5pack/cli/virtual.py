@@ -1,50 +1,18 @@
 import os
-import math
 import fnmatch
-import polars as pl
 from argparse import Namespace
-from datetime import datetime
-from threading import Thread
-from time import perf_counter
-from multiprocessing import (
-    Pool,
-    Manager
-)
-from h5pack import __version__
-from rich.progress import (
-    Progress,
-    BarColumn,
-    TextColumn,
-    TimeRemainingColumn
-)
-from queue import Empty
 from ..core.io import (
     add_extension,
-    add_suffix,
-    change_extension,
     get_dir_files
 )
 from ..core.guards import is_file_with_ext
 from ..core.display import (
     ask_confirmation,
     exit_error,
-    exit_warning,
-    print_warning
+    exit_warning
 )
-from ..core.utils import (
-    dict_from_interleaved_list,
-    get_file_checksum,
-    time_to_str,
-    total_to_list_slices,
-)
-from ..data.validators import validate_config_file
-from ..data import (
-    get_validators_map
-)
-from .utils import (
-    create_partition_from_data_,
-    create_virtual_dataset_from_partitions
-)
+from ..core.utils import dict_from_interleaved_list
+from .utils import create_virtual_dataset_from_partitions
 
 
 def cmd_virtual(args: Namespace) -> None:
