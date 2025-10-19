@@ -44,6 +44,12 @@ from .utils import (
 
 
 def cmd_pack(args: Namespace) -> None:
+    """Creates a HDF5 dataset in one or multiple partitions given a set of user
+    input aguments.
+
+    Args:
+        args (Namespace): User input arguments provided through the console.
+    """
     # --------------------------------------------------------------------------
     # SECTION: VALIDATE DATA AND PREPARE SPECS
     # --------------------------------------------------------------------------
