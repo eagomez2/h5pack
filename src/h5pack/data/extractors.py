@@ -1,7 +1,6 @@
 import os
 import h5py
 import polars as pl
-from tqdm import tqdm
 from ..core.io import write_audio
 
 
@@ -119,7 +118,8 @@ def from_audioint16(
         dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `int16`."""
     return _from_audiodtype(
@@ -129,7 +129,8 @@ def from_audioint16(
         dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -162,7 +163,8 @@ def from_audiofloat64(
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `float64`."""
     return _from_audiodtype(
@@ -170,7 +172,8 @@ def from_audiofloat64(
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -272,7 +275,8 @@ def from_utf8str(
         dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `str`."""
     # Update .yaml
