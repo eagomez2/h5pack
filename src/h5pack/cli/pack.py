@@ -20,8 +20,7 @@ from queue import Empty
 from ..core.io import (
     add_extension,
     add_suffix,
-    read_audio,
-    read_audio_metadata
+    change_extension
 )
 from ..core.guards import is_file_with_ext
 from ..core.display import (
@@ -30,14 +29,18 @@ from ..core.display import (
     print_warning
 )
 from ..core.utils import (
-    total_to_list_slices,
-    total_to_slice_len
+    get_file_checksum,
+    time_to_str,
+    total_to_list_slices
 )
 from ..data.validators import validate_config_file
 from ..data import (
     get_validators_map
 )
-from .utils import create_partition_from_data_
+from .utils import (
+    create_partition_from_data_,
+    create_virtual_dataset_from_partitions
+)
 
 
 def cmd_pack(args: Namespace) -> None:
@@ -109,6 +112,7 @@ def cmd_pack(args: Namespace) -> None:
                 TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
                 TextColumn("{task.completed}/{task.total}"),
                 TimeRemainingColumn(),
+                transient=True
             )
             ctx["progress_bar"] = validation_progress_bar
             validators = get_validators_map().get(parser_name, None)
@@ -238,6 +242,7 @@ def cmd_pack(args: Namespace) -> None:
                         total=end_idx - start_idx
                     )
 
+        partition_filenames = []
         start_time = perf_counter()
 
         if args.workers == 1:  # Sequential
@@ -276,6 +281,7 @@ def cmd_pack(args: Namespace) -> None:
                     if task_id.startswith(str(partition_idx)):
                         progress_bar.remove_task(task_ids[task_id])
 
+                partition_filenames.append(filename)
                 print(f"Partition #{partition_idx} saved to '{filename}'")
         
         else:  # Recurrent
@@ -310,6 +316,7 @@ def cmd_pack(args: Namespace) -> None:
                             if task_id.startswith(str(partition_idx)):
                                 progress_bar.remove_task(task_ids[task_id])
 
+                        partition_filenames.append(filename)
                         print(
                             f"Partition #{partition_idx} saved to '{filename}'"
                         )
@@ -320,9 +327,77 @@ def cmd_pack(args: Namespace) -> None:
     # --------------------------------------------------------------------------
     # SECTION: CREATE VIRTUAL DATASET
     # --------------------------------------------------------------------------
-    ...
+    if not args.skip_virtual and num_partitions > 1:
+        print("Creating virtual dataset ...")
+
+        virtual_dataset_filename = add_extension(args.output, ext=".h5")
+        create_virtual_dataset_from_partitions(
+            file=virtual_dataset_filename,
+            partitions=partition_filenames
+        )
+        print(f"Virtual dataset saved to '{virtual_dataset_filename}'")
+    
+    else:
+        if num_partitions > 1:
+            print_warning(
+                "Skipping virtual layout generation (--skip-virtual enabled)"
+            )
 
     # --------------------------------------------------------------------------
     # SECTION: CREATE CHECKSUM FILE
     # --------------------------------------------------------------------------
-    ...
+    if not args.skip_checksum:
+        print("Creating checksum file ...")
+        
+        checksum_filename = change_extension(
+            args.output,
+            new_ext=".sha256"
+        )
+
+        checksum_progress_bar = Progress(
+            TextColumn("{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            TextColumn("{task.completed}/{task.total}"),
+            TimeRemainingColumn(),
+            transient=True
+        )
+        task_id = checksum_progress_bar.add_task(
+            "Computing checksum",
+            total=len(partition_filenames)
+        )
+
+        with checksum_progress_bar:
+            with open(checksum_filename, "w") as f:
+                for partition_filename in partition_filenames:
+                    partition_file = os.path.join(
+                        ctx["root_dir"],
+                        partition_filename
+                    )
+                    partition_file_sha256 = get_file_checksum(
+                        file=partition_file
+                    )
+                    f.write(
+                        f"{os.path.basename(partition_filename)}"
+                        f"\t{partition_file_sha256}\n"
+                    )
+                    checksum_progress_bar.advance(task_id)
+                
+                if not args.skip_virtual and num_partitions > 1:
+                    virtual_dataset_file = os.path.join(
+                        ctx["root_dir"],
+                        virtual_dataset_filename
+                    )
+                    virtual_dataset_file_sha256 = get_file_checksum(
+                        file=virtual_dataset_file
+                    )
+                    f.write(
+                        f"{os.path.basename(virtual_dataset_filename)}\t"
+                        f"{virtual_dataset_file_sha256}\n"
+                    )
+            
+            print(f"Checksum file saved to '{checksum_filename}'")
+
+    end_time = perf_counter()
+    elapsed_time_repr = time_to_str(end_time - start_time)
+    print(f"{num_partitions} partition(s) created in {elapsed_time_repr}")
