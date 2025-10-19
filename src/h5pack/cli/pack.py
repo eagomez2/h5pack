@@ -329,7 +329,7 @@ def cmd_pack(args: Namespace) -> None:
     # --------------------------------------------------------------------------
     # SECTION: CREATE VIRTUAL DATASET
     # --------------------------------------------------------------------------
-    if not args.skip_virtual and num_partitions > 1:
+    if args.create_virtual and num_partitions > 1:
         print("Creating virtual dataset ...")
 
         virtual_dataset_filename = add_extension(args.output, ext=".h5")
@@ -338,12 +338,6 @@ def cmd_pack(args: Namespace) -> None:
             partitions=partition_filenames
         )
         print(f"Virtual dataset saved to '{virtual_dataset_filename}'")
-    
-    else:
-        if num_partitions > 1:
-            print_warning(
-                "Skipping virtual layout generation (--skip-virtual enabled)"
-            )
 
     # --------------------------------------------------------------------------
     # SECTION: CREATE CHECKSUM FILE

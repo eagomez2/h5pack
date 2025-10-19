@@ -3,12 +3,13 @@ import argparse
 from datetime import datetime
 from h5pack import __version__
 from .pack import cmd_pack
+from .virtual import cmd_virtual
 from .utils import (
     cmd_checksum,
     # cmd_pack,
     cmd_unpack,
     cmd_info,
-    cmd_virtual
+    # cmd_virtual
 )
 
 
@@ -59,15 +60,14 @@ def get_parser() -> argparse.ArgumentParser:
         help="name of the dataset to generate"
     )
     pack_parser.add_argument(
+        "--create-virtual",
+        action="store_true",
+        help="create a virtual layout when two or more partitions are created"
+    )
+    pack_parser.add_argument(
         "--skip-validation",
         action="store_true",
         help="skip validating files before generating the partition(s)"
-    )
-    pack_parser.add_argument(
-        "--skip-virtual",
-        action="store_true",
-        help="skip generating a virtual layout when two or more partitions "
-             "are created"
     )
     pack_parser.add_argument(
         "--skip-checksum",
