@@ -203,6 +203,7 @@ def cmd_pack(args: Namespace) -> None:
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
         TextColumn("{task.completed}/{task.total}"),
         TimeRemainingColumn(),
+        transient=True
         # disable=True
     )
     task_ids = {}
@@ -231,7 +232,6 @@ def cmd_pack(args: Namespace) -> None:
                 )
 
     with progress_bar:
-
         # Add each partition field as a separate task
         for partition_idx in range(num_partitions):
             for field_name, field_data in specs["fields"].items():
@@ -323,6 +323,8 @@ def cmd_pack(args: Namespace) -> None:
                     
             pool.close()
             pool.join()
+
+    print("\033[F\033[K", end="") # Clear blank line from Rich
 
     # --------------------------------------------------------------------------
     # SECTION: CREATE VIRTUAL DATASET
