@@ -3,12 +3,11 @@ import argparse
 from datetime import datetime
 from h5pack import __version__
 from .checksum import cmd_checksum
+from .info import cmd_info
 from .pack import cmd_pack
 from .virtual import cmd_virtual
 from .utils import (
-    # cmd_checksum,
     cmd_unpack,
-    cmd_info,
 )
 
 
@@ -176,11 +175,6 @@ def get_parser() -> argparse.ArgumentParser:
     info_parser.add_argument(
         "input",
         help="input .h5 file"
-    )
-    info_parser.add_argument(
-        "-s", "--skip-checksum",
-        action="store_true",
-        help="skip computing file checksum"
     )
 
     # Unpack parser
