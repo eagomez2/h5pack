@@ -70,7 +70,16 @@ def cmd_virtual(args: Namespace) -> None:
                 selected_files.append(f)
         
         h5_files = [f for f in h5_files if f in selected_files]
-        print(f"{len(h5_files)} selected .h5 file(s) after applying --select")
+
+        if len(h5_files) == 0:
+            exit_warning(
+                f"{len(h5_files)} selected .h5 file(s) after applying --select"
+            )
+        
+        else:
+            print(
+                f"{len(h5_files)} selected .h5 file(s) after applying --select"
+            )
     
     if args.filter is not None:
         print(f"Applying --filter pattern '{args.filter}' ...")
@@ -83,13 +92,22 @@ def cmd_virtual(args: Namespace) -> None:
         
         h5_files = [f for f in h5_files if f not in filtered_files]
 
-        print(f"{len(h5_files)} selected .h5 file(s) after applying --filter")
+        if len(h5_files) == 0:
+            exit_warning(
+                f"{len(h5_files)} selected .h5 file(s) after applying --filter"
+            )
+        
+        else:
+            print(
+                f"{len(h5_files)} selected .h5 file(s) after applying --filter"
+            )
 
     partition_files_repr = "\n".join(
         [
             f"  {idx}. '{f}'" for idx, f in enumerate(h5_files, start=1)
         ]
     )
+
     print(
         "A virtual dataset will be created for the following file(s):\n"
         f"{partition_files_repr}"
