@@ -1,5 +1,5 @@
 # h5pack
-`h5pack` is a utility made to create, analyze and expand HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click [here](https://www.hdfgroup.org/solutions/hdf5/) to learn more about HDF5. Among other, HDF5 provides:
+`h5pack` is a utility made to pack, analyze and unpack HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click [here](https://www.hdfgroup.org/solutions/hdf5/) to learn more about HDF5. Among other, HDF5 provides:
 
 - Efficient storage: Handles large datasets with chunking and compression, reducing disk space usage.
 - Fast I/O: Optimized for rapid reading/writing of multi-dimensional data, improving data loading speeds.
@@ -10,8 +10,8 @@
 
 `h5pack` was made to go from raw files to HDF5 files and back in a robust, consistent and simple way. It provides a collection of tools to facilitate all the necessary tasks to make it possible:
 
-- `h5pack create`: Converts raw audio and/or annotation files into an HDF5 file.
-- `h5pack extract`: Extracts raw data from an HDF5 file, allowing regeneration of the original input data.
+- `h5pack pack`: Converts raw data and/or annotation files into an HDF5 file.
+- `h5pack unpack`: Extracts raw data from an HDF5 file, allowing regeneration of the original input data.
 - `h5pack virtual`: Creates a virtual dataset by combining multiple datasets into a single logical dataset without duplication, enabling seamless access to fragmented or distributed data.
 - `h5pack info`: Displays the contents of an HDF5 file generated with `h5pack`, providing a quick overview of its structure.
 - `h5pack checksum`: Verifies the integrity of an HDF5 file by checking its checksum to detect potential corruption.
@@ -42,11 +42,11 @@ h5pack --version
 
 This should output:
 ```bash
-h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez
+h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez (Speech Interaction Technology, Aalto University)
 ```
 Where:
 - `x.y.z` represents the major, minor, and patch version
-- `yyyy-zzzz` indicates the development start year and the current
+- `yyyy-zzzz` indicates the development start year and the current year
 
 ## Install through `uv`
 Alternatively, you can install the tool using `uv`. This is adequate for when you can to keep it isolated from your python environment setup and just run it to analyze a certain data collection.
@@ -70,11 +70,11 @@ uvx h5pack --version
 
 This should output:
 ```bash
-h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez
+h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez (Speech Interaction Technology, Aalto University)
 ```
 Where:
 - `x.y.z` represents the major, minor, and patch version
-- `yyyy-zzzz` indicates the development start year and the current
+- `yyyy-zzzz` indicates the development start year and the current year
 
 
 ## Install in developer mode
@@ -108,29 +108,29 @@ For more information on `flit`, refer to the [Flit Command Line Interface docume
 datasets:
   first_example_dataset:
     attrs:
-      author: &author_name "Esteban Gómez"
-      description: "First dataset description"
-      version: &version "0.0.1"
+      author: &author_name Your name
+      description: Your description
+      version: &version 0.0.1
 
     data:
-      file: "first_dataset.csv"
+      file: first_dataset.csv
       fields:
         audio:
-          column: "file"
-          parser: "as_audioint16"
+          column: file
+          parser: as_audioint16
   
   second_example_dataset:
     attrs:
       author: *author_name
-      description: "Second dataset description"
+      description: Second dataset description
       version: *version
     
     data:
-      file: "second_dataset.csv"
+      file: second_dataset.csv
       fields:
         audio:
-          column: "file"
-          parser: "as_audioint16"
+          column: file
+          parser: as_audioint16
 ```
 
 - `attrs` can have any string attributes.
@@ -144,7 +144,7 @@ If this package contributed to your work, please consider citing it:
 @misc{h5pack,
   author = {Esteban Gómez},
   title  = {h5pack},
-  year   = 2024,
+  year   = 2025,
   url    = {https://github.com/eagomez2/h5pack}
 }
 ```
