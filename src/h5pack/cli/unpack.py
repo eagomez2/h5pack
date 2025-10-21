@@ -1,6 +1,7 @@
 import os
 import yaml
 import h5py
+from packaging import version
 from argparse import Namespace
 from time import perf_counter
 from rich.progress import (
@@ -78,7 +79,12 @@ def cmd_unpack(args: Namespace) -> None:
             transient=True,
             # disable=True
         )
-        ctx = {"progress_bar": progress_bar}
+        ctx = {
+            "producer_version": version.parse(
+                h5_file.attrs["producer"].replace("h5pack ", "")
+            ),
+            "progress_bar": progress_bar
+        }
 
         # Fill out data
         for field_name in h5_file["data"]:

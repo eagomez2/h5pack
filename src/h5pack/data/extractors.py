@@ -1,6 +1,7 @@
 import os
 import h5py
 import polars as pl
+from packaging import version
 from ..core.io import write_audio
 
 
@@ -41,7 +42,12 @@ def _from_audiodtype(
     os.makedirs(output_dir, exist_ok=True)
  
     # Get file path and sample rate
-    filenames = [s.decode("utf-8") for s in data[f"{field_name}__filepath"]]
+    filenames = (
+        [s.decode("utf-8") for s in data[f"{field_name}__filepath"]]
+        if ctx["producer_version"] >= version.parse("1.0.1")  # Legacy
+        else
+        [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
+    )
     fs = attrs["sample_rate"]
 
     # Write paths to csv
@@ -50,7 +56,7 @@ def _from_audiodtype(
     
     else:
         df = pl.DataFrame()
-
+    
     df = df.with_columns(
         pl.Series(
             name=f"{field_name}__filepath",
