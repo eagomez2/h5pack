@@ -215,3 +215,4 @@ def create_virtual_dataset_from_partitions(
             ", ".join([os.path.basename(p) for p in partitions])
         )
         h5_file.attrs["producer"] = f"h5pack {__version__}"
+        h5_file.attrs["is_virtual"] = True
