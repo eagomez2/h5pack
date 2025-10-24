@@ -1,5 +1,5 @@
 # Welcome to h5pack
-`h5pack` is a utility made to create, analyze and expand HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click <a href="https://www.hdfgroup.org/solutions/hdf5/" target="_blank">here</a> to learn more about HDF5. Among other, HDF5 provides:
+`h5pack` is a utility made to pack, unpack and inspect HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click <a href="https://www.hdfgroup.org/solutions/hdf5/" target="_blank">here</a> to learn more about HDF5. Among other, HDF5 provides:
 
 - Efficient storage: Handles large datasets with chunking and compression, reducing disk space usage.
 - Fast I/O: Optimized for rapid reading/writing of multi-dimensional data, improving data loading speeds.
@@ -10,8 +10,8 @@
 
 `h5pack` was made to go from raw files to HDF5 files and back in a robust, consistent and simple way. It provides a collection of tools to facilitate all the necessary tasks to make it possible:
 
-- `h5pack create`: Converts raw audio and/or annotation files into an HDF5 file.
-- `h5pack extract`: Extracts raw data from an HDF5 file, allowing regeneration of the original input data.
+- `h5pack pack`: Converts raw audio and/or annotation files into an HDF5 file.
+- `h5pack unpack`: Extracts raw data from an HDF5 file, allowing regeneration of the original input data.
 - `h5pack virtual`: Creates a virtual dataset by combining multiple datasets into a single logical dataset without duplication, enabling seamless access to fragmented or distributed data.
 - `h5pack info`: Displays the contents of an HDF5 file generated with `h5pack`, providing a quick overview of its structure.
 - `h5pack checksum`: Verifies the integrity of an HDF5 file by checking its checksum to detect potential corruption.
@@ -33,7 +33,7 @@ h5pack --version
 This should output:
 
 ```bash
-h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez
+h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez (Speech Interaction Technology, Aalto University)
 ```
 
 Where:
@@ -67,7 +67,7 @@ uvx h5pack --version
 This should output:
 
 ```bash
-h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez
+h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez (Speech Interaction Technology, Aalto University)
 ```
 
 Where:
@@ -200,4 +200,4 @@ h5pack extract annotated_audio_dataset.h5 --output annotated_audio_dataset_data
 This will create a folder named `annotated_audio_dataset_data` containing
 the stored `metadata`, as well as the extracted annotations and audio files.
 
-Congratulations! / ¡Felicidades! / Felicitats! / Onnittelut! for finishing this quickstart section. Now you can use `h5pack` to manage your own datasets. For a more in-depth description of each tool you can see the [Documentation](docs-intro).
+Congratulations! / ¡Felicidades! / Felicitats! / Onnittelut! for finishing this quickstart section. Now you can use `h5pack` to manage your own datasets. For a more in-depth description of each tool you can see the [Documentation](docs-intro.md).
