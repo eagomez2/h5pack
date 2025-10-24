@@ -27,7 +27,7 @@
 - [License](#license)
 
 # Installation
-The following section shows different ways to install `h5pack`.
+Below are different ways you can install `h5pack`.
 
 ## Install through `pip` 
 To install `h5pack`, run:
@@ -76,34 +76,11 @@ Where:
 - `x.y.z` represents the major, minor, and patch version
 - `yyyy-zzzz` indicates the development start year and the current year
 
-
-## Install in developer mode
-Developer mode installation is intended for those developing new features for the tool. To set it up:
-1. Clone the repository to your desired folder using:
-```bash
-git clone <repository_url>
-```
-2. Navigate to the root directory (where `pyproject.toml` is located):
-```bash
-cd <repository_folder>
-```
-3. Install in developer mode with:
-```bash
-python -m flit install -s
-```
-This will allow immediate reflection of any code modifications when the tool is executed in the terminal.
-
-Before proceeding, ensure that Flit is installed. If not, install it with:
-```bash
-python -m pip install flit
-```
-For more information on `flit`, refer to the [Flit Command Line Interface documentation](https://flit.pypa.io/en/stable/).
-
 # Quickstart
-Read the quick [here](#).
+Explore the [Quickstart Guide](#) to start using `h5pack` right away. It offers step-by-step instructions to get you set up quickly and effortlessly.
 
 # Documentation
-You can access the [online documentation](#). There you will find a quickstart guide, tutorials and all the necessary resources to get you up in running with `h5pack`.
+Access the [Documentation](#) for a deeper understanding of `h5pack`,including the [Quickstart Guide](#) for immediate setup, tutorials for learning various tasks, and all the essential resources to help you use `h5pack` effectively.
 
 # Cite
 If this package contributed to your work, please consider citing it:
