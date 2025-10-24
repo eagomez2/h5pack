@@ -304,6 +304,7 @@ wheels = [
 
 [[package]]
 name = "h5pack"
+version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "h5py", version = "3.14.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -319,7 +320,7 @@ dependencies = [
     { name = "tqdm" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 docs = [
     { name = "mkdocs" },
     { name = "mkdocs-material" },
@@ -332,19 +333,22 @@ lint = [
 [package.metadata]
 requires-dist = [
     { name = "h5py", specifier = ">=3.14.0" },
-    { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.6.1" },
-    { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5.31" },
-    { name = "mkdocstrings-python", marker = "extra == 'docs'", specifier = ">=1.10.8" },
     { name = "numpy", specifier = ">=2.0.2" },
     { name = "packaging", specifier = ">=25.0" },
     { name = "polars", specifier = ">=1.33.1" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "rich", specifier = ">=14.2.0" },
-    { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.9.7" },
     { name = "soundfile", specifier = ">=0.13.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
-provides-extras = ["docs", "lint"]
+
+[package.metadata.requires-dev]
+docs = [
+    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs-material", specifier = ">=9.6.22" },
+    { name = "mkdocstrings-python", specifier = ">=1.18.2" },
+]
+lint = [{ name = "ruff", specifier = ">=0.14.2" }]
 
 [[package]]
 name = "h5py"

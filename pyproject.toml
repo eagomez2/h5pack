@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
 
 [project]
 name = "h5pack"
@@ -27,16 +27,6 @@ Home = "https://www.github.com/eagomez2/h5pack"
 [project.scripts]
 "h5pack" = "h5pack.cli.main:main"
 
-[project.optional-dependencies]
-lint = [
-    "ruff>=0.9.7"
-]
-docs = [
-    "mkdocs>=1.6.1",
-    "mkdocstrings-python>=1.10.8",
-    "mkdocs-material>=9.5.31"
-]
-
 [tool.ruff]
 lint.extend-select = [
     "C4",
@@ -44,3 +34,13 @@ lint.extend-select = [
     "TCH"
 ]
 line-length = 79
+
+[dependency-groups]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.22",
+    "mkdocstrings-python>=1.18.2",
+]
+lint = [
+    "ruff>=0.14.2",
+]
