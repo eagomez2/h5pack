@@ -1,6 +1,6 @@
 [build-system]
-requires = ["uv_build>=0.9.5,<0.10.0"]
-build-backend = "uv_build"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "h5pack"
@@ -25,6 +25,14 @@ Home = "https://www.github.com/eagomez2/h5pack"
 
 [project.scripts]
 "h5pack" = "h5pack.cli.main:main"
+
+[project.optional-dependencies]
+lint = [
+    "ruff>=0.9.7"
+]
+docs = [
+    "mkdocs>=1.6.1"
+]
 
 [tool.ruff]
 lint.extend-select = [
