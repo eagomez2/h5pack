@@ -1,7 +1,7 @@
 import sys
 import argparse
 from datetime import datetime
-from h5pack import __version__
+from importlib.metadata import version
 from .checksum import cmd_checksum
 from .info import cmd_info
 from .pack import cmd_pack
@@ -203,7 +203,7 @@ def main() -> int:
         or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
     ):
         print(
-            f"h5pack version {__version__} 2024-{datetime.now().year} "
+            f"h5pack version {version('h5pack')} 2024-{datetime.now().year} "
             "developed by Esteban Gómez (Speech Interaction Technology, Aalto "
             "University)"
         )

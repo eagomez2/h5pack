@@ -9,7 +9,7 @@ from multiprocessing import (
     Pool,
     Manager
 )
-from h5pack import __version__
+from importlib.metadata import version
 from rich.progress import (
     Progress,
     BarColumn,
@@ -181,7 +181,7 @@ def cmd_pack(args: Namespace) -> None:
 
     # Add root attrs
     h5pack_attrs = {
-        "producer": f"h5pack {__version__}",
+        "producer": f"h5pack {version('h5pack')}",
         "creation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 

@@ -7,7 +7,8 @@ name = "h5pack"
 authors = [{name = "Esteban Gómez", email = "esteban.gomezmellado@aalto.fi"}]
 readme = "README.md"
 license = {file = "LICENSE"}
-dynamic = ["version", "description"]
+version = "1.1.0"
+description = "A utility to pack, unpack and inspect HDF5 audio datasets"
 dependencies = [
     "h5py >= 3.14.0",
     "numpy >= 2.0.2",
@@ -31,7 +32,9 @@ lint = [
     "ruff>=0.9.7"
 ]
 docs = [
-    "mkdocs>=1.6.1"
+    "mkdocs>=1.6.1",
+    "mkdocstrings-python>=1.10.8",
+    "mkdocs-material>=9.5.31"
 ]
 
 [tool.ruff]

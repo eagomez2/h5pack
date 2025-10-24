@@ -8,7 +8,7 @@ from typing import (
 )
 from datetime import datetime
 from argparse import Namespace
-from h5pack import __version__
+from importlib.metadata import version
 from ..core.guards import is_file_with_ext
 from ..core.display import exit_error
 from ..core.utils import stack_shape
@@ -214,5 +214,5 @@ def create_virtual_dataset_from_partitions(
         h5_file.attrs["source"] = (
             ", ".join([os.path.basename(p) for p in partitions])
         )
-        h5_file.attrs["producer"] = f"h5pack {__version__}"
+        h5_file.attrs["producer"] = f"h5pack {version('h5pack')}"
         h5_file.attrs["is_virtual"] = True
