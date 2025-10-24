@@ -100,42 +100,10 @@ python -m pip install flit
 For more information on `flit`, refer to the [Flit Command Line Interface documentation](https://flit.pypa.io/en/stable/).
 
 # Quickstart
+Read the quick [here](#).
 
 # Documentation
-
-## Example `.yaml` file
-```yaml
-datasets:
-  first_example_dataset:
-    attrs:
-      author: &author_name Your name
-      description: Your description
-      version: &version 0.0.1
-
-    data:
-      file: first_dataset.csv
-      fields:
-        audio:
-          column: file
-          parser: as_audioint16
-  
-  second_example_dataset:
-    attrs:
-      author: *author_name
-      description: Second dataset description
-      version: *version
-    
-    data:
-      file: second_dataset.csv
-      fields:
-        audio:
-          column: file
-          parser: as_audioint16
-```
-
-- `attrs` can have any string attributes.
-- `data` needs a `.csv` in the `file` key and every field in `fields` needs a `column` and a `parser` description.
-- Multiple datasets can be added in a single file under the `datasets` key.
+You can access the [online documentation](#). There you will find a quickstart guide, tutorials and all the necessary resources to get you up in running with `h5pack`.
 
 # Cite
 If this package contributed to your work, please consider citing it:

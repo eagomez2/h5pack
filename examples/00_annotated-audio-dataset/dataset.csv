@@ -1,0 +1,4 @@
+file,type
+data/brownian-noise.flac,brownian
+data/pink-noise.flac,pink
+data/white-noise.flac,white
