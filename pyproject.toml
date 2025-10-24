@@ -14,7 +14,9 @@ dependencies = [
     "soundfile >= 0.13.1",
     "polars >= 1.33.1",
     "pyyaml >= 6.0.3",
-    "rich >= 14.2.0"
+    "rich >= 14.2.0",
+    "tqdm>=4.67.1",
+    "packaging>=25.0",
 ]
 requires-python = ">=3.9"
 
@@ -25,10 +27,9 @@ Home = "https://www.github.com/eagomez2/h5pack"
 "h5pack" = "h5pack.cli.main:main"
 
 [tool.ruff]
-extend-select = [
+lint.extend-select = [
     "C4",
     "SIM",
     "TCH"
 ]
-ignore-init-module-imports = true
 line-length = 79
