@@ -69,8 +69,6 @@ class __Config__(metaclass=__Singleton__):
             ".wav",
             ".wave"
         ]
-        self._SINGLE_PROCESS_PROGRESS_BAR_COLOR = "green"
-        self._MULTI_PROCESS_PROGRESS_BAR_COLOR = "cyan"
 
 
 def _get_text_color_tags() -> dict:
@@ -89,15 +87,6 @@ def _get_text_decorator_tags() -> dict:
         dict: Decorator tags.
     """
     return __Config__()._TEXT_DECORATOR_TAGS
-
-
-def _get_sppbar_color() -> str:
-    """Returns the default single process progress bar color.
-    
-    Returns:
-        str: Single process progress bar color.
-    """
-    return __Config__()._SINGLE_PROCESS_PROGRESS_BAR_COLOR
 
 
 def get_allowed_audio_extensions() -> List[str]:

@@ -1,7 +1,7 @@
 import os
 import h5py
 import polars as pl
-from tqdm import tqdm
+from packaging import version
 from ..core.io import write_audio
 
 
@@ -12,21 +12,27 @@ def _from_audiodtype(
         dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Extracts audio of any data type and renders it to a folder.
     
     Args:
+        output_csv (str): Output `dataset.csv` file.
+        output_yaml (str): Output `h5pack.yaml` file.
         output_dir (str): Output folder.
+        dataset_name (str): Name of exctracted dataset.
         field_name (str): Field name to extract data from.
-        data (h5py.Dataset): Data from which the data will be extracted.
+        data (h5py.Dataset): h5py.Dataset object from which the data will be
+            extracted.
         attrs (h5py.AttributeManager): Attributes associated to the audio data.
+        ctx (dict): Extraxction context.
     """
     # Add fields to yaml
     output_yaml["datasets"][dataset_name]["data"]["fields"].update(
         {
             field_name: {
-                "column": f"{field_name}_filepath",
+                "column": f"{field_name}__filepath",
                 "parser": attrs["parser"]
             }
         }
@@ -36,7 +42,12 @@ def _from_audiodtype(
     os.makedirs(output_dir, exist_ok=True)
  
     # Get file path and sample rate
-    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filepath"]]
+    filenames = (
+        [s.decode("utf-8") for s in data[f"{field_name}__filepath"]]
+        if ctx["producer_version"] >= version.parse("1.0.1")  # Legacy
+        else
+        [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
+    )
     fs = attrs["sample_rate"]
 
     # Write paths to csv
@@ -45,53 +56,65 @@ def _from_audiodtype(
     
     else:
         df = pl.DataFrame()
-
+    
     df = df.with_columns(
         pl.Series(
-            name=f"{field_name}_filepath",
+            name=f"{field_name}__filepath",
             values=[os.path.join("data", field_name, f) for f in filenames],
             dtype=pl.String
         )
     )
     df.write_csv(output_csv)
 
-    if data[field_name].ndim == 2:  # Fixed length audio
-        for row_idx, filename in tqdm(
-            zip(range(data[field_name].shape[0]), filenames),
-            total=len(filenames),
-            desc=f"Extracting '{field_name}'",
-            colour="green",
-            leave=False,
-        ):
-            os.makedirs(
-                os.path.join(output_dir, os.path.dirname(filename)),
-                exist_ok=True
-            )
-            audio = data[field_name][row_idx, :]
-            write_audio(
-                audio,
-                file=os.path.join(output_dir, filename),
-                fs=int(fs)
-            )
-    
-    elif data[field_name].ndim == 1:  # vlen audio
-        for row_idx, filename in tqdm(
-            zip(range(data[field_name].shape[0]), filenames),
-            total=len(filenames),
-            desc=f"Extracting '{field_name}'",
-            colour="green",
-            leave=False
-        ):
-            os.makedirs(
-                os.path.join(output_dir, os.path.dirname(filename)),
-                exist_ok=True
-            )
-            audio = data[field_name][row_idx]
-            write_audio(
-                audio,
-                file=os.path.join(output_dir, filename),
-                fs=int(fs)
-            ) 
+    # Get progress bar
+    progress_bar = ctx["progress_bar"]
+
+    with progress_bar:
+        # Add task
+        task = progress_bar.add_task(
+            f"Unpacking '{field_name}'",
+            total=len(filenames)
+        )
+
+        if data[field_name].ndim == 2:  # Fixed length audio
+            for row_idx, filename in zip(
+                range(data[field_name].shape[0]),
+                filenames
+            ):
+                # Make step
+                progress_bar.advance(task)
+
+                # Extract file
+                os.makedirs(
+                    os.path.join(output_dir, os.path.dirname(filename)),
+                    exist_ok=True
+                )
+                audio = data[field_name][row_idx, :]
+                write_audio(
+                    audio,
+                    file=os.path.join(output_dir, filename),
+                    fs=int(fs)
+                )
+        
+        elif data[field_name].ndim == 1:  # vlen audio
+            for row_idx, filename in zip(
+                range(data[field_name].shape[0]),
+                filenames
+            ):
+                # Make step
+                progress_bar.advance(task)
+
+                # Extract file
+                os.makedirs(
+                    os.path.join(output_dir, os.path.dirname(filename)),
+                    exist_ok=True
+                )
+                audio = data[field_name][row_idx]
+                write_audio(
+                    audio,
+                    file=os.path.join(output_dir, filename),
+                    fs=int(fs)
+                ) 
 
 
 def from_audioint16(
@@ -101,7 +124,8 @@ def from_audioint16(
         dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `int16`."""
     return _from_audiodtype(
@@ -111,7 +135,8 @@ def from_audioint16(
         dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -119,17 +144,22 @@ def from_audiofloat32(
         output_csv: str,
         output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `float32`."""
     return _from_audiodtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -139,7 +169,8 @@ def from_audiofloat64(
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `float64`."""
     return _from_audiodtype(
@@ -147,7 +178,8 @@ def from_audiofloat64(
         output_dir=output_dir,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -249,7 +281,8 @@ def from_utf8str(
         dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `str`."""
     # Update .yaml

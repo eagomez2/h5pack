@@ -1,14 +1,12 @@
 import sys
 import argparse
 from datetime import datetime
-from h5pack import __version__
-from .utils import (
-    cmd_checksum,
-    cmd_pack,
-    cmd_unpack,
-    cmd_info,
-    cmd_virtual
-)
+from importlib.metadata import version
+from .checksum import cmd_checksum
+from .info import cmd_info
+from .pack import cmd_pack
+from .unpack import cmd_unpack
+from .virtual import cmd_virtual
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -22,15 +20,15 @@ def get_parser() -> argparse.ArgumentParser:
     # Pack parser
     pack_parser = subparser.add_parser(
         "pack",
-        description="pack files into HDF5 datasets",
-        help="pack files into HDF5 datasets",
+        description="pack data into HDF5 dataset files",
+        help="pack data into HDF5 dataset files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
     pack_parser.add_argument(
-        "-i", "--input",
+        "-c", "--config",
         type=str,
-        required=True,
+        default="h5pack.yaml",
         help=".yaml configuration file containing dataset specifications"
     )
     pack_parser.add_argument(
@@ -44,7 +42,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-p", "--partitions",
         type=int,
         default=1,
-        help="number of partitions to generate"
+        help="number of partitions to create"
     )
     pack_parser.add_argument(
         "-f", "--files-per-partition",
@@ -58,15 +56,14 @@ def get_parser() -> argparse.ArgumentParser:
         help="name of the dataset to generate"
     )
     pack_parser.add_argument(
+        "--create-virtual",
+        action="store_true",
+        help="create a virtual layout when two or more partitions are created"
+    )
+    pack_parser.add_argument(
         "--skip-validation",
         action="store_true",
         help="skip validating files before generating the partition(s)"
-    )
-    pack_parser.add_argument(
-        "--skip-virtual",
-        action="store_true",
-        help="skip generating a virtual layout when two or more partitions "
-             "are created"
     )
     pack_parser.add_argument(
         "--skip-checksum",
@@ -81,13 +78,32 @@ def get_parser() -> argparse.ArgumentParser:
     pack_parser.add_argument(
         "-w", "--workers",
         type=int,
-        default=0,
+        default=1,
         help="number of workers (0 means 1 worker per core)"
     )
     pack_parser.add_argument(
         "-u", "--unattended",
         action="store_true",
         help="unattended mode (no user prompts)"
+    )
+
+    # Unpack parser
+    unpack_parser = subparser.add_parser(
+        "unpack",
+        description="unpack HDF5 datasets into individual files",
+        help="unpack HDF5 datasets datasets into individual files",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+    unpack_parser.add_argument(
+        "input",
+        help="input .h5 file"
+    )
+    unpack_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        required=True,
+        help="output folder"
     )
 
     # Virtual parser
@@ -142,26 +158,6 @@ def get_parser() -> argparse.ArgumentParser:
         help="unattended mode (no user prompts)"
     )
 
-    # Checksum parser
-    checksum_parser = subparser.add_parser(
-        "checksum",
-        description="verify HDF5 datasets checksum",
-        help="create virtual HDF5 datasets checksum",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
-    )
-    checksum_parser.add_argument(
-        "input",
-        type=str,
-        nargs="+",
-        help="checksum file"
-    )
-    checksum_parser.add_argument(
-        "-g", "--generate",
-        action="store_true",
-        help="generate sha256 hash of input files"
-    )
-
     # Info parser
     info_parser = subparser.add_parser(
         "info",
@@ -173,30 +169,29 @@ def get_parser() -> argparse.ArgumentParser:
     info_parser.add_argument(
         "input",
         help="input .h5 file"
-    )
-    info_parser.add_argument(
-        "-s", "--skip-checksum",
-        action="store_true",
-        help="skip computing file checksum"
-    )
+    ) 
 
-    # Unpack parser
-    unpack_parser = subparser.add_parser(
-        "unpack",
-        description="unpack HDF5 datasets into individual files",
-        help="unpack HDF5 datasets datasets into individual files",
+    # Checksum parser
+    checksum_parser = subparser.add_parser(
+        "checksum",
+        help="create/verify virtual HDF5 datasets checksum",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
-    unpack_parser.add_argument(
+    checksum_parser.add_argument(
         "input",
-        help="input .h5 file"
-    )
-    unpack_parser.add_argument(
-        "-o", "--output",
         type=str,
-        required=True,
-        help="output folder"
+        help=".sha256 file (to verify) or file or folder (to calculate)"
+    )
+    checksum_parser.add_argument(
+        "--save",
+        type=str,
+        help="save calculated checksum to a .sha256 file"
+    )
+    checksum_parser.add_argument(
+        "-r", "--recursive",
+        action="store_true",
+        help="search folders recursively if input is a folder"
     )
 
     return parser
@@ -208,7 +203,7 @@ def main() -> int:
         or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
     ):
         print(
-            f"h5pack version {__version__} 2024-{datetime.now().year} "
+            f"h5pack version {version('h5pack')} 2024-{datetime.now().year} "
             "developed by Esteban Gómez (Speech Interaction Technology, Aalto "
             "University)"
         )

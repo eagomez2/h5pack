@@ -1,19 +1,21 @@
 # This a basic single dataset configuration that takes audio files and str
-# annotations stored in 'data.csv' and creates a .h5 file with this data.
+# annotations stored in 'dataset.csv' to create a .h5 file with this data.
+# The result is a single .h5 where both data and annotations are stored and
+# ready to use.
 
-datasets:  # Mandatory key that hold several datasets
-  annotated_audio_dataset:  # Name used to identify your dataset
-    attrs:  # Any arbitrary set of str attributes
+datasets:  # Mandatory key that can hold one or more datasets
+  simple_dataset:  # Name used to identify your dataset
+    attrs:  # Any arbitrary set of str attributes to add to the dataset
       author: Your name
       description: Your dataset description
       version: 0.1.0
 
     data:
-      file: data.csv  # .csv containing your data
-      fields:  # Fields to save to the .h5 file
+      file: dataset.csv  # .csv containing your data description
+      fields:  # Fields (columns) to save to the .h5 file
         audio:
           column: file  # Column name in the .csv file
-          parser: as_audioint16  # Parser used to parse the data
-        split:
-          column: split
+          parser: as_audioint16  # Parser used to interpret the data
+        type:
+          column: type
           parser: as_utf8str

@@ -1,4 +1,0 @@
-file,split
-audio/brownian-noise.flac,train
-audio/pink-noise.flac,train
-audio/white-noise.flac,validation
