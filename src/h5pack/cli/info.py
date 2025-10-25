@@ -63,20 +63,21 @@ def cmd_info(args: Namespace) -> None:
 
         # If virtual, check paths are accesible and report broken paths
         if h5_file.attrs.get("is_virtual") is not None:
+            print("Virtual dataset sources:")
+
             for data_group_name, data_group_data in h5_file.items():
                 for dataset_name, dataset_data in data_group_data.items():
                     plist = dataset_data.id.get_create_plist()
-                    missing_files = []
+
+                    print(f"  - '{dataset_name}' source(s):")
 
                     for file_idx in range(plist.get_virtual_count()):
                         file = plist.get_virtual_filename(file_idx)
 
                         if not os.path.isfile(file):
-                            missing_files.append(file)
-            
-            if len(missing_files) > 0:
-                files_repr = "\n- ".join(f"'{f}'" for f in missing_files)
-                print_warning(
-                    f"This virtual dataset contains {len(missing_files)} missing "
-                    f"source(s):\n- {files_repr}"
-                )
+                            print_warning(
+                                f"    - {file_idx}: {file} [NOT FOUND]"
+                            )
+                        
+                        else:
+                            print(f"    - {file_idx}: {file} [OK]")

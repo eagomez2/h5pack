@@ -51,6 +51,10 @@ def cmd_pack(args: Namespace) -> None:
     # --------------------------------------------------------------------------
     # SECTION: VALIDATE DATA AND PREPARE SPECS
     # --------------------------------------------------------------------------
+    # Assign workers equal to cpu cores if value is 0
+    if args.workers == 0:
+        args.workers = os.cpu_count()
+
     # Check config file exists
     if not is_file_with_ext(args.config, ext=[".yaml", ".yml"]):
         exit_error(f"Invalid configuration file '{args.config}'")
@@ -59,6 +63,7 @@ def cmd_pack(args: Namespace) -> None:
     ctx = {
         "root_dir": os.path.dirname(os.path.abspath(args.config))
     }
+
 
     print(f"Using root folder '{ctx['root_dir']}'")
 
@@ -247,11 +252,7 @@ def cmd_pack(args: Namespace) -> None:
                     )
 
         partition_filenames = []
-        start_time = perf_counter()
-
-        # Assign workers equal to cpu cores if value is 0
-        if args.workers == 0:
-            args.workers = os.cpu_count()
+        start_time = perf_counter() 
 
         if args.workers == 1:  # Sequential
             for partition_idx in range(num_partitions):
@@ -321,7 +322,7 @@ def cmd_pack(args: Namespace) -> None:
 
                         for task_id in task_ids:
                             # Remove all partition tasks
-                            if task_id.startswith(str(partition_idx)):
+                            if task_id.startswith(f"{partition_idx}_"):
                                 progress_bar.remove_task(task_ids[task_id])
 
                         partition_filenames.append(filename)
