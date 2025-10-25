@@ -18,72 +18,22 @@
 
 # Table of contents
 - [Installation](#installation)
-  - [Install through pip](#install-through-pip)
-  - [Install through uv](#install-through-uv)
-  - [Install in developer mode](#install-in-developer-mode)
 - [Quickstart](#quickstart)
 - [Documentation](#documentation)
 - [Cite](#cite)
 - [License](#license)
 
 # Installation
-Below are different ways you can install `h5pack`.
-
-## Install through `pip` 
-To install `h5pack`, run:
-```bash
-pip install h5pack
-```
-
-Verify the installation with:
-```bash
-h5pack --version
-```
-
-This should output:
-```bash
-h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez (Speech Interaction Technology, Aalto University)
-```
-Where:
-- `x.y.z` represents the major, minor, and patch version
-- `yyyy-zzzz` indicates the development start year and the current year
-
-## Install through `uv`
-Alternatively, you can install the tool using `uv`. This is adequate for when you can to keep it isolated from your python environment setup and just run it to analyze a certain data collection.
-
-1. Install `uv` and `uvx` following the instructions for your operating system in [`uv` website](https://docs.astral.sh/uv/getting-started/installation/).
-2. Run:
-```bash
-uv tool install h5pack
-```
-
-3. Verify the installation with
-```bash
-uv tool run h5pack --version
-```
-
-or you can use the shortcut version `uvx`:
-
-```bash
-uvx h5pack --version
-```
-
-This should output:
-```bash
-h5pack version x.y.z yyyy-zzzz developed by Esteban Gómez (Speech Interaction Technology, Aalto University)
-```
-Where:
-- `x.y.z` represents the major, minor, and patch version
-- `yyyy-zzzz` indicates the development start year and the current year
+See how to install `h5pack` [here](https://eagomez2.github.io/h5pack/install/).
 
 # Quickstart
-Explore the [Quickstart Guide](#) to start using `h5pack` right away. It offers step-by-step instructions to get you set up quickly and effortlessly.
+Explore the [Quickstart Guide](https://eagomez2.github.io/h5pack/quickstart/) to start using `h5pack` right away. It offers step-by-step instructions to get you set up quickly and effortlessly.
 
 # Documentation
-Access the [Documentation](#) for a deeper understanding of `h5pack`,including the [Quickstart Guide](#) for immediate setup, tutorials for learning various tasks, and all the essential resources to help you use `h5pack` effectively.
+Access the [Documentation](https://eagomez2.github.io/h5pack/) to explore all the tools included in this package.
 
 # Cite
-If this package contributed to your work, please consider citing it:
+`h5pack` is free and open source. If this package contributed to your work, please consider citing it:
 
 ```
 @misc{h5pack,
