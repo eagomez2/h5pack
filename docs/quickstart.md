@@ -186,3 +186,28 @@ Checksum verification completed in 0.2 millisecond(s)
 Using this tool, you can consistently check for any potentially corrupted files.
 
 ## Unpacking the dataset with `h5pack unpack`
+You also have the option to convert your .h5 files back into their original constituent files
+using the `h5pack unpack` tool. To do it, simply run
+```bash
+h5pack unpack simple_dataset.h5 --output simple_dataset
+```
+
+This process creates a `simple_dataset` folder, which includes the corresponding
+data, annotations file, and configuration file.
+
+```bash
+simple_dataset
+├── data
+│   └── audio
+│       ├── brownian-noise.flac
+│       ├── pink-noise.flac
+│       └── white-noise.flac
+├── dataset.csv
+└── h5pack.yaml
+```
+
+The generated files are structured so that you can promptly repack them into `.h5` file(s) if desired.
+
+## Conclusion
+You should now have the knowledge and tools to efficiently manage, verify, and
+possibly repack your data, ensuring its integrity and flexibility for future use.

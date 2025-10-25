@@ -59,4 +59,5 @@ Where:
 - `x.y.z` represents the major, minor, and patch version.
 - `yyyy-zzzz` indicates the development start year and the current year.
 
+## What's next
 Now that you have installed `h5pack`, check the [Quickstart](quickstart.md) section to begin using it.
