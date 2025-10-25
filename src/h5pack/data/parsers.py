@@ -3,10 +3,7 @@ import ast
 import h5py
 import polars as pl
 import numpy as np
-from typing import (
-    List,
-    Optional
-)
+from typing import List
 from ..core.io import (
     read_audio,
     read_audio_metadata
@@ -193,10 +190,10 @@ def _as_dtype(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
+    data_start_idx: int,
+    data_end_idx: int,
     dtype: np.dtype,
     parser_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
     ctx: dict = {}, 
 ) -> None:
     """Parses columns having single objects data types such as a single `int16`
@@ -239,8 +236,8 @@ def as_int8(
         partition_field_name: str,
         data_frame: pl.DataFrame,
         data_column_name: str,
-        data_start_idx: Optional[int] = None,
-        data_end_idx: Optional[int] = None,
+        data_start_idx: int,
+        data_end_idx: int,
         ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `int8`."""
@@ -250,10 +247,10 @@ def as_int8(
         partition_field_name=partition_field_name,
         data_frame=data_frame,
         data_column_name=data_column_name,
-        dtype=np.int8,
-        parser_name="as_int8",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
+        dtype=np.int8,
+        parser_name="as_int8",
         ctx=ctx
     )
 
@@ -264,8 +261,8 @@ def as_int16(
         partition_field_name: str,
         data_frame: pl.DataFrame,
         data_column_name: str,
-        data_start_idx: Optional[int] = None,
-        data_end_idx: Optional[int] = None,
+        data_start_idx: int,
+        data_end_idx: int,
         ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `int16`."""
@@ -289,8 +286,8 @@ def as_float32(
         partition_field_name: str,
         data_frame: pl.DataFrame,
         data_column_name: str,
-        data_start_idx: Optional[int] = None,
-        data_end_idx: Optional[int] = None,
+        data_start_idx: int,
+        data_end_idx: int,
         ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `float32`."""
@@ -314,8 +311,8 @@ def as_float64(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `float64`."""
@@ -339,8 +336,8 @@ def as_utf8str(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `str`."""
@@ -372,8 +369,8 @@ def _as_listdtype(
     data_column_name: str,
     dtype: np.dtype,
     parser_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Parses columns having a list of objects of a single data type such
@@ -440,8 +437,8 @@ def as_listint8(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `int8` values."""
@@ -465,8 +462,8 @@ def as_listint16(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `int16` values."""
@@ -490,8 +487,8 @@ def as_listfloat32(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `float32` values."""
@@ -515,8 +512,8 @@ def as_listfloat64(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
+    data_start_idx: int,
+    data_end_idx: int,
     ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `float64` values."""

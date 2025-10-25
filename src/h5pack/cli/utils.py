@@ -65,10 +65,16 @@ def create_partition_from_data(
     for field_name, field_data in specs["fields"].items():
         # Get parser
         parser = (
-            get_parsers_map()[data[field_data["column"]].dtype][
-                field_data["parser"]
-            ]
+            get_parsers_map()[data[field_data["column"]].dtype].get(
+                field_data["parser"], None
+            )
         )
+
+        if parser is None:
+            exit_error(
+                f"No '{field_data['parser']}' parser found for column of type"
+                f" '{data[field_data['column']].dtype}'"
+            )
 
         # Get data slice indices
         start_idx, end_idx = field_data["slices"][idx]

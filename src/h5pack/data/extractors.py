@@ -188,37 +188,67 @@ def _from_dtype(
         output_yaml: str,
         output_dir: str,
         field_name: str,
+        dataset_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Extracts any single value data type and renders it to a `.csv` file.
     
     Args:
+        output_csv (str): Output `dataset.csv` file.
+        output_yaml (str): Output `h5pack.yaml` file.
         output_dir (str): Output folder.
         field_name (str): Field name to extract data from.
-        data (h5py.Dataset): Data from which the data will be extracted.
-        attrs (h5py.AttributeManager): Attributes associated to the data.
+        dataset_name (str): Name of exctracted dataset.
+        data (h5py.Dataset): h5py.Dataset object from which the data will be
+            extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the audio data.
+        ctx (dict): Extraxction context.
     """
-    os.makedirs(output_dir, exist_ok=True)
-    df = pl.DataFrame({field_name: list(data[field_name])})
-    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+    # Update .yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": field_name,
+                "parser": attrs["parser"]
+            }
+        }
+    )
+
+    # Write data to .csv
+    if os.path.getsize(output_csv) == 0:
+        df = pl.DataFrame()
+    
+    else:
+        df = pl.read_csv(output_csv)
+    
+    df = df.with_columns(
+        pl.Series(field_name, list(data[field_name]), pl.Float32)
+    )
+    df.write_csv(output_csv)
 
 
 def from_int8(
         output_csv: str,
         output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `int8`."""
     return _from_dtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -226,51 +256,68 @@ def from_int16(
         output_csv: str,
         output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `int16`."""
     return _from_dtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
 def from_float32(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `float32`."""
     return _from_dtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
 def from_float64(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `float64`."""
     return _from_dtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
+        ctx=ctx
     )
 
 
@@ -296,7 +343,12 @@ def from_utf8str(
     )
 
     # Write data to .csv
-    df = pl.read_csv(output_csv)
+    if os.path.getsize(output_csv) == 0:
+        df = pl.DataFrame()
+    
+    else:
+        df = pl.read_csv(output_csv)
+
     decoded_data = [
         i.decode("utf-8") if isinstance(i, bytes)
         else i for i in data[field_name]
@@ -307,87 +359,140 @@ def from_utf8str(
 
 def _from_listdtype(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Extracts any list of numeric data types and renders it to a `.csv` file.
     
     Args:
+        output_csv (str): Output `dataset.csv` file.
+        output_yaml (str): Output `h5pack.yaml` file.
         output_dir (str): Output folder.
+        dataset_name (str): Name of exctracted dataset.
         field_name (str): Field name to extract data from.
-        data (h5py.Dataset): Data from which the data will be extracted.
-        attrs (h5py.AttributeManager): Attributes associated to the data.
+        data (h5py.Dataset): h5py.Dataset object from which the data will be
+            extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the audio data.
+        ctx (dict): Extraxction context.
     """
-    os.makedirs(output_dir, exist_ok=True)
-    df = pl.DataFrame(
-        {field_name: [str(r) for r in data[field_name][:].tolist()]}
+    # Update .yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": field_name,
+                "parser": attrs["parser"]
+            }
+        }
     )
-    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+    # Write data to .csv
+    if os.path.getsize(output_csv) == 0:
+        df = pl.DataFrame()
+    
+    else:
+        df = pl.read_csv(output_csv)
+    
+    df = df.with_columns(
+        pl.Series(
+            field_name,
+            [str(r) for r in data[field_name][:].tolist()],
+            pl.String
+        )
+    )
+    df.write_csv(output_csv)
 
 
 def from_listint8(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `int8`."""
     return _from_listdtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
 def from_listint16(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `int16`."""
     return _from_listdtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
 def from_listfloat32(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `float32`."""
     return _from_listdtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )
 
 
 def from_listfloat64(
         output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
-        attrs: h5py.AttributeManager
+        attrs: h5py.AttributeManager,
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `float64`."""
     return _from_listdtype(
         output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
-        attrs=attrs
+        attrs=attrs,
+        ctx=ctx
     )

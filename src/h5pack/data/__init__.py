@@ -53,25 +53,44 @@ def get_parsers_map() -> dict:
             "as_listfloat64": as_listfloat64,
         },
         pl.Int8: {
-            "as_int8": as_int8
+            "as_int8": as_int8,
+            "as_int16": as_int16,
+            "as_float32": as_float32,
+            "as_float64": as_float64
         },
         pl.Int16: {
-            "as_int16": as_int16
+            "as_int8": as_int8,
+            "as_int16": as_int16,
+            "as_float32": as_float32,
+            "as_float64": as_float64
         },
         pl.Int32: {
-            "as_int16": as_int16
+            "as_int8": as_int8,
+            "as_int16": as_int16,
+            "as_float32": as_float32,
+            "as_float64": as_float64
         },
         pl.Int64: {
-            "as_int16": as_int16
+            "as_int8": as_int8,
+            "as_int16": as_int16,
+            "as_float32": as_float32,
+            "as_float64": as_float64
         },
         pl.Int128: {
-            "as_int16": as_int16
+            "as_int8": as_int8,
+            "as_int16": as_int16,
+            "as_float32": as_float32,
+            "as_float64": as_float64
         },
         pl.Float32: {
+            "as_int8": as_int8,
+            "as_int16": as_int16,
             "as_float32": as_float32,
             "as_float64": as_float64
         },
         pl.Float64: {
+            "as_int8": as_int8,
+            "as_int16": as_int16,
             "as_float32": as_float32,
             "as_float64": as_float64
         }
