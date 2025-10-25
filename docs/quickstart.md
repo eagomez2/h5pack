@@ -1,6 +1,6 @@
 # Quickstart
 
-Get up and running with `h5pack` in minutes through this guide. To create a HDF dataset with `h5pack` you need the following three ingredients:
+If you haven't installed `h5pack` yet, please refer to our [Installation](install.md) guide before proceeding. This guide will help you get up and running with `h5pack` in minutes. To create an HDF5 dataset using `h5pack`, you need the following three components:
 
 - **Data:** It is your raw data which may include one or multiple sets of audio files in any of the formats supported by <a href="https://github.com/bastibe/python-soundfile", target="_blank">`soundfile`</a> such was `.wav` or `.flac`.
 - **Annotations:** Any additional data that is related to your audio data and relevant to pack in the dataset such as split (training, validation, test), speaker id or simlilar annotations. It is provided through a `.csv` file where one column has the path of the audio file and any other column can contain an annotation related to that audio file in any of the data types supported by `h5pack`.
@@ -209,5 +209,5 @@ simple_dataset
 The generated files are structured so that you can promptly repack them into `.h5` file(s) if desired.
 
 ## Conclusion
-You should now have the knowledge and tools to efficiently manage, verify, and
-possibly repack your data, ensuring its integrity and flexibility for future use.
+You should now be able to manage, verify, and repack your data to ensure its integrity and flexibility for future use.
+For more information on additional tools, including those not covered in this [Quickstart](quickstart.md) guide, visit the [Documentation](docs.md) section.

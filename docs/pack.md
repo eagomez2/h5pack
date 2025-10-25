@@ -1,0 +1,1 @@
+# `h5pack pack` documentation

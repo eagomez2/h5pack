@@ -3,6 +3,7 @@ nav:
   - About: index.md
   - Installation: install.md
   - Quickstart: quickstart.md
+  - Documentation: docs.md
   - Changelog: https://github.com/eagomez2/h5pack/releases
   - License: license.md
 copyright: |
