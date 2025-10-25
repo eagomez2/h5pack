@@ -1,0 +1,1063 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../install/">
+      
+      
+        <link rel="next" href="../docs/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+    
+    
+      
+        <title>Quickstart - h5pack</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.3cba04c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#quickstart" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="h5pack" class="md-header__button md-logo" aria-label="h5pack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            h5pack
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Quickstart
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../install/" class="md-tabs__link">
+        
+  
+    
+  
+  Installation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+    
+  
+  Quickstart
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../docs/" class="md-tabs__link">
+          
+  
+  Documentation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/eagomez2/h5pack/releases" class="md-tabs__link">
+        
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../license/" class="md-tabs__link">
+        
+  
+    
+  
+  License
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="h5pack" class="md-nav__button md-logo" aria-label="h5pack" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    h5pack
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Quickstart
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Quickstart
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Annotations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rendering-the-dataset-with-h5pack-pack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rendering the dataset with h5pack pack
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inspecting-the-dataset-with-h5pack-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inspecting the dataset with h5pack info
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#corroborating-integrity-with-h5pack-checksum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Corroborating integrity with h5pack checksum
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unpacking-the-dataset-with-h5pack-unpack" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unpacking the dataset with h5pack unpack
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    h5pack pack documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unpack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    h5pack unpack documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../info/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    h5pack info documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../virtual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    h5pack virtual documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../checksum/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    h5pack checksum documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/eagomez2/h5pack/releases" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="quickstart">Quickstart</h1>
+<p>If you haven't installed <code>h5pack</code> yet, please refer to our <a href="../install/">Installation</a> guide before proceeding. This guide will help you get up and running with <code>h5pack</code> in minutes. To create an HDF5 dataset using <code>h5pack</code>, you need the following three components:</p>
+<ul>
+<li><strong>Data:</strong> It is your raw data which may include one or multiple sets of audio files in any of the formats supported by <a href="https://github.com/bastibe/python-soundfile", target="_blank"><code>soundfile</code></a> such was <code>.wav</code> or <code>.flac</code>.</li>
+<li><strong>Annotations:</strong> Any additional data that is related to your audio data and relevant to pack in the dataset such as split (training, validation, test), speaker id or simlilar annotations. It is provided through a <code>.csv</code> file where one column has the path of the audio file and any other column can contain an annotation related to that audio file in any of the data types supported by <code>h5pack</code>.</li>
+<li><strong>Configuration file:</strong> The configuration file is a <code>.yaml</code> file that relates your annotations and your audio data and tell <code>h5pack</code> what to include and how.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All the data mentioned below is in the <code>examples/00_annotated-audio-dataset</code> folder of <code>h5pack</code> repository.</p>
+</div>
+<p>In the next section we will go through each individual component of the exampled
+located in <code>examples/00_annotated-audio-dataset</code>. This folder has the following data structure:</p>
+<div class="language-bash highlight"><span class="filename">examples/00_annotated-audio-dataset</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>00_annotated-audio-dataset
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├──<span class="w"> </span>data
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│<span class="w"> </span>├──<span class="w"> </span>brownian-noise.flac
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│<span class="w"> </span>├──<span class="w"> </span>pink-noise.flac
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│<span class="w"> </span>└──<span class="w"> </span>white-noise.flac
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├──<span class="w"> </span>dataset.csv
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└──<span class="w"> </span>h5pack.yaml
+</span></code></pre></div>
+<p>In this case, the datais in the <strong>data</strong> folder which consist of three <code>.flac</code>files, our <strong>annotatios</strong> are in the <code>dataset.csv</code> file and the <strong>configuration</strong> is inside the <code>h5pack.yaml</code> file.</p>
+<h2 id="data">Data</h2>
+<p>It corresponds to the raw data that will be included in the dataset, this is typically
+one or multiple sets of audio files in formats such as <code>.wav</code> or <code>.flac</code>. The resulting
+<code>.h5</code> file will consolidate the data from multiple audio files into a single HDF5 file or a set of HDF5 partition files, ensuring efficient storage and access.</p>
+<h2 id="annotations">Annotations</h2>
+<p>Annotations can be incorporated alongside each audio file using a <code>.csv</code> file. Each row in this <code>.csv</code> should include a column with the audio file's path, and the remaining columns can contain supplementary data to be embedded as annotations.</p>
+<p>In this case, there is an arbitrary <code>Type</code> parameter describing type of noise included
+in each audio file as a <code>str</code>. The <code>dataset.csv</code> content looks as follow:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data/brownian-noise.flac</td>
+<td>brownian</td>
+</tr>
+<tr>
+<td>data/pink-noise.flac</td>
+<td>pink</td>
+</tr>
+<tr>
+<td>data/white-noise.flac</td>
+<td>white</td>
+</tr>
+</tbody>
+</table>
+<p>This <code>.csv</code> can be generated in any way you want. For the most common uses cases we
+recommend using <a href="https://pypi.org/project/sndls/" target="_blank"><code>sndls</code> tool</a>.</p>
+<h2 id="configuration-file">Configuration file</h2>
+<p>The configuration file, typically named <code>h5pack.yaml</code>, is a <code>.yaml</code> file that connects your data and annotations, instructing h5pack on how to render your dataset(s). It consists of specifications for one or more datasets. In this case <code>h5pack.yaml</code> looks as follows (omitting the comments):</p>
+<div class="language-yaml highlight"><span class="filename">h5pack.yaml</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">datasets</span><span class="p">:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">simple_dataset</span><span class="p">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">attrs</span><span class="p">:</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">author</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Your name</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Your dataset description</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">data</span><span class="p">:</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dataset.csv</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">      </span><span class="nt">fields</span><span class="p">:</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">        </span><span class="nt">audio</span><span class="p">:</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">          </span><span class="nt">column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">          </span><span class="nt">parser</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">as_audioint16</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">          </span><span class="nt">column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">          </span><span class="nt">parser</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">as_utf8str</span>
+</span></code></pre></div>
+<p>From this file:</p>
+<ul>
+<li><code>dataset</code>: Is the main mandatory key that can contain one or multiple datsets.
+In this case a single dataset named <code>simple_dataset</code> is included.</li>
+<li><code>attrs</code>: It is an optional key that can contain arbitrary <code>str</code> attributes to be
+rendered with your data. Each key corresponds to the attribute name and each value
+has to be a single <code>str</code> with the value of that specific attribute.</li>
+<li><code>data</code>: Describes the data to be included in the files by relating your <code>.csv</code>
+annotations file with your raw data. In this case:<ul>
+<li><code>file</code> is the annotations file <code>dataset.csv</code></li>
+<li><code>fields</code> can have one or multiple keys. Each key corresponds to the name
+of the field to be included in the dataset, and contains a <code>column</code> key with
+the column from the <code>.csv</code> to be used and a <code>parser</code> selecting the parser used
+to include that data.</li>
+</ul>
+</li>
+</ul>
+<p><code>h5pack</code> supports the following parsers:</p>
+<table>
+<thead>
+<tr>
+<th>Parser name</th>
+<th>Resulting data type</th>
+<th>Example <code>.csv</code> row value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>as_audioint16</code></td>
+<td>Audio files stored as <code>int16</code></td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_audiofloat32</code></td>
+<td>Audio files stored as <code>float32</code></td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_audiofloat64</code></td>
+<td>Audio files stored as <code>float64</code></td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_int8</code></td>
+<td>Single <code>int8</code> value</td>
+<td><code>64</code></td>
+</tr>
+<tr>
+<td><code>as_int16</code></td>
+<td>Single <code>int16</code> value</td>
+<td><code>32767</code></td>
+</tr>
+<tr>
+<td><code>as_float32</code></td>
+<td>Single <code>float32</code> value</td>
+<td><code>0.707</code></td>
+</tr>
+<tr>
+<td><code>as_float64</code></td>
+<td>Single <code>float64</code> value</td>
+<td><code>3.146</code></td>
+</tr>
+<tr>
+<td><code>as_listint8</code></td>
+<td>List of <code>int8</code> values</td>
+<td><code>[0, 127]</code></td>
+</tr>
+<tr>
+<td><code>as_listint16</code></td>
+<td>List of <code>int16</code> values</td>
+<td><code>[32767, 32767]</code></td>
+</tr>
+<tr>
+<td><code>as_listfloat32</code></td>
+<td>List of <code>float32</code> values</td>
+<td><code>[0.707, 1.414, ...]</code></td>
+</tr>
+<tr>
+<td><code>as_listfloat64</code></td>
+<td>List of <code>float64</code> values</td>
+<td><code>[0.505, 2.125, ...]</code></td>
+</tr>
+<tr>
+<td><code>as_utf8str</code></td>
+<td>Single <code>str</code> value</td>
+<td><code>hello_world</code></td>
+</tr>
+</tbody>
+</table>
+<p>In this case, there a single set of audio files from the <code>file</code> column and saved as <code>int16</code> (<code>as_audioint16</code>) in the <code>audio</code> field, and a <code>str</code> from the <code>type</code> column
+and saved as <code>str</code> (<code>as_utf8str</code>).</p>
+<h2 id="rendering-the-dataset-with-h5pack-pack">Rendering the dataset with <code>h5pack pack</code></h2>
+<p>Now that all required files are ready, we can use <code>h5pack pack</code> tool to create
+the actual <code>.h5</code> file. Now run
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>h5pack<span class="w"> </span>pack<span class="w"> </span>--config<span class="w"> </span>h5pack.yaml<span class="w"> </span>--dataset<span class="w"> </span>simple_dataset<span class="w"> </span>--output<span class="w"> </span>simple_dataset.h5
+</span></code></pre></div></p>
+<p>This will result in the following output:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Using<span class="w"> </span>root<span class="w"> </span>folder<span class="w"> </span><span class="s1">&#39;/path/to/h5pack/examples/00_annotated-audio-dataset&#39;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Validating<span class="w"> </span>configuration<span class="w"> </span>file<span class="w"> </span><span class="s1">&#39;h5pack.yaml&#39;</span><span class="w"> </span>...
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Configuration<span class="w"> </span>file<span class="w"> </span>validation<span class="w"> </span>completed
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Validating<span class="w"> </span>input<span class="w"> </span>data<span class="w"> </span>...
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Validating<span class="w"> </span>data<span class="w"> </span>of<span class="w"> </span><span class="s1">&#39;audio&#39;</span><span class="w"> </span>field<span class="w"> </span>...
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Validation<span class="w"> </span>of<span class="w"> </span><span class="s1">&#39;audio&#39;</span><span class="w"> </span>field<span class="w"> </span>data<span class="w"> </span>completed
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>Validating<span class="w"> </span>data<span class="w"> </span>of<span class="w"> </span><span class="s1">&#39;type&#39;</span><span class="w"> </span>field<span class="w"> </span>...
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>Validation<span class="w"> </span>of<span class="w"> </span><span class="s1">&#39;type&#39;</span><span class="w"> </span>field<span class="w"> </span>data<span class="w"> </span>completed
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>Input<span class="w"> </span>data<span class="w"> </span>validation<span class="w"> </span>completed
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>Generating<span class="w"> </span><span class="m">1</span><span class="w"> </span>partition<span class="w"> </span>spec<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>...
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>Partition<span class="w"> </span>spec<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>completed
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="m">1</span><span class="w"> </span>partition<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>created
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>Do<span class="w"> </span>you<span class="w"> </span>want<span class="w"> </span>to<span class="w"> </span><span class="k">continue</span>?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:
+</span></code></pre></div></p>
+<p>Once you have executed the previous required commands, you will need to confirm by typing <code>y</code> and pressing <code>Enter</code> when prompted. Upon confirmation, two files will be generated: <code>simple_datase.h5</code> and <code>simple_dataset.sha256</code>. The <code>simple_datase.h5</code> file is your dataset, now ready for use, while the <code>simple_dataset.sha256</code> file contains the checksum for <code>simple_dataset.h5</code>. You can use this checksum file later to verify the integrity of your dataset.</p>
+<p>For more options available with the <code>h5pack pack</code> tool, you can run
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>h5pack<span class="w"> </span>pack<span class="w"> </span>--help
+</span></code></pre></div></p>
+<p>This tool allows customization of several aspects, including specifying the number of partitions for the output file and determining the number of workers that should be used to efficiently render the resulting files.</p>
+<h2 id="inspecting-the-dataset-with-h5pack-info">Inspecting the dataset with <code>h5pack info</code></h2>
+<p>With the file now generated, you can easily inspect its content using the <code>h5pack info</code> tool. To do so, simply run the following command:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>h5pack<span class="w"> </span>info<span class="w"> </span>simple_dataset.h5
+</span></code></pre></div></p>
+<p>It will output
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Input<span class="w"> </span>file:<span class="w"> </span><span class="s1">&#39;simple_dataset.h5&#39;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>File<span class="w"> </span>attribute<span class="o">(</span>s<span class="o">)</span>:
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>-<span class="w"> </span>author:<span class="w">        </span>Your<span class="w"> </span>name
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>-<span class="w"> </span>creation_date:<span class="w"> </span><span class="m">2025</span>-10-25<span class="w"> </span><span class="m">11</span>:17:37
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span>-<span class="w"> </span>description:<span class="w">   </span>Your<span class="w"> </span>dataset<span class="w"> </span>description
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span>-<span class="w"> </span>producer:<span class="w">      </span>h5pack<span class="w"> </span><span class="m">1</span>.1.0
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span>-<span class="w"> </span>version:<span class="w">       </span><span class="m">0</span>.1.0
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>Data<span class="w"> </span>group<span class="w"> </span><span class="s1">&#39;data&#39;</span>:
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span>-<span class="w"> </span><span class="s1">&#39;audio&#39;</span><span class="w"> </span>attribute<span class="o">(</span>s<span class="o">)</span>:
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span>-<span class="w"> </span>parser:<span class="w">      </span>as_audioint16
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span>-<span class="w"> </span>sample_rate:<span class="w"> </span><span class="m">16000</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span>-<span class="w"> </span><span class="s1">&#39;audio&#39;</span><span class="w"> </span>data<span class="w"> </span>attribute<span class="o">(</span>s<span class="o">)</span>:
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span>-<span class="w"> </span>shape:<span class="w"> </span><span class="o">(</span><span class="m">3</span>,<span class="w"> </span><span class="m">16000</span><span class="o">)</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span>-<span class="w"> </span>dtype:<span class="w"> </span>int16
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span>-<span class="w"> </span><span class="s1">&#39;audio__filepath&#39;</span><span class="w"> </span>data<span class="w"> </span>attribute<span class="o">(</span>s<span class="o">)</span>:
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span>-<span class="w"> </span>shape:<span class="w"> </span><span class="o">(</span><span class="m">3</span>,<span class="o">)</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">    </span>-<span class="w"> </span>dtype:<span class="w"> </span>object
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">  </span>-<span class="w"> </span><span class="s1">&#39;type&#39;</span><span class="w"> </span>attribute<span class="o">(</span>s<span class="o">)</span>:
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span>-<span class="w"> </span>parser:<span class="w"> </span>as_utf8str
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">  </span>-<span class="w"> </span><span class="s1">&#39;type&#39;</span><span class="w"> </span>data<span class="w"> </span>attribute<span class="o">(</span>s<span class="o">)</span>:
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">    </span>-<span class="w"> </span>shape:<span class="w"> </span><span class="o">(</span><span class="m">3</span>,<span class="o">)</span>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="w">    </span>-<span class="w"> </span>dtype:<span class="w"> </span>object
+</span></code></pre></div></p>
+<p>This information allows you to swiftly verify the contents of your file. In this
+example, the file contains three audio samples, each with a duration of one
+second and sampled at a rate of 16 kHz, resulting in 16,000 samples per audio clip.</p>
+<h2 id="corroborating-integrity-with-h5pack-checksum">Corroborating integrity with <code>h5pack checksum</code></h2>
+<p>To verify the integrity of your file, run the following command:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>simple_dataset.sha256
+</span></code></pre></div></p>
+<p>The command will output:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Verifying<span class="w"> </span>checksum<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s1">&#39;simple_dataset.sha256&#39;</span><span class="w"> </span>...
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>simple_dataset.h5<span class="w">   </span>cefeb61ce741bfa4a25cf54069e73d466fa9bdc2093d461ca30f381f6606eb79<span class="w"> </span><span class="o">[</span>OK<span class="o">]</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Checksum<span class="w"> </span>verification<span class="w"> </span>completed<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">0</span>.2<span class="w"> </span>millisecond<span class="o">(</span>s<span class="o">)</span>
+</span></code></pre></div></p>
+<p>Using this tool, you can consistently check for any potentially corrupted files.</p>
+<h2 id="unpacking-the-dataset-with-h5pack-unpack">Unpacking the dataset with <code>h5pack unpack</code></h2>
+<p>You also have the option to convert your .h5 files back into their original constituent files
+using the <code>h5pack unpack</code> tool. To do it, simply run
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>h5pack<span class="w"> </span>unpack<span class="w"> </span>simple_dataset.h5<span class="w"> </span>--output<span class="w"> </span>simple_dataset
+</span></code></pre></div></p>
+<p>This process creates a <code>simple_dataset</code> folder, which includes the corresponding
+data, annotations file, and configuration file.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>simple_dataset
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├──<span class="w"> </span>data
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>│<span class="w">   </span>└──<span class="w"> </span>audio
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>│<span class="w">       </span>├──<span class="w"> </span>brownian-noise.flac
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>│<span class="w">       </span>├──<span class="w"> </span>pink-noise.flac
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>│<span class="w">       </span>└──<span class="w"> </span>white-noise.flac
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>├──<span class="w"> </span>dataset.csv
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>└──<span class="w"> </span>h5pack.yaml
+</span></code></pre></div>
+<p>The generated files are structured so that you can promptly repack them into <code>.h5</code> file(s) if desired.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>You should now be able to manage, verify, and repack your data to ensure its integrity and flexibility for future use.
+For more information on additional tools, including those not covered in this <a href="./">Quickstart</a> guide, visit the <a href="../docs/">Documentation</a> section.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025 <a href="https://www.estebangomez.me" target="_blank">Esteban Gómez</a>, <a href="https://www.aalto.fi/en/department-of-information-and-communications-engineering/speech-interaction-technology" target="_blank">Speech Interaction Technology, Aalto University</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      
+        <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
+      
+        <script src="../js/tablesort.js"></script>
+      
+    
+  </body>
+</html>
