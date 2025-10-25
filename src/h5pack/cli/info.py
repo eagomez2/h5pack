@@ -73,10 +73,10 @@ def cmd_info(args: Namespace) -> None:
 
                         if not os.path.isfile(file):
                             missing_files.append(file)
-        
-        if len(missing_files) > 0:
-            files_repr = "\n- ".join(f"'{f}'" for f in missing_files)
-            print_warning(
-                f"This virtual dataset contains {len(missing_files)} missing "
-                f"source(s):\n- {files_repr}"
-            )
+            
+            if len(missing_files) > 0:
+                files_repr = "\n- ".join(f"'{f}'" for f in missing_files)
+                print_warning(
+                    f"This virtual dataset contains {len(missing_files)} missing "
+                    f"source(s):\n- {files_repr}"
+                )

@@ -20,9 +20,13 @@
 ## Guides
 To begin using `h5pack`, refer to the guides below:
 
-Installation
-
-Quickstart
+- [Installation](install.md)
+- [Quickstart](quickstart.md)
+- `h5pack pack` documentation
+- `h5pack unpack` documentation
+- `h5pack info` documentation
+- `h5pack virtual` documentation
+- `h5pack checksum` documentation
 
 ## Installation
 ### Install using `pip`

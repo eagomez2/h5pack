@@ -31,7 +31,7 @@ def cmd_checksum(args: Namespace) -> None:
         
          # Read lines and check they contain only two elements
         root_dir = os.path.dirname(args.input)
-        print(f"Using root folder '{root_dir}'")
+        print(f"Using root folder '{os.path.abspath(root_dir)}'")
         print(f"Verifying checksum in '{args.input}' ...")
 
         start_time = perf_counter()

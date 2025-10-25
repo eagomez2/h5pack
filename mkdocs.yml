@@ -1,13 +1,8 @@
 site_name: h5pack
 nav:
   - About: index.md
-  - Documentation:
-    - Introduction: docs-intro.md
-    - h5pack create: docs-create.md
-    - h5pack extract: docs-extract.md
-    - h5pack info: docs-info.md
-    - h5pack virtual: docs-virtual.md
-    - h5pack checksum: docs-checksum.md
+  - Installation: install.md
+  - Quickstart: quickstart.md
   - Changelog: https://github.com/eagomez2/h5pack/releases
   - License: license.md
 copyright: |
