@@ -1,5 +1,5 @@
 # h5pack
-`h5pack` is a utility made to pack, analyze and unpack HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click [here](https://www.hdfgroup.org/solutions/hdf5/) to learn more about HDF5. Among other, HDF5 provides:
+`h5pack` is a utility made to pack, analyze and unpack HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click <a href="https://www.hdfgroup.org/solutions/hdf5/" target="_blank">here</a> to learn more about HDF5. Among other, HDF5 provides:
 
 - Efficient storage: Handles large datasets with chunking and compression, reducing disk space usage.
 - Fast I/O: Optimized for rapid reading/writing of multi-dimensional data, improving data loading speeds.
@@ -24,13 +24,13 @@
 - [License](#license)
 
 # Installation
-See how to install `h5pack` [here](https://eagomez2.github.io/h5pack/install/).
+See how to install `h5pack` <a href="https://eagomez2.github.io/h5pack/install/" target="_blank">here</a>.
 
 # Quickstart
-Explore the [Quickstart Guide](https://eagomez2.github.io/h5pack/quickstart/) to start using `h5pack` right away. It offers step-by-step instructions to get you set up quickly and effortlessly.
+Explore the <a href="https://eagomez2.github.io/h5pack/quickstart/" target="_blank">Quickstart Guide</a> to start using `h5pack` right away. It offers step-by-step instructions to get you set up quickly and effortlessly.
 
 # Documentation
-Access the [Documentation](https://eagomez2.github.io/h5pack/) to explore all the tools included in this package.
+Access the <a href="https://eagomez2.github.io/h5pack/" target="_blank">Documentation</a> to explore all the tools included in this package.
 
 # Cite
 `h5pack` is free and open source. If this package contributed to your work, please consider citing it:
