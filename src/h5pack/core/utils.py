@@ -252,6 +252,26 @@ def total_to_list_slices(total: int, slices: int) -> List[Tuple[int, int]]:
     return idx_slices
 
 
+def total_to_slice_len(total: int, slices: int) -> List[int]:
+    """Return the length of each slice when dividing `total` into `slices` 
+    parts.
+
+    Args:
+        total (int): Total number of indices.
+        slices (int): Number of slices. 
+
+        Returns:
+        (List[int]): List of integers containing the length of each slice.
+    """
+    if total < slices:
+        raise ValueError("Total should be equal or greater than slices")
+    
+    size, remainder = divmod(total, slices)
+    lengths = [size] * slices
+    lengths[-1] += remainder  # Add leftover elements to the last slice
+    return lengths
+
+
 def stack_shape(*shapes: Tuple[int, ...], axis: int = -1) -> Tuple[int, ...]:
     """Computes the resulting shape after stacking multiple shapes along a
     specified axis.

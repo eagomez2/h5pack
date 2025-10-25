@@ -3,12 +3,7 @@ import ast
 import h5py
 import polars as pl
 import numpy as np
-import multiprocessing as mp
-from typing import (
-    List,
-    Optional
-)
-from tqdm import tqdm
+from typing import List
 from ..core.io import (
     read_audio,
     read_audio_metadata
@@ -26,8 +21,7 @@ def _as_audiodtype(
         data_end_idx: int,
         dtype: np.dtype,
         parser_name: str,
-        ctx: dict = {},
-        verbose: bool = False
+        ctx: dict = {}
 ) -> None:
     """Parses audio file paths to extract audio data that will be written to
     a `.h5`file.
@@ -61,7 +55,7 @@ def _as_audiodtype(
     vlen = False
 
     for idx, file in enumerate(files):
-        # Get number of channels
+        # Get number of samples
         num_samples = read_audio_metadata(file)["num_samples_per_channel"]
 
         if num_samples not in observed_lens:
@@ -94,28 +88,12 @@ def _as_audiodtype(
     dataset.attrs["sample_rate"] = str(fs)
 
     filenames_dataset = partition_data_group.create_dataset(
-        name=f"{partition_field_name}_filepaths",
+        name=f"{partition_field_name}__filepath",
         shape=(len(files),),
         dtype=h5py.string_dtype()
     )
 
-    # Store audio data
-    for idx, file in enumerate(
-        tqdm(
-            files,
-            desc=(
-                f"Writing '{partition_field_name}' in partition "
-                f"#{partition_idx}"
-            ),
-            colour="green",
-            leave=False,
-            position=(
-                0 if mp.current_process().name == "MainProcess"
-                else partition_idx
-            ),
-            disable=not verbose
-        )
-    ):
+    for idx, file in enumerate(files):
         data, _ = read_audio(file, dtype=dtype)
 
         if vlen:
@@ -126,6 +104,9 @@ def _as_audiodtype(
 
         # Store filename only
         filenames_dataset[idx] = os.path.basename(file)
+        
+        # Update progress bar
+        ctx["queue"].put((partition_idx, 1))
 
 
 def as_audioint16(
@@ -136,8 +117,7 @@ def as_audioint16(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict = {},
-        verbose: bool = False
+        ctx: dict = {}
 ) -> None:
     """Alias of generic parser for audio data as `int16`."""
     return _as_audiodtype(
@@ -150,8 +130,7 @@ def as_audioint16(
         data_end_idx=data_end_idx,
         dtype=np.int16,
         parser_name="as_audioint16",
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -163,8 +142,7 @@ def as_audiofloat32(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict = {},
-        verbose: bool = False
+        ctx: dict = {}
 ) -> None:
     """Alias of generic parser for audio data as `float32`."""
     return _as_audiodtype(
@@ -177,8 +155,7 @@ def as_audiofloat32(
         data_end_idx=data_end_idx,
         dtype=np.float32,
         parser_name="as_audiofloat32",
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
     
@@ -190,8 +167,7 @@ def as_audiofloat64(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict = {}, 
-        verbose: bool = False
+        ctx: dict = {},
 ) -> List[np.ndarray]:
     """Alias of generic parser for audio data as `float64`."""
     return _as_audiodtype(
@@ -204,8 +180,7 @@ def as_audiofloat64(
         data_end_idx=data_end_idx,
         dtype=np.float64,
         parser_name="as_audiofloat64",
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -215,12 +190,11 @@ def _as_dtype(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
+    data_start_idx: int,
+    data_end_idx: int,
     dtype: np.dtype,
     parser_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
     ctx: dict = {}, 
-    verbose: bool = False
 ) -> None:
     """Parses columns having single objects data types such as a single `int16`
     value or `str`.
@@ -238,7 +212,6 @@ def _as_dtype(
         dtype (np.dtype): Data type used to read the audio data.
         parser_name (str): Name of parser method.
         ctx (dict): Dictionary containing context variables.
-        verbose (bool): Enable verbose mode it `True`.
     """
     metrics = (
         data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
@@ -252,19 +225,9 @@ def _as_dtype(
     )
     dataset.attrs["parser"] = parser_name
 
-    for idx, metric in enumerate(
-        tqdm(
-            metrics,
-            desc=(
-                f"Writing '{partition_field_name}' in partition "
-                f"#{partition_idx}"
-            ),
-            colour="green",
-            leave=False,
-            disable=not verbose
-        )
-    ):
+    for idx, metric in enumerate(metrics):
         dataset[idx] = metric
+        ctx["queue"].put((partition_idx, 1))
 
 
 def as_int8(
@@ -273,10 +236,9 @@ def as_int8(
         partition_field_name: str,
         data_frame: pl.DataFrame,
         data_column_name: str,
-        data_start_idx: Optional[int] = None,
-        data_end_idx: Optional[int] = None,
-        ctx: dict = {},
-        verbose: bool = False
+        data_start_idx: int,
+        data_end_idx: int,
+        ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `int8`."""
     _as_dtype(
@@ -285,12 +247,11 @@ def as_int8(
         partition_field_name=partition_field_name,
         data_frame=data_frame,
         data_column_name=data_column_name,
-        dtype=np.int8,
-        parser_name="as_int8",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        dtype=np.int8,
+        parser_name="as_int8",
+        ctx=ctx
     )
 
 
@@ -300,10 +261,9 @@ def as_int16(
         partition_field_name: str,
         data_frame: pl.DataFrame,
         data_column_name: str,
-        data_start_idx: Optional[int] = None,
-        data_end_idx: Optional[int] = None,
-        ctx: dict = {},
-        verbose: bool = False
+        data_start_idx: int,
+        data_end_idx: int,
+        ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `int16`."""
     _as_dtype(
@@ -316,8 +276,7 @@ def as_int16(
         parser_name="as_int16",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -327,10 +286,9 @@ def as_float32(
         partition_field_name: str,
         data_frame: pl.DataFrame,
         data_column_name: str,
-        data_start_idx: Optional[int] = None,
-        data_end_idx: Optional[int] = None,
-        ctx: dict = {},
-        verbose: bool = False
+        data_start_idx: int,
+        data_end_idx: int,
+        ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `float32`."""
     _as_dtype(
@@ -343,8 +301,7 @@ def as_float32(
         parser_name="as_float32",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -354,10 +311,9 @@ def as_float64(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {},
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `float64`."""
     _as_dtype(
@@ -370,8 +326,7 @@ def as_float64(
         parser_name="as_float64",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -381,10 +336,9 @@ def as_utf8str(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {},
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Alias of generic parser for single value data as `str`."""
     values = (
@@ -399,19 +353,12 @@ def as_utf8str(
     )
     dataset.attrs["parser"] = "as_utf8str"
 
-    for idx, value in enumerate(
-        tqdm(
-            values, 
-            desc=(
-                f"Writing '{partition_field_name}' in partition "
-                f"#{partition_idx}"
-            ),
-            colour="green",
-            leave=False,
-            disable=not verbose
-        )
-    ):
+    for idx, value in enumerate(values):
+        # Store data
         dataset[idx] = value
+
+        # Update progress bar
+        ctx["queue"].put((partition_idx, 1))
 
 
 def _as_listdtype(
@@ -422,10 +369,9 @@ def _as_listdtype(
     data_column_name: str,
     dtype: np.dtype,
     parser_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {}, 
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Parses columns having a list of objects of a single data type such
     as `int16` or `float32`.
@@ -443,7 +389,6 @@ def _as_listdtype(
         dtype (np.dtype): Data type used to read the audio data.
         parser_name (str): Name of parser method.
         ctx (dict): Dictionary containing context variables.
-        verbose (bool): Enable verbose mode it `True`.
     """
     # Get lists as str
     lists = (
@@ -476,23 +421,14 @@ def _as_listdtype(
 
     dataset.attrs["parser"] = parser_name
 
-    for idx, data in enumerate(
-        tqdm(
-            lists,
-            desc=(
-                f"Writing '{partition_field_name}' in partition "
-                f"#{partition_idx}"
-            ),
-            colour="green",
-            leave=False,
-            disable=not verbose
-        )
-    ):
+    for idx, data in enumerate(lists):
         if vlen:
             dataset[idx] = data
 
         else:
             dataset[idx, :] = data
+        
+        ctx["queue"].put((partition_idx, 1))
 
 
 def as_listint8(
@@ -501,10 +437,9 @@ def as_listint8(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {},
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `int8` values."""
     _as_listdtype(
@@ -517,8 +452,7 @@ def as_listint8(
         parser_name="as_listint8",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -528,10 +462,9 @@ def as_listint16(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {},
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `int16` values."""
     _as_listdtype(
@@ -544,8 +477,7 @@ def as_listint16(
         parser_name="as_listint16",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -555,10 +487,9 @@ def as_listfloat32(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {},
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `float32` values."""
     _as_listdtype(
@@ -571,8 +502,7 @@ def as_listfloat32(
         parser_name="as_listfloat32",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )
 
 
@@ -582,10 +512,9 @@ def as_listfloat64(
     partition_field_name: str,
     data_frame: pl.DataFrame,
     data_column_name: str,
-    data_start_idx: Optional[int] = None,
-    data_end_idx: Optional[int] = None,
-    ctx: dict = {},
-    verbose: bool = False
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict = {}
 ) -> None:
     """Alias of generic parser for list of `float64` values."""
     _as_listdtype(
@@ -598,6 +527,5 @@ def as_listfloat64(
         parser_name="as_listfloat64",
         data_start_idx=data_start_idx,
         data_end_idx=data_end_idx,
-        ctx=ctx,
-        verbose=verbose
+        ctx=ctx
     )

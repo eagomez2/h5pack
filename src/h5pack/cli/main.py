@@ -1,93 +1,108 @@
 import sys
 import argparse
 from datetime import datetime
-from h5pack import __version__
-from .utils import (
-    cmd_checksum,
-    cmd_create,
-    cmd_extract,
-    cmd_info,
-    cmd_virtual
-)
+from importlib.metadata import version
+from .checksum import cmd_checksum
+from .info import cmd_info
+from .pack import cmd_pack
+from .unpack import cmd_unpack
+from .virtual import cmd_virtual
 
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="create/expand/inspect hierarchical data format datasets",
+        description="pack/unpack/inspect hierarchical data format datasets",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
     subparser = parser.add_subparsers(dest="action")
 
-    # Create parser
-    create_parser = subparser.add_parser(
-        "create",
-        description="create HDF5 datasets",
-        help="create HDF5 datasets",
+    # Pack parser
+    pack_parser = subparser.add_parser(
+        "pack",
+        description="pack data into HDF5 dataset files",
+        help="pack data into HDF5 dataset files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
-    create_parser.add_argument(
-        "-i", "--input",
+    pack_parser.add_argument(
+        "-c", "--config",
         type=str,
-        required=True,
+        default="h5pack.yaml",
         help=".yaml configuration file containing dataset specifications"
     )
-    create_parser.add_argument(
+    pack_parser.add_argument(
         "-o", "--output",
         type=str,
         required=True,
         help="output HDF5 partition file(s) with .h5 extension"
     ) 
-    create_partitions_parser = create_parser.add_mutually_exclusive_group()
-    create_partitions_parser.add_argument(
+    pack_partitions_parser = pack_parser.add_mutually_exclusive_group()
+    pack_partitions_parser.add_argument(
         "-p", "--partitions",
         type=int,
         default=1,
-        help="number of partitions to generate"
+        help="number of partitions to create"
     )
-    create_partitions_parser.add_argument(
+    pack_parser.add_argument(
         "-f", "--files-per-partition",
         type=int,
         help="number of files per partition"
     )
-    create_parser.add_argument(
+    pack_parser.add_argument(
         "-d", "--dataset",
         type=str,
         required=True,
         help="name of the dataset to generate"
     )
-    create_parser.add_argument(
+    pack_parser.add_argument(
+        "--create-virtual",
+        action="store_true",
+        help="create a virtual layout when two or more partitions are created"
+    )
+    pack_parser.add_argument(
         "--skip-validation",
         action="store_true",
         help="skip validating files before generating the partition(s)"
     )
-    create_parser.add_argument(
-        "--skip-virtual",
-        action="store_true",
-        help="skip generating a virtual layout when two or more partitions "
-             "are created"
-    )
-    create_parser.add_argument(
+    pack_parser.add_argument(
         "--skip-checksum",
         action="store_true",
         help="skip generating the checksum file"
     )
-    create_parser.add_argument(
+    pack_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="allow overwriting existing files"
+    )
+    pack_parser.add_argument(
         "-w", "--workers",
         type=int,
-        default=0,
+        default=1,
         help="number of workers (0 means 1 worker per core)"
     )
-    create_parser.add_argument(
+    pack_parser.add_argument(
         "-u", "--unattended",
         action="store_true",
         help="unattended mode (no user prompts)"
     )
-    create_parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="verbose output"
+
+    # Unpack parser
+    unpack_parser = subparser.add_parser(
+        "unpack",
+        description="unpack HDF5 datasets into individual files",
+        help="unpack HDF5 datasets datasets into individual files",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False
+    )
+    unpack_parser.add_argument(
+        "input",
+        help="input .h5 file"
+    )
+    unpack_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        help="output folder"
     )
 
     # Virtual parser
@@ -99,9 +114,8 @@ def get_parser() -> argparse.ArgumentParser:
         allow_abbrev=False
     )
     virtual_parser.add_argument(
-        "-i", "--input",
+        "input",
         type=str,
-        required=True,
         nargs="+",
         help="input .h5 file(s) or folder(s) containing .h5 file(s)"
     )
@@ -137,39 +151,14 @@ def get_parser() -> argparse.ArgumentParser:
         help="filter pattern to remove matching elements from --input"
     )
     virtual_parser.add_argument(
+        "--force-abspath",
+        action="store_true",
+        help="force all embedded paths to be absolute paths"
+    )
+    virtual_parser.add_argument(
         "-u", "--unattended",
         action="store_true",
         help="unattended mode (no user prompts)"
-    )
-    virtual_parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="verbose output"
-    )
-
-    # Checksum parser
-    checksum_parser = subparser.add_parser(
-        "checksum",
-        description="verify HDF5 datasets checksum",
-        help="create virtual HDF5 datasets checksum",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
-    )
-    checksum_parser.add_argument(
-        "input",
-        type=str,
-        nargs="+",
-        help="checksum file"
-    )
-    checksum_parser.add_argument(
-        "-g", "--generate",
-        action="store_true",
-        help="generate sha256 hash of input files"
-    )
-    checksum_parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="verbose output"
     )
 
     # Info parser
@@ -183,30 +172,29 @@ def get_parser() -> argparse.ArgumentParser:
     info_parser.add_argument(
         "input",
         help="input .h5 file"
-    )
+    ) 
 
-    # Expand parder
-    extract_parser = subparser.add_parser(
-        "extract",
-        description="extract HDF5 datasets into individual files",
-        help="extract HDF5 datasets datasets into individual files",
+    # Checksum parser
+    checksum_parser = subparser.add_parser(
+        "checksum",
+        help="create/verify virtual HDF5 datasets checksum",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         allow_abbrev=False
     )
-    extract_parser.add_argument(
+    checksum_parser.add_argument(
         "input",
-        help="input .h5 file"
-    )
-    extract_parser.add_argument(
-        "-o", "--output",
         type=str,
-        required=True,
-        help="output folder"
+        help=".sha256 file (to verify) or file or folder (to calculate)"
     )
-    extract_parser.add_argument(
-        "-v", "--verbose",
+    checksum_parser.add_argument(
+        "--save",
+        type=str,
+        help="save calculated checksum to a .sha256 file"
+    )
+    checksum_parser.add_argument(
+        "-r", "--recursive",
         action="store_true",
-        help="verbose output"
+        help="search folders recursively if input is a folder"
     )
 
     return parser
@@ -218,7 +206,7 @@ def main() -> int:
         or (len(sys.argv) == 2 and sys.argv[1] in ("--version"))
     ):
         print(
-            f"h5pack version {__version__} 2024-{datetime.now().year} "
+            f"h5pack version {version('h5pack')} 2024-{datetime.now().year} "
             "developed by Esteban Gómez (Speech Interaction Technology, Aalto "
             "University)"
         )
@@ -227,8 +215,8 @@ def main() -> int:
     parser = get_parser()
     args = parser.parse_args()
 
-    if args.action == "create":
-        cmd_create(args)
+    if args.action == "pack":
+        cmd_pack(args)
     
     elif args.action == "virtual":
         cmd_virtual(args)
@@ -239,8 +227,8 @@ def main() -> int:
     elif args.action == "info":
         cmd_info(args)
     
-    elif args.action == "extract":
-        cmd_extract(args)
+    elif args.action == "unpack":
+        cmd_unpack(args)
     
     else:
         raise AssertionError

@@ -1,317 +1,498 @@
 import os
 import h5py
 import polars as pl
-from tqdm import tqdm
+from packaging import version
 from ..core.io import write_audio
 
 
 def _from_audiodtype(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Extracts audio of any data type and renders it to a folder.
     
     Args:
+        output_csv (str): Output `dataset.csv` file.
+        output_yaml (str): Output `h5pack.yaml` file.
         output_dir (str): Output folder.
+        dataset_name (str): Name of exctracted dataset.
         field_name (str): Field name to extract data from.
-        data (h5py.Dataset): Data from which the data will be extracted.
+        data (h5py.Dataset): h5py.Dataset object from which the data will be
+            extracted.
         attrs (h5py.AttributeManager): Attributes associated to the audio data.
-        verbose (bool): Enable verbose mode if `True`.
+        ctx (dict): Extraxction context.
     """
+    # Add fields to yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": f"{field_name}__filepath",
+                "parser": attrs["parser"]
+            }
+        }
+    )
+
     # Make output folder if it does not exist
     os.makedirs(output_dir, exist_ok=True)
-
+ 
     # Get file path and sample rate
-    filenames = [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
+    filenames = (
+        [s.decode("utf-8") for s in data[f"{field_name}__filepath"]]
+        if ctx["producer_version"] >= version.parse("1.0.1")  # Legacy
+        else
+        [s.decode("utf-8") for s in data[f"{field_name}_filepaths"]]
+    )
     fs = attrs["sample_rate"]
 
-    if data[field_name].ndim == 2:  # Fixed length audio
-        for row_idx, filename in tqdm(
-            zip(range(data[field_name].shape[0]), filenames),
-            total=len(filenames),
-            desc=f"Extracting '{field_name}'",
-            colour="green",
-            leave=False,
-            disable=not verbose
-        ):
-            os.makedirs(
-                os.path.join(output_dir, os.path.dirname(filename)),
-                exist_ok=True
-            )
-            audio = data[field_name][row_idx, :]
-            write_audio(
-                audio,
-                file=os.path.join(output_dir, filename),
-                fs=int(fs)
-            )
+    # Write paths to csv
+    if os.path.getsize(output_csv) > 0:  # Polars cannot read empty .csv
+        df = pl.read_csv(output_csv, n_rows=0)
     
-    elif data[field_name].ndim == 1:  # vlen audio
-        for row_idx, filename in tqdm(
-            zip(range(data[field_name].shape[0]), filenames),
-            total=len(filenames),
-            desc=f"Extracting '{field_name}'",
-            colour="green",
-            leave=False,
-            disable=not verbose
-        ):
-            os.makedirs(
-                os.path.join(output_dir, os.path.dirname(filename)),
-                exist_ok=True
-            )
-            audio = data[field_name][row_idx]
-            write_audio(
-                audio,
-                file=os.path.join(output_dir, filename),
-                fs=int(fs)
-            ) 
+    else:
+        df = pl.DataFrame()
+    
+    df = df.with_columns(
+        pl.Series(
+            name=f"{field_name}__filepath",
+            values=[os.path.join("data", field_name, f) for f in filenames],
+            dtype=pl.String
+        )
+    )
+    df.write_csv(output_csv)
+
+    # Get progress bar
+    progress_bar = ctx["progress_bar"]
+
+    with progress_bar:
+        # Add task
+        task = progress_bar.add_task(
+            f"Unpacking '{field_name}'",
+            total=len(filenames)
+        )
+
+        if data[field_name].ndim == 2:  # Fixed length audio
+            for row_idx, filename in zip(
+                range(data[field_name].shape[0]),
+                filenames
+            ):
+                # Make step
+                progress_bar.advance(task)
+
+                # Extract file
+                os.makedirs(
+                    os.path.join(output_dir, os.path.dirname(filename)),
+                    exist_ok=True
+                )
+                audio = data[field_name][row_idx, :]
+                write_audio(
+                    audio,
+                    file=os.path.join(output_dir, filename),
+                    fs=int(fs)
+                )
+        
+        elif data[field_name].ndim == 1:  # vlen audio
+            for row_idx, filename in zip(
+                range(data[field_name].shape[0]),
+                filenames
+            ):
+                # Make step
+                progress_bar.advance(task)
+
+                # Extract file
+                os.makedirs(
+                    os.path.join(output_dir, os.path.dirname(filename)),
+                    exist_ok=True
+                )
+                audio = data[field_name][row_idx]
+                write_audio(
+                    audio,
+                    file=os.path.join(output_dir, filename),
+                    fs=int(fs)
+                ) 
 
 
 def from_audioint16(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `int16`."""
     return _from_audiodtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_audiofloat32(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `float32`."""
     return _from_audiodtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_audiofloat64(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for audio data as `float64`."""
     return _from_audiodtype(
+        output_csv=output_csv,
         output_dir=output_dir,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def _from_dtype(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
         field_name: str,
+        dataset_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Extracts any single value data type and renders it to a `.csv` file.
     
     Args:
+        output_csv (str): Output `dataset.csv` file.
+        output_yaml (str): Output `h5pack.yaml` file.
         output_dir (str): Output folder.
         field_name (str): Field name to extract data from.
-        data (h5py.Dataset): Data from which the data will be extracted.
-        attrs (h5py.AttributeManager): Attributes associated to the data.
-        verbose (bool): Enable verbose mode if `True`.
+        dataset_name (str): Name of exctracted dataset.
+        data (h5py.Dataset): h5py.Dataset object from which the data will be
+            extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the audio data.
+        ctx (dict): Extraxction context.
     """
-    os.makedirs(output_dir, exist_ok=True)
-    df = pl.DataFrame({field_name: list(data[field_name])})
-    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+    # Update .yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": field_name,
+                "parser": attrs["parser"]
+            }
+        }
+    )
+
+    # Write data to .csv
+    if os.path.getsize(output_csv) == 0:
+        df = pl.DataFrame()
+    
+    else:
+        df = pl.read_csv(output_csv)
+    
+    df = df.with_columns(
+        pl.Series(field_name, list(data[field_name]), pl.Float32)
+    )
+    df.write_csv(output_csv)
 
 
 def from_int8(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `int8`."""
     return _from_dtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_int16(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `int16`."""
     return _from_dtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_float32(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `float32`."""
     return _from_dtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_float64(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `float64`."""
     return _from_dtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_utf8str(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for single value data as `str`."""
-    os.makedirs(output_dir, exist_ok=True)
+    # Update .yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": field_name,
+                "parser": attrs["parser"]
+            }
+        }
+    )
+
+    # Write data to .csv
+    if os.path.getsize(output_csv) == 0:
+        df = pl.DataFrame()
+    
+    else:
+        df = pl.read_csv(output_csv)
+
     decoded_data = [
         i.decode("utf-8") if isinstance(i, bytes)
         else i for i in data[field_name]
     ]
-    df = pl.DataFrame({field_name: decoded_data})
-    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+    df = df.with_columns(pl.Series(field_name, decoded_data, pl.Utf8))
+    df.write_csv(output_csv)
 
 
 def _from_listdtype(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Extracts any list of numeric data types and renders it to a `.csv` file.
     
     Args:
+        output_csv (str): Output `dataset.csv` file.
+        output_yaml (str): Output `h5pack.yaml` file.
         output_dir (str): Output folder.
+        dataset_name (str): Name of exctracted dataset.
         field_name (str): Field name to extract data from.
-        data (h5py.Dataset): Data from which the data will be extracted.
-        attrs (h5py.AttributeManager): Attributes associated to the data.
-        verbose (bool): Enable verbose mode if `True`.
+        data (h5py.Dataset): h5py.Dataset object from which the data will be
+            extracted.
+        attrs (h5py.AttributeManager): Attributes associated to the audio data.
+        ctx (dict): Extraxction context.
     """
-    os.makedirs(output_dir, exist_ok=True)
-    df = pl.DataFrame(
-        {field_name: [str(r) for r in data[field_name][:].tolist()]}
+    # Update .yaml
+    output_yaml["datasets"][dataset_name]["data"]["fields"].update(
+        {
+            field_name: {
+                "column": field_name,
+                "parser": attrs["parser"]
+            }
+        }
     )
-    df.write_csv(os.path.join(output_dir, f"{field_name}.csv"))
+    # Write data to .csv
+    if os.path.getsize(output_csv) == 0:
+        df = pl.DataFrame()
+    
+    else:
+        df = pl.read_csv(output_csv)
+    
+    df = df.with_columns(
+        pl.Series(
+            field_name,
+            [str(r) for r in data[field_name][:].tolist()],
+            pl.String
+        )
+    )
+    df.write_csv(output_csv)
 
 
 def from_listint8(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `int8`."""
     return _from_listdtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_listint16(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `int16`."""
     return _from_listdtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_listfloat32(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `float32`."""
     return _from_listdtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )
 
 
 def from_listfloat64(
+        output_csv: str,
+        output_yaml: str,
         output_dir: str,
+        dataset_name: str,
         field_name: str,
         data: h5py.Dataset,
         attrs: h5py.AttributeManager,
-        verbose: bool = False
+        ctx: dict
 ) -> None:
     """Alias of generic extractor for lists of data as `float64`."""
     return _from_listdtype(
+        output_csv=output_csv,
+        output_yaml=output_yaml,
         output_dir=output_dir,
+        dataset_name=dataset_name,
         field_name=field_name,
         data=data,
         attrs=attrs,
-        verbose=verbose
+        ctx=ctx
     )

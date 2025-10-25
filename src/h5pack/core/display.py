@@ -94,9 +94,9 @@ def exit_warning(s: str, code: int = 1, writer: Optional[tqdm] = None) -> None:
     return printc_exit(f"<warning>{s}</warning>", code=code, writer=writer)
 
 def ask_confirmation(
-          s: str = "Do you want to continue? [y/n]:",
-          exit: bool = True
-    ) -> Optional[bool]:
+        s: str = "Do you want to continue? [y/n]:",
+        exit: bool = True
+) -> Optional[bool]:
         """Request user input to confirm or reject an instruction.
 
         Args:
