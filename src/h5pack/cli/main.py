@@ -102,7 +102,6 @@ def get_parser() -> argparse.ArgumentParser:
     unpack_parser.add_argument(
         "-o", "--output",
         type=str,
-        required=True,
         help="output folder"
     )
 
@@ -115,9 +114,8 @@ def get_parser() -> argparse.ArgumentParser:
         allow_abbrev=False
     )
     virtual_parser.add_argument(
-        "-i", "--input",
+        "input",
         type=str,
-        required=True,
         nargs="+",
         help="input .h5 file(s) or folder(s) containing .h5 file(s)"
     )
@@ -151,6 +149,11 @@ def get_parser() -> argparse.ArgumentParser:
         type=str,
         metavar="PATTERN",
         help="filter pattern to remove matching elements from --input"
+    )
+    virtual_parser.add_argument(
+        "--force-abspath",
+        action="store_true",
+        help="force all embedded paths to be absolute paths"
     )
     virtual_parser.add_argument(
         "-u", "--unattended",

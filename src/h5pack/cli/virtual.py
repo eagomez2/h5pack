@@ -121,6 +121,7 @@ def cmd_virtual(args: Namespace) -> None:
     create_virtual_dataset_from_partitions(
         file=add_extension(args.output, ext=".h5"),
         partitions=h5_files,
-        attrs=root_attrs
+        attrs=root_attrs,
+        force_abspath=args.force_abspath
     )
     print(f"Virtual dataset saved to '{os.path.basename(output_file)}'")

@@ -26,6 +26,10 @@ def cmd_unpack(args: Namespace) -> None:
     if not is_file_with_ext(args.input, ext=".h5"):
         exit_error(f"Invalid input fille '{args.input}'")
     
+    # Automatically get path if not provided
+    if not args.output:
+        args.output = os.path.splitext(args.input)[0]
+    
     with h5py.File(args.input, mode="r") as h5_file:
         # Check if producer is h5pack, otherwise will not be correctly parsed
         if not h5_file.attrs.get("producer", "").startswith("h5pack"):

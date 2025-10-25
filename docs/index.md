@@ -23,7 +23,7 @@ To begin using `h5pack`, refer to the guides below:
 - [Installation](install.md)
 - [Quickstart](quickstart.md)
 - [`h5pack pack` documentation](pack.md)
-- `h5pack unpack` documentation
-- `h5pack info` documentation
-- `h5pack virtual` documentation
-- `h5pack checksum` documentation
+- [`h5pack unpack` documentation](unpack.md)
+- [`h5pack info` documentation](info.md)
+- [`h5pack virtual` documentation](virtual.md)
+- [`h5pack checksum` documentation](checksum.md)

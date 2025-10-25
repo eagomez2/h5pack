@@ -95,7 +95,8 @@ def create_partition_from_data(
 def create_virtual_dataset_from_partitions(
         file: str,
         partitions: List[str],
-        attrs: Optional[dict] = None
+        attrs: Optional[dict] = None,
+        force_abspath: bool = False
 ) -> None:
     """Creates a virtual dataset given a set of partitions.
     
@@ -104,6 +105,8 @@ def create_virtual_dataset_from_partitions(
         partitions (List[str]): List of partitions to accumulate in a single
             virtual dataset.
         attrs (Optional[dict]): Virtual dataset attributes.
+        force_abspath (bool): If `True`, all paths will be converted to
+            absolute paths.
     """
     # Check all partition files exist
     for partition in partitions:
@@ -119,7 +122,10 @@ def create_virtual_dataset_from_partitions(
             partition_specs.append(
                 {
                     # NOTE: Relative path may create empty virtual dataset
-                    "file": os.path.abspath(partition),
+                    "file": (
+                        os.path.abspath(partition) if force_abspath
+                        else partition
+                    ),
                     "fields": {},
                     "attrs": dict(f.attrs)
                 }

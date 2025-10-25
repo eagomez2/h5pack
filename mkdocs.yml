@@ -3,7 +3,13 @@ nav:
   - About: index.md
   - Installation: install.md
   - Quickstart: quickstart.md
-  - Documentation: docs.md
+  - Documentation:
+    - Overview: docs.md
+    - h5pack pack documentation: pack.md
+    - h5pack unpack documentation: unpack.md
+    - h5pack info documentation: info.md
+    - h5pack virtual documentation: virtual.md
+    - h5pack checksum documentation: checksum.md
   - Changelog: https://github.com/eagomez2/h5pack/releases
   - License: license.md
 copyright: |
