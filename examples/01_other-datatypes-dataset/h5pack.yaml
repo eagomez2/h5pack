@@ -1,0 +1,43 @@
+# This example includes all other available data types not showed in the
+# previous examples that are still available as part of h5pack.
+#
+# For a list of all available data types please see the 'Quickstart' section
+# of h5pack documentation.
+
+datasets:
+  other_datatypes:
+    attrs:
+      author: Your name
+      description: Your dataset description
+      version: 0.1.0
+
+    data:
+      file: dataset.csv
+      fields:
+        utf8str:
+          column: some_utf8
+          parser: as_utf8str
+        int8:
+          column: some_int8
+          parser: as_int8
+        int16:
+          column: some_int16
+          parser: as_int16
+        float32:
+          column: some_float32
+          parser: as_float32
+        float64:
+          column: some_float64
+          parser: as_float64
+        listint8:
+          column: some_listint8
+          parser: as_listint8
+        listint16:
+          column: some_listint16
+          parser: as_listint16
+        listfloat32:
+          column: some_listfloat32
+          parser: as_listfloat32
+        listfloat64:
+          column: some_listfloat64
+          parser: as_listfloat64

@@ -1,0 +1,64 @@
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "h5pack"
+authors = [{name = "Esteban Gómez", email = "esteban.gomezmellado@aalto.fi"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+version = "1.2.0"
+description = "A utility to pack, unpack and inspect HDF5 audio datasets"
+dependencies = [
+    "h5py >= 3.14.0",
+    "numpy >= 2.0.2",
+    "soundfile >= 0.13.1",
+    "polars >= 1.33.1",
+    "pyyaml >= 6.0.3",
+    "rich >= 14.2.0",
+    "tqdm>=4.67.1",
+    "packaging>=25.0",
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Scientific/Engineering"
+]
+
+[project.urls]
+Home = "https://www.github.com/eagomez2/h5pack"
+
+[project.scripts]
+"h5pack" = "h5pack.cli.main:main"
+
+[tool.ruff]
+line-length = 79
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "B",
+    "C4",
+    "SIM",
+    "TC",
+    "UP"
+]
+
+[dependency-groups]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.22",
+    "mkdocstrings-python>=1.18.2",
+]
+lint = [
+    "ruff>=0.14.2",
+]

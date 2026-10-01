@@ -1,0 +1,118 @@
+import os
+from .exceptions import FileExtensionError
+
+
+def is_file_or_error(file: str) -> None:
+    """Raises and exception if `file` is not a file.
+
+    Args:
+        file (str): File path to check.
+
+    Raises:
+        FileNotFoundError: If `file` is not a valid file.
+    """
+    if not os.path.isfile(file):
+        raise FileNotFoundError(f"File not found: '{file}'")
+
+
+def has_ext(file: str, ext: str | list[str]) -> bool:
+    """Returns `True` if a file has a certain extension.
+    
+    Args:
+        file (str): File to check.
+        ext (str | list[str]): Single extension to check as `str` or
+            `list` of extensions to check.
+    
+    Returns:
+        bool: `True` if `file` has one of the specified extensions, `False`
+            otherwise.
+    """
+    ext = [ext] if not isinstance(ext, list) and ext is not None else ext
+    _, ext_ = os.path.splitext(file)
+    return ext_ in ext
+
+
+def has_ext_or_error(file: str, ext: str | list[str]) -> None:
+    """Raises an exception if a file does not have an extension among a set
+    of specified extensions.
+    
+    Args:
+        file (str): File to check.
+        ext (str | list[str]): Single extension to check as `str` or
+            `list` of extensions to check.
+    
+    Raises:
+        FileExtensionError: If `file` does not have any of the specified
+            extensions.
+    """
+    if not has_ext(file, ext=ext):
+        ext = [ext] if not isinstance(ext, list) else ext
+        ext_repr = ", ".join([f"'{e}'" for e in ext])
+
+        raise FileExtensionError(
+            f"Invalid file extension of '{file}'. Expected file extensions: "
+            f"{ext_repr}"
+        )
+
+
+def is_file_with_ext(file: str, ext: str | list[str]) -> bool:
+    """Returns `True` if `file` exists and has one of the specified
+    extensions.
+    
+    Args:
+        file (str): File to check.
+        ext (str | list[str]): Single extension to check as `str` or
+             `list` of extensions to check.
+    
+    Returns:
+        bool: `True` if `file` exists and has one of the specified extensions,
+            `False` otherwise.
+    """
+    return os.path.isfile(file) and has_ext(file, ext)
+
+
+def is_file_with_ext_or_error(file: str, ext: str | list[str]) -> bool:
+    """Raises an exception if `file` does not exists or does not have one of
+    the specified extensions.
+    
+    Args:
+        file (str): File to check.
+        ext (str | list[str]): Single extension to check as `str` or
+            `list` of extensions to check.
+    """
+    is_file_or_error(file)
+    has_ext_or_error(file, ext=ext)
+
+
+def are_lists_equal_len(*lists: list) -> bool:
+    """Returns ``True`` if all lists have the same length, ``False`` otherwise.
+    
+    Args:
+        lists: Lists to be checked.
+    
+    Returns:
+        bool: ``True`` if all lists have the same length, ``False`` otherwise.
+    """
+    return len({len(li) for li in lists}) == 1
+
+
+def are_lists_equal_len_or_error(*lists: list) -> None:
+    """Raises an exception if not all input lists have the same length.
+    
+    Args:
+        lists: Lists to be checked.
+    
+    Raises:
+        ValueError: If not all lists have the same length.
+    """
+    if not are_lists_equal_len(*lists):
+        lists_len_repr = []
+
+        for idx, li in enumerate(*lists):
+            lists_len_repr.append(f"index{idx} ({len(li)})")
+
+        lists_len_repr = ", ".join(lists_len_repr)
+
+        raise ValueError(
+            f"All lists should have equal length. Found {lists_len_repr}"
+        )

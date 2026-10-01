@@ -1,0 +1,58 @@
+/* h5pack brand colors, matched to the ink badge logo (docs/assets/logo.svg) */
+:root {
+  --h5-ink: #0f172a;
+  --h5-ink-light: #1e293b;
+  --h5-sky: #0284c7;
+  --h5-sky-bright: #38bdf8;
+}
+
+/* Light theme: ink header, sky links and accents */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--h5-ink);
+  --md-primary-fg-color--light: var(--h5-ink-light);
+  --md-primary-fg-color--dark: #020617;
+  --md-primary-bg-color: #ffffff;
+  --md-accent-fg-color: var(--h5-sky);
+  --md-accent-fg-color--transparent: rgba(2, 132, 199, 0.1);
+  --md-typeset-a-color: var(--h5-sky);
+}
+
+/* Dark theme: ink background, lighter sky accents for contrast */
+[data-md-color-scheme="slate"] {
+  --md-hue: 222;
+  --md-default-bg-color: #0b1120;
+  --md-code-bg-color: #111a2e;
+  --md-primary-fg-color: var(--h5-ink);
+  --md-primary-fg-color--light: var(--h5-ink-light);
+  --md-primary-fg-color--dark: #020617;
+  --md-primary-bg-color: #e2e8f0;
+  --md-accent-fg-color: var(--h5-sky-bright);
+  --md-accent-fg-color--transparent: rgba(56, 189, 248, 0.1);
+  --md-typeset-a-color: var(--h5-sky-bright);
+}
+
+/* Keep the header and tabs ink in both themes */
+.md-header,
+.md-tabs {
+  background-color: var(--h5-ink);
+}
+
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs {
+  border-bottom: 1px solid #1e293b;
+}
+
+/* Logo: the ink badge would disappear on the ink header, so use the white one */
+.md-header__button.md-logo img {
+  height: 1.6rem;
+}
+
+/* Move the light/dark toggle to the right of the repository widget */
+.md-header__source {
+  order: 1;
+}
+
+.md-header__option {
+  order: 2;
+  margin-left: 0.4rem;
+}

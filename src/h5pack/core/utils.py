@@ -1,0 +1,306 @@
+import hashlib
+import numpy as np
+import polars as pl
+from itertools import chain
+from typing import (
+    Any
+)
+from .guards import is_file_with_ext_or_error
+
+
+def make_list(x: Any) -> list[Any]:
+    """If `x` is a single element, turns it into a `list` of one element.
+
+    Args:
+        x (Any): Element(s) to be returned as a `list`.
+
+    Returns:
+        (list): `x` as a `list`.
+    """
+    return [x] if not isinstance(x, list) and x is not None else x
+
+
+def flatten_nested_list(nl: list[list]) -> list[Any]:
+    """Flattens a list of lists of arbitraty depth.
+
+    Args:
+        nl (list[List]): Nested `list` of arbitrary depth.
+
+    Return:
+        (list): Flattened `list`.
+    """
+    return (
+        list(chain.from_iterable(map(flatten_nested_list, nl)))
+        if isinstance(nl, list)
+        else [nl]
+    )
+
+
+def list_from_csv_col(file: str, col: str) -> list[str]:
+    """Creates a ``list`` of ``str`` from a given column of a ``.csv`` file.
+    
+    Args:
+        file (str): Input ``.csv`` file.
+        col (str): Column name.
+    
+    Returns:
+        list[str]: List containing values found in column ``col``.
+    """
+    is_file_with_ext_or_error(file, ext=".csv")
+    df = pl.read_csv(file)
+    col_data = df[col].to_list()
+    return col_data
+
+
+def list_from_tsv_col(file: str, col: str) -> list[str]:
+    """Creates a ``list`` of ``str`` from a given column of a ``.tsv`` file.
+    
+    Args:
+        file (str): Input ``.tsv`` file.
+        col (str): Column name.
+    
+    Returns:
+        list[str]: List containing values found in column ``col``.
+    """
+    is_file_with_ext_or_error(file, ext=".tsv")
+    df = pl.read_csv(file, separator="\t")
+    col_data = df[col].to_list()
+    return col_data
+
+
+def dict_from_interleaved_list(li: list) -> dict:
+    if len(li) % 2 != 0:
+        raise ValueError("Input list must have an even number of elements")
+    
+    return {li[idx]: li[idx + 1] for idx in range(0, len(li), 2)}
+
+
+def time_to_str(time: float, abbrev: bool = False) -> str:
+    """Returns a time in seconds in a human readable format.
+    
+    Args:
+        time (float): Time in seconds.
+        abbrev (bool): If `True`, abbreviations to represent different time
+            units are used.
+    
+    Returns:
+        (str): `str` representation of `time`.
+    """
+    if abbrev:
+        ms_repr = "ms"
+        s_repr = "s"
+        m_repr = "m"
+        h_repr = "h"
+    
+    else:
+        ms_repr = "millisecond(s)"
+        s_repr = "second(s)"
+        m_repr = "minute(s)"
+        h_repr = "hour(s)"
+
+    if time < 1.0:
+        time_repr = f"{time * 1e3:.1f} {ms_repr}"
+
+    elif time < 60.0:
+        time_repr = f"{time:.1f} {s_repr}"
+    
+    elif time < 3600.0:
+        time_mins = time // 60.0
+        time_secs = time % 60
+        time_repr = f"{int(time_mins)} {m_repr} {int(time_secs)} {s_repr}" 
+
+    else:            
+        time_hours = time // 3600.0
+        remaining_time = time % 3600.0
+        time_mins = remaining_time // 60.0
+        time_secs = remaining_time % 60
+        time_repr = (
+            f"{int(time_hours)} {h_repr} {int(time_mins)} {m_repr} "
+            f"{int(time_secs)} {s_repr}"
+        )
+
+    return time_repr
+
+
+def bytes_to_str(bytes: int) -> str:
+    """Returns an amount of bytes in a human readable format.
+    
+    Args:
+        bytes (int): Number of bytes to represent.
+
+    Returns:
+        (str): `str` representation of `bytes`.
+    """
+    if bytes / (1024 ** 4) > 1.0:
+        repr = f"{bytes / 1024 ** 4:.1f}T"
+
+    elif bytes / (1024 ** 3) > 1.0:
+        repr = f"{bytes / 1024 ** 3:.1f}G"
+        
+    elif bytes / (1024 ** 2) > 1.0:
+        repr = f"{bytes / 1024 ** 2:.1f}M"
+        
+    elif bytes / 1024 > 1.0:
+        repr = f"{bytes / 1024:.1f}K"
+        
+    else:
+        repr = f"{bytes:d}B"
+    
+    return repr
+
+
+def get_available_hashes() -> dict:
+    """Get available hashing algorithms.
+    
+    Returns:
+        dict: `dict` where each key is a hashing algorithm name and each value
+            is the corresponding method.
+    """
+    return {
+        "md5": hashlib.md5(),
+        "sha256": hashlib.sha256(),
+        "sha384": hashlib.sha384(),
+        "sha512": hashlib.sha512(),
+        "shake_128": hashlib.shake_128(),
+        "shake_256": hashlib.shake_256()
+    }
+
+
+def get_array_checksum(x: np.ndarray, hash: str = "sha256") -> str:
+    """Computes the checkoint of an array-
+    
+    Args:
+        x (np.ndarray): Input array.
+        hash (str): Hashing algorithm name.
+    
+    Returns:
+        (str): Hash of the input array.
+    """
+    available_hashes = get_available_hashes()
+
+    if hash not in available_hashes:
+        hashes_repr = [f"'{k}'" for k in available_hashes]
+        hashes_repr = ", ".join(hashes_repr)
+
+        raise ValueError(
+            f"Invalid hash '{hash}'. Available hashes: {hashes_repr}"
+        )
+    
+    hash_gen = available_hashes[hash]
+    x_bytes = x.data.tobytes()
+    hash_gen.update(x_bytes)
+    checksum = hash_gen.hexdigest()
+    return checksum
+
+
+def get_file_checksum(file: str, hash: str = "sha256") -> str:
+    """Calculates the checksum of a file.
+    
+    Args:
+        file (str): Input file.
+        hash (str): Hashing algorithm to use.
+    
+    Returns:
+        (str): File hash.
+    """
+    available_hashes = get_available_hashes()
+
+    if hash not in available_hashes:
+        hashes_repr = [f"'{k}'" for k in available_hashes]
+        hashes_repr = ", ".join(hashes_repr)
+
+        raise ValueError(
+            f"Invalid hash '{hash}'. Available hashes: {hashes_repr}"
+        )
+
+    hash_gen = available_hashes[hash]
+
+    with open(file, "rb") as f:
+        content = f.read()
+        hash_gen.update(content)
+
+    return hash_gen.hexdigest()
+
+
+def total_to_list_slices(total: int, slices: int) -> list[tuple[int, int]]:
+    """Splits of a list of indices into `slices` slices.
+    
+    Args:
+        total (int): Total number of indices.
+        slices (int): Number of slices.
+    
+    Returns:
+        (list[tuple[int, int]]): List of tuples containing start and end index
+            of each slice.
+    """
+    if total < slices:
+        raise ValueError("Total should be equal or greater than slices")
+
+    size, remainder = divmod(total, slices)
+    idx_slices = []
+
+    for idx in range(slices):
+        start_idx = idx * size
+        end_idx = (
+            start_idx + size + remainder if idx + 1 == slices
+            else start_idx + size
+        )
+        idx_slices.append((start_idx, end_idx))
+    
+    return idx_slices
+
+
+def total_to_slice_len(total: int, slices: int) -> list[int]:
+    """Return the length of each slice when dividing `total` into `slices` 
+    parts.
+
+    Args:
+        total (int): Total number of indices.
+        slices (int): Number of slices. 
+
+        Returns:
+        (list[int]): List of integers containing the length of each slice.
+    """
+    if total < slices:
+        raise ValueError("Total should be equal or greater than slices")
+    
+    size, remainder = divmod(total, slices)
+    lengths = [size] * slices
+    lengths[-1] += remainder  # Add leftover elements to the last slice
+    return lengths
+
+
+def stack_shape(*shapes: tuple[int, ...], axis: int = -1) -> tuple[int, ...]:
+    """Computes the resulting shape after stacking multiple shapes along a
+    specified axis.
+
+    Args:
+        shapes (tuple[int, ...]): A variable number of tuples, each
+            representing a shape.
+        axis (int): The axis along which the shapes should be stacked.
+
+    Returns:
+        (tuple[int, ...]): A tuple representing the resulting shape after
+            stacking.
+
+    Raises:
+        ValueError: If any shape is not a tuple.
+        ValueError: If shapes have different lengths.
+        ValueError: If dimensions other than `axis` are not identical.
+    """
+    if not all(isinstance(s, tuple) for s in shapes):
+        raise ValueError("Each shape should be a tuple")
+
+    if len(set(map(len, shapes))) != 1:
+        raise ValueError("All shapes should be tuples of the same length")
+    
+    # Check if all values except 'axis' are the same
+    for idx in range(len(shapes[0])):
+        if idx != axis and len({s[idx] for s in shapes}) != 1:
+            raise ValueError(f"Incompatible shapes at dimension {idx}")
+    
+    axis_sum = sum([n[axis] for n in shapes])
+    shape_sum = list(shapes[0])
+    shape_sum[axis] = axis_sum 
+    
+    return tuple(shape_sum)
