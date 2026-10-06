@@ -1,6 +1,5 @@
 import os
 import pickle
-import shutil
 import yaml
 import numpy as np
 import pytest
@@ -138,32 +137,6 @@ def test_show(packed, dataset):
 
     result = run("show", packed, "-r", "100", check=False)
     assert result.returncode != 0
-
-
-def test_verify_detects_changes(packed, dataset):
-    run("verify", packed, "-a")
-
-    # Changed source file
-    file = os.path.join(dataset["root"], "data", "spk1", "002.wav")
-    audio, fs = sf.read(file, dtype="int16")
-    audio[10] += 1
-    sf.write(file, audio, fs, subtype="PCM_16")
-
-    result = run("verify", packed, "-a", check=False)
-    assert result.returncode == 1
-    assert "Row 5 'audio' does not match" in result.stderr
-
-
-def test_verify_with_source(packed, dataset, tmp_path_factory):
-    # Original files moved to another folder
-    new_dir = os.path.join(str(tmp_path_factory.mktemp("moved")), "audio")
-    shutil.move(os.path.join(dataset["root"], "data"), new_dir)
-
-    result = run("verify", packed, check=False)
-    assert result.returncode != 0
-    assert "--source" in result.stderr
-
-    run("verify", packed, "--source", new_dir, "-a")
 
 
 def test_checksum_mismatch(packed):

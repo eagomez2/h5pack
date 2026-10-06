@@ -158,20 +158,3 @@ def dataset(tmp_path) -> dict:
     """Default mono dataset with 8 fixed-length rows."""
     return make_dataset(str(tmp_path))
 
-
-def has_module(name: str) -> bool:
-    """Returns `True` if a module can be imported.
-
-    Args:
-        name (str): Module name.
-
-    Returns:
-        (bool): `True` if the module is available.
-    """
-    try:
-        __import__(name)
-
-    except (ModuleNotFoundError, OSError):
-        return False
-
-    return True

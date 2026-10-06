@@ -58,15 +58,6 @@ def test_unpack_legacy_file(file, tmp_path):
                 assert np.array_equal(row_a[field], row_b[field])
 
 
-def test_verify_legacy_file_requires_source(tmp_path):
-    file = os.path.join(LEGACY_DIR, "v1.2.0.h5")
-    result = run("verify", file, check=False)
-    assert result.returncode != 0
-    assert "--source" in result.stderr
-
-    run("verify", file, "--source", os.path.join(LEGACY_DIR, "data"), "-a")
-
-
 def test_legacy_config_still_packs(tmp_path):
     root = str(tmp_path / "legacy")
     shutil.copytree(LEGACY_DIR, root)

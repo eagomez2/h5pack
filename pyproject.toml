@@ -31,9 +31,6 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-resample = [
-    "soxr >= 0.5.0",
-]
 play = [
     "sounddevice >= 0.5.1",
 ]
@@ -70,5 +67,4 @@ lint = [
 ]
 test = [
     "pytest>=8.3.0",
-    "soxr>=0.5.0",
 ]

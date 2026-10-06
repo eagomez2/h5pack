@@ -117,7 +117,7 @@ def _guess_audio_parser(
     description = f"{fs_repr} kHz, {channels_repr}, {', '.join(subtypes)}"
 
     if len(sample_rates) > 1:
-        description += " (use parser_args: {sample_rate: ...} to resample)"
+        description += " (sample rates must be equal to pack)"
 
     return parser, description
 

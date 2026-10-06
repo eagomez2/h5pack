@@ -57,12 +57,6 @@ def _from_audiodtype(
         }
     )
 
-    # Keep sample rate if audio was resampled
-    if attrs.get("resampled", False):
-        output_yaml["datasets"][dataset_name]["data"]["fields"][field_name][
-            "parser_args"
-        ] = {"sample_rate": int(attrs["sample_rate"])}
-
     # Make output folder if it does not exist
     os.makedirs(output_dir, exist_ok=True)
 
@@ -103,7 +97,8 @@ def _from_audiodtype(
         output_csv,
         pl.Series(
             name=f"{field_name}__filepath",
-            values=[os.path.join("data", field_name, f) for f in filenames],
+            # NOTE: Paths always use '/' so the .csv file works on any OS
+            values=[f"data/{field_name}/{f}" for f in filenames],
             dtype=pl.String
         )
     )

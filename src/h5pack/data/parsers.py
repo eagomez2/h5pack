@@ -8,8 +8,7 @@ import numpy as np
 import soundfile as sf
 from ..core.io import (
     read_audio,
-    read_audio_metadata,
-    resample_audio
+    read_audio_metadata
 )
 from ..core.guards import are_lists_equal_len
 
@@ -31,23 +30,6 @@ def get_common_dir(files: list[str], root_dir: str) -> str:
             for f in files
         ]
     )
-
-
-def get_resampled_len(num_samples: int, fs: int, target_fs: int) -> int:
-    """Returns the number of samples of an audio signal after resampling.
-
-    Args:
-        num_samples (int): Number of samples per channel.
-        fs (int): Original sample rate.
-        target_fs (int): Target sample rate.
-
-    Returns:
-        (int): Number of samples per channel after resampling.
-    """
-    if fs == target_fs:
-        return num_samples
-
-    return int(round(num_samples * target_fs / fs))
 
 
 def _create_dataset(
@@ -92,56 +74,23 @@ def _create_dataset(
     return group.create_dataset(name=name, shape=shape, dtype=dtype, **kwargs)
 
 
-def _get_source_dir(common_dir: str, ctx: dict) -> str:
-    """Returns the folder of the source audio files as stored in the `.h5`
-    file. It is stored relative to the output file, so no absolute paths of
-    the machine used for packing end up in the file.
-
-    Args:
-        common_dir (str): Absolute folder shared by all audio files.
-        ctx (dict): Dictionary containing context variables.
-
-    Returns:
-        (str): Source folder relative to the output file, or absolute if it
-            cannot be expressed as a relative path (e.g. different drives).
-    """
-    output_dir = ctx.get("output_dir")
-
-    if output_dir is None:
-        return common_dir
-
-    try:
-        return os.path.relpath(common_dir, output_dir).replace(os.sep, "/")
-
-    except ValueError:  # Different drives on Windows
-        return common_dir
-
-
-def _encode_flac(
-        file: str,
-        data: np.ndarray | None,
-        fs: int,
-        subtype: str
-) -> np.ndarray:
+def _encode_flac(file: str, fs: int, subtype: str) -> np.ndarray:
     """Returns the bytes of an audio file encoded as FLAC.
 
     Args:
-        file (str): Original audio file. If it is a FLAC file and `data` is
-            `None`, its bytes are returned without re-encoding.
-        data (np.ndarray | None): Audio data with shape
-            `(num_channels, num_samples)`. If `None`, `file` is read.
+        file (str): Original audio file. If it is a FLAC file, its bytes are
+            returned without re-encoding.
         fs (int): Sample rate.
         subtype (str): FLAC subtype (`PCM_16` or `PCM_24`).
 
     Returns:
         (np.ndarray): FLAC bytes as an `uint8` array.
     """
-    if data is None and os.path.splitext(file)[1].lower() == ".flac":
+    if os.path.splitext(file)[1].lower() == ".flac":
         with open(file, "rb") as f:
             return np.frombuffer(f.read(), dtype=np.uint8)
 
-    if data is None:
-        data, _ = read_audio(file, dtype="float64")
+    data, _ = read_audio(file, dtype="float64")
 
     buffer = io.BytesIO()
     sf.write(buffer, data.T, samplerate=fs, format="FLAC", subtype=subtype)
@@ -173,8 +122,7 @@ def _as_audiodtype(
         data_end_idx: int,
         dtype: np.dtype | None,
         parser_name: str,
-        ctx: dict,
-        sample_rate: int | None = None
+        ctx: dict
 ) -> None:
     """Parses audio file paths to extract audio data that will be written to
     a `.h5`file.
@@ -193,8 +141,6 @@ def _as_audiodtype(
             `None`, audio data is stored as FLAC.
         parser_name (str): Name of parser method.
         ctx (dict): Dictionary containing context variables.
-        sample_rate (int | None): If provided, all audio files are resampled
-            to this sample rate.
     """
     # NOTE: Files are already validated at this point
     files = data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
@@ -217,12 +163,8 @@ def _as_audiodtype(
     # Get metadata of all files
     metas = [read_audio_metadata(file) for file in files]
     num_channels = metas[0]["num_channels"]
-    target_fs = sample_rate if sample_rate is not None else metas[0]["fs"]
-    resampled = any(m["fs"] != target_fs for m in metas)
-    output_lens = [
-        get_resampled_len(m["num_samples_per_channel"], m["fs"], target_fs)
-        for m in metas
-    ]
+    fs = metas[0]["fs"]
+    output_lens = [m["num_samples_per_channel"] for m in metas]
 
     # Check if files are fixed length or vlen
     vlen = len(set(output_lens)) > 1
@@ -268,12 +210,8 @@ def _as_audiodtype(
     
     # Add auxiliary meta data for audio files
     dataset.attrs["parser"] = parser_name
-    dataset.attrs["sample_rate"] = str(target_fs)
+    dataset.attrs["sample_rate"] = str(fs)
     dataset.attrs["num_channels"] = num_channels
-    dataset.attrs["source_dir"] = _get_source_dir(common_dir, ctx)
-
-    if resampled:
-        dataset.attrs["resampled"] = True
 
     if not ctx.get("skip_filepaths", False):
         filenames_dataset = partition_data_group.create_dataset(
@@ -285,38 +223,12 @@ def _as_audiodtype(
     else:
         filenames_dataset = None
 
-    for idx, (file, meta) in enumerate(zip(files, metas, strict=True)):
-        needs_resampling = meta["fs"] != target_fs
-
+    for idx, file in enumerate(files):
         if is_flac:
-            data = None
-
-            if needs_resampling:
-                data, _ = read_audio(file, dtype="float64")
-                data = resample_audio(
-                    data,
-                    fs=meta["fs"],
-                    target_fs=target_fs,
-                    num_samples=output_lens[idx]
-                )
-
-            dataset[idx] = _encode_flac(
-                file,
-                data=data,
-                fs=target_fs,
-                subtype=flac_subtype
-            )
+            dataset[idx] = _encode_flac(file, fs=fs, subtype=flac_subtype)
 
         else:
             data, _ = read_audio(file, dtype=dtype)
-
-            if needs_resampling:
-                data = resample_audio(
-                    data,
-                    fs=meta["fs"],
-                    target_fs=target_fs,
-                    num_samples=output_lens[idx]
-                )
 
             if num_channels == 1:
                 data = data[0]
@@ -348,8 +260,7 @@ def as_audioint16(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict,
-        sample_rate: int | None = None
+        ctx: dict
 ) -> None:
     """Alias of generic parser for audio data as `int16`."""
     return _as_audiodtype(
@@ -362,8 +273,7 @@ def as_audioint16(
         data_end_idx=data_end_idx,
         dtype=np.int16,
         parser_name="as_audioint16",
-        ctx=ctx,
-        sample_rate=sample_rate
+        ctx=ctx
     )
 
 
@@ -375,8 +285,7 @@ def as_audiofloat32(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict,
-        sample_rate: int | None = None
+        ctx: dict
 ) -> None:
     """Alias of generic parser for audio data as `float32`."""
     return _as_audiodtype(
@@ -389,8 +298,7 @@ def as_audiofloat32(
         data_end_idx=data_end_idx,
         dtype=np.float32,
         parser_name="as_audiofloat32",
-        ctx=ctx,
-        sample_rate=sample_rate
+        ctx=ctx
     )
 
     
@@ -402,8 +310,7 @@ def as_audiofloat64(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict,
-        sample_rate: int | None = None
+        ctx: dict
 ) -> None:
     """Alias of generic parser for audio data as `float64`."""
     return _as_audiodtype(
@@ -416,8 +323,7 @@ def as_audiofloat64(
         data_end_idx=data_end_idx,
         dtype=np.float64,
         parser_name="as_audiofloat64",
-        ctx=ctx,
-        sample_rate=sample_rate
+        ctx=ctx
     )
 
 
@@ -429,8 +335,7 @@ def as_audioflac(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict,
-        sample_rate: int | None = None
+        ctx: dict
 ) -> None:
     """Alias of generic parser for audio data stored as FLAC bytes."""
     return _as_audiodtype(
@@ -443,8 +348,7 @@ def as_audioflac(
         data_end_idx=data_end_idx,
         dtype=None,
         parser_name="as_audioflac",
-        ctx=ctx,
-        sample_rate=sample_rate
+        ctx=ctx
     )
 
 

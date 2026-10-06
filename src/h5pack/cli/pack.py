@@ -108,7 +108,7 @@ def _describe_audio(info: dict) -> str:
     Returns:
         (str): Description such as `16 kHz, mono`.
     """
-    fs = info["target_sample_rate"]
+    fs = info["sample_rates"][0] if info["sample_rates"] else None
     fs_repr = f"{fs / 1000:g} kHz" if fs is not None else "unknown rate"
     channels = info["num_channels"]
     channels_repr = (
@@ -116,9 +116,6 @@ def _describe_audio(info: dict) -> str:
         else "stereo" if channels == 2
         else f"{channels} channels"
     )
-
-    if len(info["sample_rates"]) > 1:
-        fs_repr += " after resampling"
 
     return f"{fs_repr}, {channels_repr}"
 
@@ -337,7 +334,6 @@ def cmd_pack(args: Namespace) -> None:
     ctx["compression"] = args.compression
     ctx["compression_level"] = args.compression_level
     ctx["skip_filepaths"] = args.skip_filepaths
-    ctx["output_dir"] = os.path.dirname(os.path.abspath(args.output))
 
     partition_files = [
         get_partition_filename(

@@ -127,7 +127,11 @@ def cmd_unpack(args: Namespace) -> None:
                     elapsed=perf_counter() - step_time
                 )
         
-        with open(os.path.join(args.output, "h5pack.yaml"), "w") as f:
+        with open(
+            os.path.join(args.output, "h5pack.yaml"),
+            "w",
+            encoding="utf-8"
+        ) as f:
             yaml.dump(h5pack_yaml, f, sort_keys=False, allow_unicode=True)
     
     print_step(

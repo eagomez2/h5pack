@@ -14,7 +14,6 @@ from .init import cmd_init
 from .pack import cmd_pack
 from .show import cmd_show
 from .unpack import cmd_unpack
-from .verify import cmd_verify
 from .virtual import cmd_virtual
 
 
@@ -319,45 +318,6 @@ def get_parser() -> argparse.ArgumentParser:
         help="play the audio of the selected rows (requires sounddevice)"
     )
 
-    # Verify parser
-    verify_parser = subparser.add_parser(
-        "verify",
-        description="verify packed audio against the original audio files",
-        help="verify packed audio against the original audio files",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False,
-        parents=[common_parser]
-    )
-    verify_parser.add_argument(
-        "input",
-        type=str,
-        help="input .h5 file"
-    )
-    verify_parser_rows = verify_parser.add_mutually_exclusive_group()
-    verify_parser_rows.add_argument(
-        "-n", "--num-rows",
-        type=int,
-        default=20,
-        help="number of random rows to verify"
-    )
-    verify_parser_rows.add_argument(
-        "-a", "--all",
-        action="store_true",
-        help="verify all rows"
-    )
-    verify_parser.add_argument(
-        "--source",
-        type=str,
-        help="folder containing the original audio files (defaults to the "
-        "folder stored in the .h5 file)"
-    )
-    verify_parser.add_argument(
-        "--seed",
-        type=int,
-        default=0,
-        help="seed used to select random rows"
-    )
-
     return parser
 
 
@@ -410,8 +370,5 @@ def main() -> int:
     elif args.action == "show":
         cmd_show(args)
 
-    elif args.action == "verify":
-        cmd_verify(args)
-    
     else:
         raise AssertionError

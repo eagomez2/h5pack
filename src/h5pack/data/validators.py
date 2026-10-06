@@ -29,7 +29,7 @@ def validate_config_file(file: str, ctx: dict) -> dict:
     """
     # Open .yaml file
     try:
-        with open(file) as f:
+        with open(file, encoding="utf-8") as f:
             specs = yaml.safe_load(f)
     
     except Exception as e:
@@ -105,22 +105,13 @@ def validate_config_file(file: str, ctx: dict) -> dict:
                     hint=f"Available parsers: {', '.join(parser_names)}"
                 )
 
-            parser_args = field_data.get("parser_args", {}) or {}
-            allowed_args = (
-                ["sample_rate"] if field_data["parser"].startswith("as_audio")
-                else []
-            )
-
-            for arg_name in parser_args:
-                if arg_name not in allowed_args:
-                    exit_error(
-                        f"Unknown parser argument '{arg_name}' for field "
-                        f"'{field_name}' in dataset '{dataset_name}'",
-                        hint=(
-                            "Audio parsers accept 'sample_rate'. Other "
-                            "parsers do not accept arguments"
-                        )
-                    )
+            # NOTE: No parser accepts arguments at the moment
+            for arg_name in field_data.get("parser_args", {}) or {}:
+                exit_error(
+                    f"Unknown parser argument '{arg_name}' for field "
+                    f"'{field_name}' in dataset '{dataset_name}'",
+                    hint="Parsers do not accept arguments"
+                )
     
     return specs
 
@@ -256,7 +247,6 @@ def _validate_file_as_audiodtype(
         df: pl.DataFrame,
         col: str,
         ctx: dict,
-        sample_rate: int | None = None,
         max_channels: int | None = None,
         **kwargs
 ) -> None:
@@ -268,28 +258,9 @@ def _validate_file_as_audiodtype(
             audio file paths.
         col (str): Column name.
         ctx (dict): Validation context.
-        sample_rate (int | None): Target sample rate. If provided, files with
-            different sample rates are allowed since they will be resampled.
         max_channels (int | None): Maximum number of channels allowed.
     """
     _validate_not_null(df, col)
-
-    if sample_rate is not None:
-        if not isinstance(sample_rate, int) or sample_rate <= 0:
-            raise ValueError(
-                f"'sample_rate' must be a positive integer but found "
-                f"'{sample_rate}'"
-            )
-
-        # Fail early if the resampling library is not installed
-        try:
-            import soxr  # noqa: F401
-
-        except ModuleNotFoundError:
-            raise ModuleNotFoundError(
-                "Resampling requires 'soxr'. Install it with "
-                "'pip install h5pack[resample]'"
-            ) from None
 
     # Get all files
     files = df[col].to_list()
@@ -338,7 +309,7 @@ def _validate_file_as_audiodtype(
             if meta["fs"] not in observed_fs:
                 observed_fs.append(meta["fs"])
 
-            if len(observed_fs) > 1 and sample_rate is None:
+            if len(observed_fs) > 1:
                 raise SampleRateError(
                     "All files should have the same sample rate. Previous "
                     f"files had sample rate {observed_fs[0]} but current file "
@@ -351,11 +322,7 @@ def _validate_file_as_audiodtype(
     ctx.setdefault("audio_info", {})[col] = {
         "sample_rates": observed_fs,
         "num_channels": observed_channels[0] if observed_channels else 1,
-        "subtypes": observed_subtypes,
-        "target_sample_rate": (
-            sample_rate if sample_rate is not None
-            else (observed_fs[0] if observed_fs else None)
-        )
+        "subtypes": observed_subtypes
     }
 
 

@@ -5,7 +5,6 @@ import pytest
 import soundfile as sf
 import h5pack
 from conftest import (
-    has_module,
     make_dataset,
     run,
     write_config
@@ -46,8 +45,6 @@ def test_flac_is_lossless(tmp_path, subtype, lengths):
             assert np.array_equal(data[idx]["audio"], _source(root, idx,
                                                                "float64"))
 
-    run("verify", file, "-a")
-
     # Unpacking writes .flac files
     run("unpack", file, "-o", "un", cwd=root)
     assert os.path.isfile(
@@ -68,8 +65,6 @@ def test_multichannel(tmp_path, lengths, parser):
             audio = data[idx]["audio"]
             assert audio.shape[0] == 3
             assert np.array_equal(audio, _source(root, idx, dtype))
-
-    run("verify", file, "-a")
 
     # Round trip through unpack
     run("unpack", file, "-o", "un", cwd=root)
@@ -118,33 +113,7 @@ def test_categorical(dataset):
         assert f.readline().strip() == "a,-3"
 
 
-@pytest.mark.skipif(not has_module("soxr"), reason="soxr not installed")
-def test_resample(tmp_path):
-    root = str(tmp_path)
-    make_dataset(root, fs=[8000, 16000])
-    file = _pack(
-        root,
-        {"audio": ("file", "as_audiofloat32", {"sample_rate": 16000})}
-    )
-
-    with h5pack.open(file) as data:
-        assert data.sample_rate("audio") == 16000
-        assert data.field_attrs("audio")["resampled"]
-        assert data[0]["audio"].shape == (1600,)
-        assert data[1]["audio"].shape == (1600,)
-
-    # Resampled fields are skipped when verifying
-    result = run("verify", file, check=False)
-    assert "Skipping field 'audio'" in result.stderr
-
-    # The sample rate is kept when unpacking
-    run("unpack", file, "-o", "un", cwd=root)
-
-    with open(os.path.join(root, "un", "h5pack.yaml")) as f:
-        assert "sample_rate: 16000" in f.read()
-
-
-def test_mixed_sample_rates_require_resampling(tmp_path):
+def test_mixed_sample_rates_fail(tmp_path):
     root = str(tmp_path)
     make_dataset(root, fs=[8000, 16000])
     write_config(root, {"audio": ("file", "as_audioint16")})
@@ -154,7 +123,7 @@ def test_mixed_sample_rates_require_resampling(tmp_path):
         check=False
     )
     assert result.returncode != 0
-    assert "sample_rate" in result.stderr
+    assert "same sample rate" in result.stderr
 
 
 @pytest.mark.parametrize(
