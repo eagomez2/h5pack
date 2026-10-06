@@ -9,13 +9,14 @@ from ..core.guards import is_file_with_ext
 from ..core.display import (
     exit_error,
     exit_warning,
-    print_warning,
+    print_debug,
     print_error,
+    print_info,
+    print_output,
+    print_step,
+    print_warning
 )
-from ..core.utils import (
-    get_file_checksum,
-    time_to_str
-)
+from ..core.utils import get_file_checksum
 
 
 def cmd_checksum(args: Namespace) -> None:
@@ -31,11 +32,11 @@ def cmd_checksum(args: Namespace) -> None:
         
          # Read lines and check they contain only two elements
         root_dir = os.path.dirname(args.input)
-        print(f"Using root folder '{os.path.abspath(root_dir)}'")
-        print(f"Verifying checksum in '{args.input}' ...")
+        print_debug(f"Using root folder '{os.path.abspath(root_dir)}'")
 
         start_time = perf_counter()
         num_mismatches = 0
+        num_files = 0
 
         with open(args.input) as f:
             for line_idx, line in enumerate(f):
@@ -50,28 +51,30 @@ def cmd_checksum(args: Namespace) -> None:
                     )
                 
                 checksum = get_file_checksum(h5_file, hash="sha256")
+                num_files += 1
 
                 if saved_checksum == checksum:
-                    print(
-                        f"{h5_filename}\t{saved_checksum} [OK]"
-                    )
+                    print_info(f"{h5_filename}\t{saved_checksum} [OK]")
                 
                 else:
                     num_mismatches += 1
                     print_error(
-                        f"{h5_filename} [MISMATCH]"
-                        f"\n  - Saved:      {saved_checksum}"
-                        f"\n  - Calculated: {checksum}"
+                        f"{h5_filename} does not match its checksum",
+                        cause=(
+                            f"saved {saved_checksum}, calculated {checksum}"
+                        )
                     )
                 
-        end_time = perf_counter()
-        elapsed_time_repr = time_to_str(end_time - start_time, abbrev=False)
-        print(f"Checksum verification completed in {elapsed_time_repr}")
-
         if num_mismatches > 0:
             exit_error(
                 f"{num_mismatches} file(s) failed checksum verification"
             )
+
+        print_step(
+            "Verified",
+            f"{num_files} file(s) in '{args.input}'",
+            elapsed=perf_counter() - start_time
+        )
     
     else:  # Calculate
         if is_file_with_ext(args.input, ext=".h5"):
@@ -100,7 +103,6 @@ def cmd_checksum(args: Namespace) -> None:
             else:
                 exit_warning(f"0 .h5 files found in '{args.input}'")
 
-        print(f"Calculating checksum for .h5 files in '{args.input}' ...")
 
         if args.save:
             checksum_file = add_extension(args.save, ext=".sha256")
@@ -113,13 +115,13 @@ def cmd_checksum(args: Namespace) -> None:
                     checksum_repr = f"{os.path.basename(file)}\t{checksum}"
                     f.write(f"{checksum_repr}\n")
                     print(checksum_repr)
-                
-                end_time = perf_counter()
-                elapsed_time_repr = time_to_str(end_time - start_time)
-                print(
-                    f"Checksum calculation completed in {elapsed_time_repr} "
-                    f"and saved to '{checksum_file}'"
-                )
+
+            print_step(
+                "Hashed",
+                f"{len(all_files)} file(s)",
+                elapsed=perf_counter() - start_time
+            )
+            print_output(checksum_file)
         
         else:
             start_time = perf_counter()
@@ -128,6 +130,8 @@ def cmd_checksum(args: Namespace) -> None:
                 checksum = get_file_checksum(file, hash="sha256")
                 print(f"{os.path.basename(file)}\t{checksum}")
              
-            end_time = perf_counter()
-            elapsed_time_repr = time_to_str(end_time - start_time)
-            print(f"Checksum calculation completed in {elapsed_time_repr}")
+            print_step(
+                "Hashed",
+                f"{len(all_files)} file(s)",
+                elapsed=perf_counter() - start_time
+            )

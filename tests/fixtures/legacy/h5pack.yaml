@@ -1,0 +1,11 @@
+datasets:
+  legacy:
+    attrs:
+      description: legacy fixture
+    data:
+      file: dataset.csv
+      fields:
+        audio: {column: file, parser: as_audioint16}
+        label: {column: label, parser: as_utf8str}
+        score: {column: score, parser: as_int16}
+        emb: {column: emb, parser: as_listfloat32}

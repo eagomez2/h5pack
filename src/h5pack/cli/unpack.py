@@ -1,7 +1,6 @@
 import os
 import yaml
 import h5py
-from packaging import version
 from argparse import Namespace
 from time import perf_counter
 from rich.progress import (
@@ -11,8 +10,14 @@ from rich.progress import (
     TimeRemainingColumn
 )
 from ..core.guards import is_file_with_ext
-from ..core.display import exit_error
-from ..core.utils import time_to_str
+from ..core.display import (
+    exit_error,
+    get_console,
+    is_progress_enabled,
+    print_debug,
+    print_output,
+    print_step
+)
 from ..data import get_extractors_map
 
 
@@ -24,7 +29,7 @@ def cmd_unpack(args: Namespace) -> None:
     """
     # Check if file exists
     if not is_file_with_ext(args.input, ext=".h5"):
-        exit_error(f"Invalid input fille '{args.input}'")
+        exit_error(f"Invalid input file '{args.input}'")
     
     # Automatically get path if not provided
     if not args.output:
@@ -40,7 +45,7 @@ def cmd_unpack(args: Namespace) -> None:
     
     # Generate output folder
     if not os.path.isdir(args.output):
-        print(f"Creating output folder '{args.output}' ...")
+        print_debug(f"Creating output folder '{args.output}'")
         os.makedirs(args.output, exist_ok=True)
     
     start_time = perf_counter()
@@ -58,7 +63,6 @@ def cmd_unpack(args: Namespace) -> None:
 
     with h5py.File(args.input, mode="r") as h5_file:
         # Extract attributes
-        print("Extracting file attribute(s) ...")
         
         h5pack_yaml["datasets"][dataset_name]["attrs"].update(
             {
@@ -82,20 +86,16 @@ def cmd_unpack(args: Namespace) -> None:
         open(dataset, "w").close()
 
         progress_bar = Progress(
-            TextColumn("{task.description}"),
+            TextColumn("{task.description:>10}", style="bold cyan"),
             BarColumn(),
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
             TextColumn("{task.completed}/{task.total}"),
             TimeRemainingColumn(),
+            console=get_console(),
             transient=True,
-            # disable=True
+            disable=not is_progress_enabled()
         )
-        ctx = {
-            "producer_version": version.parse(
-                h5_file.attrs["producer"].replace("h5pack ", "")
-            ),
-            "progress_bar": progress_bar
-        }
+        ctx = {"progress_bar": progress_bar}
+        num_fields = 0
 
         # Fill out data
         for field_name in h5_file["data"]:
@@ -105,8 +105,7 @@ def cmd_unpack(args: Namespace) -> None:
                 continue
 
             else:
-                print(f"Unpacking 'data/{field_name}' ({parser}) ...")
-        
+                step_time = perf_counter()
                 extractor = get_extractors_map()[parser]
                 output_dir = os.path.join(args.output, "data", field_name)
                 extractor(
@@ -120,11 +119,26 @@ def cmd_unpack(args: Namespace) -> None:
                     ctx=ctx
                 )
 
-                print(f"Field 'data/{field_name}' successfully unpacked")
+                num_fields += 1
+                print_step(
+                    "Unpacked",
+                    f"'{field_name}'",
+                    details=parser,
+                    elapsed=perf_counter() - step_time
+                )
         
-        with open(os.path.join(args.output, "h5pack.yaml"), "w") as f:
+        with open(
+            os.path.join(args.output, "h5pack.yaml"),
+            "w",
+            encoding="utf-8"
+        ) as f:
             yaml.dump(h5pack_yaml, f, sort_keys=False, allow_unicode=True)
     
-    end_time = perf_counter()
-    elapsed_time_repr = time_to_str(end_time - start_time)
-    print(f"Unpacking process completed in {elapsed_time_repr}")
+    print_step(
+        "Finished",
+        f"{num_fields} field(s) unpacked to '{args.output}'",
+        elapsed=perf_counter() - start_time
+    )
+    print_output(os.path.join(args.output, "h5pack.yaml"))
+    print_output(dataset)
+    print_output(os.path.join(args.output, "data"), details="folder")

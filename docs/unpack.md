@@ -23,7 +23,7 @@ This will create an output folder with the same name as your `.h5` file. Its str
 └── h5pack.yaml
 ```
 
-Audio files are written to a folder named after their field. If your original audio files were stored in subfolders (e.g. `spk1/001.wav` and `spk2/001.wav`), those subfolders are preserved, so files sharing the same name do not overwrite each other.
+Audio files are written to a folder named after their field. If your original audio files were stored in subfolders (e.g. `spk1/001.wav` and `spk2/001.wav`), those subfolders are preserved, so files sharing the same name do not overwrite each other. Audio packed with `as_audioflac` is written as `.flac` files exactly as it was stored, and audio packed with `--skip-filepaths` is written using the row index as file name.
 
 ## Advanced settings
 To specify the output folder path, you can use the `-o/--output` option as follows:

@@ -1,8 +1,11 @@
+import io
 import os
 import ast
+import json
 import h5py
 import polars as pl
 import numpy as np
+import soundfile as sf
 from ..core.io import (
     read_audio,
     read_audio_metadata
@@ -10,7 +13,7 @@ from ..core.io import (
 from ..core.guards import are_lists_equal_len
 
 
-def _get_common_dir(files: list[str], root_dir: str) -> str:
+def get_common_dir(files: list[str], root_dir: str) -> str:
     """Returns the deepest folder shared by all `files`.
 
     Args:
@@ -29,6 +32,86 @@ def _get_common_dir(files: list[str], root_dir: str) -> str:
     )
 
 
+def _create_dataset(
+        group: h5py.Group,
+        name: str,
+        shape: tuple,
+        dtype: np.dtype,
+        ctx: dict,
+        chunks: tuple | None = None
+) -> h5py.Dataset:
+    """Creates a dataset applying the compression settings stored in `ctx`.
+    Variable-length data types are never compressed, since HDF5 filters only
+    compress the references to their data.
+
+    Args:
+        group (h5py.Group): Group where the dataset will be created.
+        name (str): Dataset name.
+        shape (tuple): Dataset shape.
+        dtype (np.dtype): Dataset data type.
+        ctx (dict): Dictionary containing context variables.
+        chunks (tuple | None): Chunk shape. If `None`, it is chosen
+            automatically when compression is enabled.
+
+    Returns:
+        (h5py.Dataset): Created dataset.
+    """
+    kwargs = {}
+    compression = ctx.get("compression")
+    is_vlen = (
+        h5py.check_vlen_dtype(np.dtype(dtype)) is not None
+        or h5py.check_string_dtype(np.dtype(dtype)) is not None
+    )
+
+    if compression not in (None, "none") and not is_vlen:
+        kwargs["compression"] = compression
+        kwargs["shuffle"] = True
+        kwargs["chunks"] = chunks if chunks is not None else True
+
+        if compression == "gzip":
+            kwargs["compression_opts"] = ctx.get("compression_level", 4)
+
+    return group.create_dataset(name=name, shape=shape, dtype=dtype, **kwargs)
+
+
+def _encode_flac(file: str, fs: int, subtype: str) -> np.ndarray:
+    """Returns the bytes of an audio file encoded as FLAC.
+
+    Args:
+        file (str): Original audio file. If it is a FLAC file, its bytes are
+            returned without re-encoding.
+        fs (int): Sample rate.
+        subtype (str): FLAC subtype (`PCM_16` or `PCM_24`).
+
+    Returns:
+        (np.ndarray): FLAC bytes as an `uint8` array.
+    """
+    if os.path.splitext(file)[1].lower() == ".flac":
+        with open(file, "rb") as f:
+            return np.frombuffer(f.read(), dtype=np.uint8)
+
+    data, _ = read_audio(file, dtype="float64")
+
+    buffer = io.BytesIO()
+    sf.write(buffer, data.T, samplerate=fs, format="FLAC", subtype=subtype)
+
+    return np.frombuffer(buffer.getvalue(), dtype=np.uint8)
+
+
+def _get_flac_subtype(subtypes: list[str]) -> str:
+    """Returns the FLAC subtype able to represent all source subtypes.
+
+    Args:
+        subtypes (list[str]): Subtypes of the source audio files.
+
+    Returns:
+        (str): `PCM_24` if any source uses more than 16 bits, `PCM_16`
+            otherwise.
+    """
+    high_res = ("PCM_24", "PCM_32", "FLOAT", "DOUBLE")
+    return "PCM_24" if any(s in high_res for s in subtypes) else "PCM_16"
+
+
 def _as_audiodtype(
         partition_idx: int,
         partition_data_group: h5py.Group,
@@ -37,7 +120,7 @@ def _as_audiodtype(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        dtype: np.dtype,
+        dtype: np.dtype | None,
         parser_name: str,
         ctx: dict
 ) -> None:
@@ -54,19 +137,13 @@ def _as_audiodtype(
         data_column_name (str): Column name where the audio data is stored.
         data_start_idx (int): Index of first row to parse.
         data_end_idx (int): Index of last row to parse.
-        dtype (np.dtype): Data type used to read the audio data.
+        dtype (np.dtype | None): Data type used to read the audio data. If
+            `None`, audio data is stored as FLAC.
         parser_name (str): Name of parser method.
         ctx (dict): Dictionary containing context variables.
-        verbose (bool): Enable verbose mode if `True`.
     """
     # NOTE: Files are already validated at this point
-    all_files = data_frame[data_column_name].to_list()
-    files = all_files[data_start_idx:data_end_idx]
-
-    # Paths are stored relative to the folder shared by all files of the
-    # column, so files with the same name in different subfolders do not
-    # collide when unpacking
-    common_dir = _get_common_dir(all_files, ctx["root_dir"])
+    files = data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
     
     # Prepend root from context if path is relative
     files = [
@@ -74,63 +151,102 @@ def _as_audiodtype(
         for f in files
     ]
 
+    # NOTE: Paths are stored relative to the folder shared by all files of the
+    # column (computed before creating the partitions), so files with the same
+    # name in different subfolders do not collide when unpacking
+    field_ctx = ctx.get("fields", {}).get(partition_field_name, {})
+    common_dir = field_ctx.get("common_dir")
+
+    if common_dir is None:
+        common_dir = get_common_dir(files, ctx["root_dir"])
+
+    # Get metadata of all files
+    metas = [read_audio_metadata(file) for file in files]
+    num_channels = metas[0]["num_channels"]
+    fs = metas[0]["fs"]
+    output_lens = [m["num_samples_per_channel"] for m in metas]
+
     # Check if files are fixed length or vlen
-    observed_lens = []
-    vlen = False
-
-    for file in files:
-        # Get number of samples
-        num_samples = read_audio_metadata(file)["num_samples_per_channel"]
-
-        if num_samples not in observed_lens:
-            observed_lens.append(num_samples)
-        
-        if len(observed_lens) > 1:
-            vlen = True
-            break
-    
-    # NOTE: All audios have the same sample rate
-    fs = read_audio_metadata(files[0])["fs"]
+    vlen = len(set(output_lens)) > 1
+    is_flac = dtype is None
 
     # Add group data
-    if not vlen:
-        dataset = partition_data_group.create_dataset(
+    if is_flac:
+        dataset = _create_dataset(
+            group=partition_data_group,
             name=partition_field_name,
-            shape=(len(files), num_samples),
-            dtype=dtype
+            shape=(len(files),),
+            dtype=h5py.vlen_dtype(np.dtype(np.uint8)),
+            ctx=ctx
+        )
+        flac_subtype = _get_flac_subtype([m["subtype"] for m in metas])
+        dataset.attrs["codec"] = "flac"
+        dataset.attrs["flac_subtype"] = flac_subtype
+
+    elif vlen:
+        dataset = _create_dataset(
+            group=partition_data_group,
+            name=partition_field_name,
+            shape=(len(files),),
+            dtype=h5py.vlen_dtype(np.dtype(dtype)),
+            ctx=ctx
         )
     
     else:
-        dataset = partition_data_group.create_dataset(
+        # NOTE: Mono audio keeps the (num_files, num_samples) layout used by
+        # previous versions
+        audio_shape = (
+            (output_lens[0],) if num_channels == 1
+            else (num_channels, output_lens[0])
+        )
+        dataset = _create_dataset(
+            group=partition_data_group,
             name=partition_field_name,
-            shape=(len(files),),
-            dtype=h5py.vlen_dtype(np.dtype(dtype))
+            shape=(len(files), *audio_shape),
+            dtype=dtype,
+            ctx=ctx,
+            chunks=(1, *audio_shape)
         )
     
-    # Add auxiliary meta data for audio filemeta data for audio files
+    # Add auxiliary meta data for audio files
     dataset.attrs["parser"] = parser_name
     dataset.attrs["sample_rate"] = str(fs)
+    dataset.attrs["num_channels"] = num_channels
 
-    filenames_dataset = partition_data_group.create_dataset(
-        name=f"{partition_field_name}__filepath",
-        shape=(len(files),),
-        dtype=h5py.string_dtype()
-    )
+    if not ctx.get("skip_filepaths", False):
+        filenames_dataset = partition_data_group.create_dataset(
+            name=f"{partition_field_name}__filepath",
+            shape=(len(files),),
+            dtype=h5py.string_dtype()
+        )
+    
+    else:
+        filenames_dataset = None
 
     for idx, file in enumerate(files):
-        data, _ = read_audio(file, dtype=dtype)
+        if is_flac:
+            dataset[idx] = _encode_flac(file, fs=fs, subtype=flac_subtype)
 
-        if vlen:
-            dataset[idx] = data
-        
         else:
-            dataset[idx, :] = data
+            data, _ = read_audio(file, dtype=dtype)
+
+            if num_channels == 1:
+                data = data[0]
+
+            if vlen:
+                # NOTE: Multichannel vlen audio is stored channel by channel
+                # and restored using the 'num_channels' attribute
+                dataset[idx] = data.reshape(-1)
+            
+            else:
+                dataset[idx] = data
 
         # Store path relative to the common folder of all files
-        filenames_dataset[idx] = (
-            os.path.relpath(os.path.abspath(file), common_dir)
-            .replace(os.sep, "/")
-        )
+        if filenames_dataset is not None:
+            filenames_dataset[idx] = (
+                os.path.relpath(os.path.abspath(file), common_dir)
+                .replace(os.sep, "/")
+            )
         
         # Update progress bar
         ctx["queue"].put((partition_idx, partition_field_name, 1))
@@ -194,8 +310,8 @@ def as_audiofloat64(
         data_column_name: str,
         data_start_idx: int,
         data_end_idx: int,
-        ctx: dict,
-) -> list[np.ndarray]:
+        ctx: dict
+) -> None:
     """Alias of generic parser for audio data as `float64`."""
     return _as_audiodtype(
         partition_idx=partition_idx,
@@ -207,6 +323,31 @@ def as_audiofloat64(
         data_end_idx=data_end_idx,
         dtype=np.float64,
         parser_name="as_audiofloat64",
+        ctx=ctx
+    )
+
+
+def as_audioflac(
+        partition_idx: int,
+        partition_data_group: h5py.Group,
+        partition_field_name: str,
+        data_frame: pl.DataFrame,
+        data_column_name: str,
+        data_start_idx: int,
+        data_end_idx: int,
+        ctx: dict
+) -> None:
+    """Alias of generic parser for audio data stored as FLAC bytes."""
+    return _as_audiodtype(
+        partition_idx=partition_idx,
+        partition_data_group=partition_data_group,
+        partition_field_name=partition_field_name,
+        data_frame=data_frame,
+        data_column_name=data_column_name,
+        data_start_idx=data_start_idx,
+        data_end_idx=data_end_idx,
+        dtype=None,
+        parser_name="as_audioflac",
         ctx=ctx
     )
 
@@ -245,10 +386,12 @@ def _as_dtype(
     )
 
     # Add group data
-    dataset = partition_data_group.create_dataset(
+    dataset = _create_dataset(
+        group=partition_data_group,
         name=partition_field_name,
         shape=(len(metrics),),
-        dtype=dtype
+        dtype=dtype,
+        ctx=ctx
     )
     dataset.attrs["parser"] = parser_name
 
@@ -373,10 +516,12 @@ def as_utf8str(
     )
 
     # Add group data
-    dataset = partition_data_group.create_dataset(
+    dataset = _create_dataset(
+        group=partition_data_group,
         name=partition_field_name,
-        shape=((len(values),)),
-        dtype=h5py.string_dtype(encoding="utf-8")
+        shape=(len(values),),
+        dtype=h5py.string_dtype(encoding="utf-8"),
+        ctx=ctx
     )
     dataset.attrs["parser"] = "as_utf8str"
 
@@ -433,17 +578,21 @@ def _as_listdtype(
     
     # Add group data
     if vlen:
-        dataset = partition_data_group.create_dataset(
+        dataset = _create_dataset(
+            group=partition_data_group,
             name=partition_field_name,
             shape=(len(lists),),
-            dtype=h5py.vlen_dtype(np.dtype(dtype))
+            dtype=h5py.vlen_dtype(np.dtype(dtype)),
+            ctx=ctx
         )
     
     else:
-        dataset = partition_data_group.create_dataset(
+        dataset = _create_dataset(
+            group=partition_data_group,
             name=partition_field_name,
             shape=(len(lists), len(lists[0])),
-            dtype=dtype
+            dtype=dtype,
+            ctx=ctx
         )
 
     dataset.attrs["parser"] = parser_name
@@ -556,3 +705,88 @@ def as_listfloat64(
         data_end_idx=data_end_idx,
         ctx=ctx
     )
+
+
+def get_categories(values: list) -> list:
+    """Returns the sorted unique values of a column used by `as_categorical`.
+
+    Args:
+        values (list): Column values.
+
+    Returns:
+        (list): Sorted unique values.
+    """
+    return sorted(set(values), key=lambda v: (str(type(v)), v))
+
+
+def get_categorical_dtype(num_categories: int) -> np.dtype:
+    """Returns the smallest unsigned integer type able to store all category
+    codes.
+
+    Args:
+        num_categories (int): Number of categories.
+
+    Returns:
+        (np.dtype): `uint8`, `uint16` or `uint32`.
+    """
+    if num_categories <= 2 ** 8:
+        return np.dtype(np.uint8)
+
+    if num_categories <= 2 ** 16:
+        return np.dtype(np.uint16)
+
+    return np.dtype(np.uint32)
+
+
+def as_categorical(
+    partition_idx: int,
+    partition_data_group: h5py.Group,
+    partition_field_name: str,
+    data_frame: pl.DataFrame,
+    data_column_name: str,
+    data_start_idx: int,
+    data_end_idx: int,
+    ctx: dict
+) -> None:
+    """Parses columns with a small set of repeated values (e.g. labels,
+    splits or speaker ids). Each value is stored as an integer code and the
+    list of categories is stored in the `categories` attribute as JSON.
+
+    Args:
+        partition_idx (int): Partition index.
+        partition_data_group (h5py.Group): Data group where the data will be
+            written.
+        partition_field_name (str): Field name where the data will be stored.
+        data_frame (pl.DataFrame): `DataFrame` containing the data.
+        data_column_name (str): Column name where the data is stored.
+        data_start_idx (int): Index of first row to parse.
+        data_end_idx (int): Index of last row to parse.
+        ctx (dict): Dictionary containing context variables.
+    """
+    # NOTE: Categories are computed using the full column before creating the
+    # partitions, so codes are consistent across partitions
+    field_ctx = ctx.get("fields", {}).get(partition_field_name, {})
+    categories = field_ctx.get("categories")
+
+    if categories is None:
+        categories = get_categories(data_frame[data_column_name].to_list())
+
+    category_to_code = {c: i for i, c in enumerate(categories)}
+    values = (
+        data_frame[data_column_name].to_list()[data_start_idx:data_end_idx]
+    )
+
+    dataset = _create_dataset(
+        group=partition_data_group,
+        name=partition_field_name,
+        shape=(len(values),),
+        dtype=get_categorical_dtype(len(categories)),
+        ctx=ctx
+    )
+    dataset.attrs["parser"] = "as_categorical"
+    dataset.attrs["categories"] = json.dumps(categories)
+    dataset[:] = np.array(
+        [category_to_code[v] for v in values],
+        dtype=dataset.dtype
+    )
+    ctx["queue"].put((partition_idx, partition_field_name, len(values)))
