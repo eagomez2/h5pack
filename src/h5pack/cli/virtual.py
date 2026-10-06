@@ -9,7 +9,11 @@ from ..core.guards import is_file_with_ext
 from ..core.display import (
     ask_confirmation,
     exit_error,
-    exit_warning
+    exit_warning,
+    print_debug,
+    print_info,
+    print_output,
+    print_step
 )
 from ..core.utils import dict_from_interleaved_list
 from .utils import create_virtual_dataset_from_partitions
@@ -37,7 +41,6 @@ def cmd_virtual(args: Namespace) -> None:
     
         root_attrs = dict_from_interleaved_list(args.attrs)
 
-    print("Collecting input files ...")
     
     for file_or_dir in args.input:
         if is_file_with_ext(file_or_dir, ext=".h5"):
@@ -57,11 +60,11 @@ def cmd_virtual(args: Namespace) -> None:
         )
     
     else:
-        print(f"{len(h5_files)} .h5 file(s) found")
+        print_step("Found", f"{len(h5_files)} .h5 file(s)")
 
     # Apply select/filter patterns
     if args.select is not None:
-        print(f"Applying --select pattern '{args.select}' ...")
+        print_debug(f"Applying --select pattern '{args.select}'")
         
         selected_files = []
 
@@ -77,12 +80,14 @@ def cmd_virtual(args: Namespace) -> None:
             )
         
         else:
-            print(
-                f"{len(h5_files)} selected .h5 file(s) after applying --select"
+            print_step(
+                "Selected",
+                f"{len(h5_files)} .h5 file(s)",
+                details=f"--select '{args.select}'"
             )
     
     if args.filter is not None:
-        print(f"Applying --filter pattern '{args.filter}' ...")
+        print_debug(f"Applying --filter pattern '{args.filter}'")
 
         filtered_files = []
 
@@ -98,8 +103,10 @@ def cmd_virtual(args: Namespace) -> None:
             )
         
         else:
-            print(
-                f"{len(h5_files)} selected .h5 file(s) after applying --filter"
+            print_step(
+                "Selected",
+                f"{len(h5_files)} .h5 file(s)",
+                details=f"--filter '{args.filter}'"
             )
 
     partition_files_repr = "\n".join(
@@ -108,7 +115,7 @@ def cmd_virtual(args: Namespace) -> None:
         ]
     )
 
-    print(
+    print_info(
         "A virtual dataset will be created for the following file(s):\n"
         f"{partition_files_repr}"
     )
@@ -119,9 +126,14 @@ def cmd_virtual(args: Namespace) -> None:
     # Create virtual dataset
     output_file = add_extension(args.output, ext=".h5")
     create_virtual_dataset_from_partitions(
-        file=add_extension(args.output, ext=".h5"),
+        file=output_file,
         partitions=h5_files,
         attrs=root_attrs,
         force_abspath=args.force_abspath
     )
-    print(f"Virtual dataset saved to '{os.path.basename(output_file)}'")
+    print_step(
+        "Created",
+        "virtual dataset",
+        details=f"{len(h5_files)} source file(s)"
+    )
+    print_output(output_file)

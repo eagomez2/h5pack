@@ -15,12 +15,11 @@ h5pack checksum <sha256-file>
 
 The output should look as follows:
 ```bash
-Verifying checksum in 'dataset.sha256' ...
 dataset.h5	8258bb92f49c2ed032bbe6f1e3bc86132cbc8b7bc0c0e512c4bc6b9888f9aabe [OK]
-Checksum verification completed in 0.2 millisecond(s)
+  Verified 1 file(s) in 'dataset.sha256' in 5.0ms
 ```
 
-If one or more files do not match their stored checksum, they will be reported as `[MISMATCH]` and `h5pack checksum` will finish with a non-zero exit code, so it can be safely used in scripts.
+If one or more files do not match their stored checksum, they will be reported as errors and `h5pack checksum` will finish with a non-zero exit code, so it can be safely used in scripts.
 
 ### Calculating checksum
 

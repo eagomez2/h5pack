@@ -7,7 +7,7 @@ name = "h5pack"
 authors = [{name = "Esteban Gómez", email = "esteban.gomezmellado@aalto.fi"}]
 readme = "README.md"
 license = {file = "LICENSE"}
-version = "1.2.0"
+version = "1.3.0"
 description = "A utility to pack, unpack and inspect HDF5 audio datasets"
 dependencies = [
     "h5py >= 3.14.0",
@@ -16,8 +16,6 @@ dependencies = [
     "polars >= 1.33.1",
     "pyyaml >= 6.0.3",
     "rich >= 14.2.0",
-    "tqdm>=4.67.1",
-    "packaging>=25.0",
 ]
 requires-python = ">=3.10"
 classifiers = [
@@ -30,6 +28,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Scientific/Engineering"
+]
+
+[project.optional-dependencies]
+play = [
+    "sounddevice >= 0.5.1",
 ]
 
 [project.urls]
@@ -61,4 +64,7 @@ docs = [
 ]
 lint = [
     "ruff>=0.14.2",
+]
+test = [
+    "pytest>=8.3.0",
 ]

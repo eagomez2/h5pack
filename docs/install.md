@@ -27,6 +27,19 @@ Where:
 - `x.y.z` represents the major, minor, and patch version.
 - `yyyy-zzzz` indicates the development start year and the current year.
 
+## Optional features
+Some features need additional packages, which can be installed as an extra:
+
+| Extra      | Installs                                                                 | Needed for                                    |
+|------------|--------------------------------------------------------------------------|-----------------------------------------------|
+| `play`     | <a href="https://python-sounddevice.readthedocs.io/" target="_blank">`sounddevice`</a> | Playing audio with [`h5pack show --play`](show.md) |
+
+For example:
+
+```bash
+pip install "h5pack[play]"
+```
+
 ## Install using uv 
 
 `uv` is a modern python package manager. You can see more details about `uv` in [the official documentation](https://docs.astral.sh/uv/).

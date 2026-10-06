@@ -22,6 +22,24 @@ If your config file is named `h5pack.yaml` (the default name), you can omit the 
 h5pack pack -d <dataset-name> -o <output-h5-file>
 ```
 
+The output should look as follows:
+```bash
+ Validated h5pack.yaml (dataset 'simple_dataset', 2 field(s), 3 row(s)) in 12.6ms
+ Validated 3 row(s) (16 kHz, mono) in 5.0ms
+    Packed 1 partition(s) with 1 worker(s) (3 row(s), 101.8 KiB) in 383.0ms
+ + simple_dataset.h5 101.8 KiB
+ + simple_dataset.sha256 checksums
+```
+
+!!! tip
+    If you don't have a configuration file yet, [`h5pack init`](init.md) can create one from your `.csv` file.
+
+Before writing any file, `h5pack pack` validates the configuration file and all values of all columns. If something is wrong, it explains what and where, e.g.:
+```bash
+error: Validation of field 'emb' failed
+  Caused by: List '[126,127,128]' of column 'emb' (row 126) has values that do not fit in 'int8'
+```
+
 ## Advanced settings
 
 ### Create multiple partitions
@@ -82,6 +100,32 @@ In addition to generating partition files like `dataset.pt0.h5`, `dataset.pt1.h5
 
 !!! note
     If your datasets have already been created, please refer to the [`h5pack virtual`](virtual.md) tool for integrating them into a virtual dataset.
+
+### Dry run
+To validate your data and see the partitions that would be created without writing any file, add the `--dry-run` flag:
+```bash
+h5pack pack -c <config-file> -d <dataset-name> -o <output-h5-file> -p 4 --dry-run
+```
+
+### Compression
+Fields can be compressed using the `--compression` option (`none`, `gzip` or `lzf`), and the `gzip` level can be set with `--compression-level` (0-9):
+```bash
+h5pack pack -c <config-file> -d <dataset-name> -o <output-h5-file> --compression gzip --compression-level 4
+```
+
+To store audio in a compressed format, use the `as_audioflac` [parser](parsers.md) instead. See [Saving space](space.md) for all options to make your files smaller.
+
+### Skip file paths
+By default, the path of each audio file is stored in a `<field>__filepath` field. It is used to restore your folder structure with [`h5pack unpack`](unpack.md) and shown by [`h5pack show`](show.md). If you don't need it, add the `--skip-filepaths` flag.
+
+### Other options
+- `--overwrite`: Replace existing output files.
+- `-u/--unattended`: Do not ask for confirmation before creating the files.
+- `--skip-validation`: Skip the validation of the data. Only use it if your data was already validated.
+- `--skip-checksum`: Do not create the `.sha256` checksum file.
+
+### Output
+All `h5pack` tools accept `-q/--quiet` to print only warnings and errors, and `-v/--verbose` to print additional details. Colors are disabled when the output is not a terminal or when the `NO_COLOR` environment variable is set, and progress bars are hidden when the output is redirected to a file.
 
 ## Help
 To see all available options, run:

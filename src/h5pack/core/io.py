@@ -203,3 +203,4 @@ def write_audio(
         raise AssertionError
 
     sf.write(file=file, data=audio, samplerate=fs, subtype=subtype, format=fmt)
+

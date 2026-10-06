@@ -1,0 +1,5 @@
+file,label,score,emb
+data/a/0.wav,lab0,0,"[0,1]"
+data/b/1.wav,lab1,1,"[1,2]"
+data/a/x2.wav,lab0,2,"[2,3]"
+data/b/x3.wav,lab1,3,"[3,4]"

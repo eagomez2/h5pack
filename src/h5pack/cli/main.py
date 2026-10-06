@@ -2,9 +2,17 @@ import sys
 import argparse
 from datetime import datetime
 from importlib.metadata import version
+from ..core.display import (
+    NORMAL,
+    QUIET,
+    VERBOSE,
+    set_verbosity
+)
 from .checksum import cmd_checksum
 from .info import cmd_info
+from .init import cmd_init
 from .pack import cmd_pack
+from .show import cmd_show
 from .unpack import cmd_unpack
 from .virtual import cmd_virtual
 
@@ -17,13 +25,28 @@ def get_parser() -> argparse.ArgumentParser:
     )
     subparser = parser.add_subparsers(dest="action")
 
+    # Options shared by all tools
+    common_parser = argparse.ArgumentParser(add_help=False)
+    verbosity_parser = common_parser.add_mutually_exclusive_group()
+    verbosity_parser.add_argument(
+        "-q", "--quiet",
+        action="store_true",
+        help="only print warnings and errors"
+    )
+    verbosity_parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="print additional information"
+    )
+
     # Pack parser
     pack_parser = subparser.add_parser(
         "pack",
         description="pack data into HDF5 dataset files",
         help="pack data into HDF5 dataset files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
+        allow_abbrev=False,
+        parents=[common_parser]
     )
     pack_parser.add_argument(
         "-c", "--config",
@@ -86,6 +109,31 @@ def get_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="unattended mode (no user prompts)"
     )
+    pack_parser.add_argument(
+        "--compression",
+        type=str,
+        choices=["none", "gzip", "lzf"],
+        default="none",
+        help="compression applied to fixed-size data fields"
+    )
+    pack_parser.add_argument(
+        "--compression-level",
+        type=int,
+        default=4,
+        choices=range(10),
+        metavar="[0-9]",
+        help="gzip compression level"
+    )
+    pack_parser.add_argument(
+        "--skip-filepaths",
+        action="store_true",
+        help="do not store the original path of audio files"
+    )
+    pack_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="validate data and show the planned partitions without writing"
+    )
 
     # Unpack parser
     unpack_parser = subparser.add_parser(
@@ -93,7 +141,8 @@ def get_parser() -> argparse.ArgumentParser:
         description="unpack HDF5 datasets into individual files",
         help="unpack HDF5 datasets datasets into individual files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
+        allow_abbrev=False,
+        parents=[common_parser]
     )
     unpack_parser.add_argument(
         "input",
@@ -111,7 +160,8 @@ def get_parser() -> argparse.ArgumentParser:
         description="create virtual HDF5 datasets",
         help="create virtual HDF5 datasets",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
+        allow_abbrev=False,
+        parents=[common_parser]
     )
     virtual_parser.add_argument(
         "input",
@@ -167,7 +217,8 @@ def get_parser() -> argparse.ArgumentParser:
         description="inspect HDF5 datasets",
         help="inspect HDF5 datasets",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
+        allow_abbrev=False,
+        parents=[common_parser]
     )
     info_parser.add_argument(
         "input",
@@ -179,7 +230,8 @@ def get_parser() -> argparse.ArgumentParser:
         "checksum",
         help="create/verify virtual HDF5 datasets checksum",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        allow_abbrev=False
+        allow_abbrev=False,
+        parents=[common_parser]
     )
     checksum_parser.add_argument(
         "input",
@@ -195,6 +247,75 @@ def get_parser() -> argparse.ArgumentParser:
         "-r", "--recursive",
         action="store_true",
         help="search folders recursively if input is a folder"
+    )
+
+    # Init parser
+    init_parser = subparser.add_parser(
+        "init",
+        description="create a h5pack.yaml configuration file from a .csv file",
+        help="create a h5pack.yaml configuration file from a .csv file",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False,
+        parents=[common_parser]
+    )
+    init_parser.add_argument(
+        "input",
+        type=str,
+        help="input .csv file"
+    )
+    init_parser.add_argument(
+        "-o", "--output",
+        type=str,
+        default="h5pack.yaml",
+        help="output .yaml configuration file"
+    )
+    init_parser.add_argument(
+        "-d", "--dataset",
+        type=str,
+        help="name of the dataset (defaults to the .csv filename)"
+    )
+    init_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="allow overwriting an existing configuration file"
+    )
+
+    # Show parser
+    show_parser = subparser.add_parser(
+        "show",
+        description="show, save or play the data of one or more rows",
+        help="show, save or play the data of one or more rows",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        allow_abbrev=False,
+        parents=[common_parser]
+    )
+    show_parser.add_argument(
+        "input",
+        type=str,
+        help="input .h5 file"
+    )
+    show_parser.add_argument(
+        "-r", "--rows",
+        type=str,
+        default="0",
+        help="row index or range of rows (e.g. 42, 10:20, -1 or =-3:)"
+    )
+    show_parser.add_argument(
+        "-f", "--fields",
+        type=str,
+        nargs="+",
+        help="fields to show (defaults to all fields)"
+    )
+    show_parser.add_argument(
+        "-s", "--save",
+        type=str,
+        metavar="FOLDER",
+        help="save the audio of the selected rows to a folder"
+    )
+    show_parser.add_argument(
+        "-p", "--play",
+        action="store_true",
+        help="play the audio of the selected rows (requires sounddevice)"
     )
 
     return parser
@@ -215,6 +336,19 @@ def main() -> int:
     parser = get_parser()
     args = parser.parse_args()
 
+    if args.action is None:
+        parser.print_help()
+        sys.exit(0)
+
+    if args.quiet:
+        set_verbosity(QUIET)
+
+    elif args.verbose:
+        set_verbosity(VERBOSE)
+
+    else:
+        set_verbosity(NORMAL)
+
     if args.action == "pack":
         cmd_pack(args)
     
@@ -229,6 +363,12 @@ def main() -> int:
     
     elif args.action == "unpack":
         cmd_unpack(args)
-    
+
+    elif args.action == "init":
+        cmd_init(args)
+
+    elif args.action == "show":
+        cmd_show(args)
+
     else:
         raise AssertionError
