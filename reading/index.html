@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../virtual/">
+        <link rel="prev" href="../parsers/">
       
       
-        <link rel="next" href="../parsers/">
+        <link rel="next" href="../space/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>h5pack checksum - h5pack</title>
+        <title>Reading data in Python - h5pack</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#h5pack-checksum-documentation" class="md-skip">
+        <a href="#reading-data-in-python" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              h5pack checksum
+              Reading data in Python
             
           </span>
         </div>
@@ -556,8 +556,6 @@
                 
   
   
-    
-  
   
   
     
@@ -573,11 +571,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
         
           
           <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
@@ -598,7 +596,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -781,37 +779,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    h5pack checksum
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../checksum/" class="md-nav__link">
         
   
   
@@ -827,104 +798,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#basic-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Basic usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#verifying-existing-checkpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verifying existing checkpoints
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#calculating-checksum" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calculating checksum
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advanced-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Advanced settings
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced settings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#recursive-search" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Recursive search
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#help" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Help
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -942,6 +815,8 @@
                 
   
   
+    
+  
   
   
     
@@ -957,11 +832,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
         
           
           <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
@@ -982,7 +857,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1025,10 +900,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../reading/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading data in Python
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1044,6 +946,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-it-with-pytorch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using it with PyTorch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-h5py-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using h5py directly
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1166,48 +1132,153 @@
   
 
 
-<h1 id="h5pack-checksum-documentation"><code>h5pack checksum</code> documentation</h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you're new to <code>h5pack</code>, please consult our <a href="../quickstart/">Quickstart</a> guide.
-Please note that this page is just a quick reference to explain different tool options.</p>
-</div>
-<p>This tool allows you to verify the integrity of your <code>.h5</code> files by checking that the stored checksum matches the actual checksum value. Additionally, you can use it to regenerate the checksum file if something has changed and you need to update its checksum value. A checksum file is a <code>.sha256</code> file stored right next to your <code>.h5</code> file. This file contains a list of files and their corresponding checksum values.</p>
+<h1 id="reading-data-in-python">Reading data in Python</h1>
+<p><code>h5pack</code> includes a small Python API to read files created with <code>h5pack pack</code>, so you don't need to deal with the details of how each field is stored (e.g. FLAC audio, categorical values or multichannel audio of different lengths).</p>
 <h2 id="basic-usage">Basic usage</h2>
-<h3 id="verifying-existing-checkpoints">Verifying existing checkpoints</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>&lt;sha256-file&gt;
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">h5pack</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">with</span> <span class="n">h5pack</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;dataset.h5&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>  <span class="c1"># Number of rows</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>  <span class="c1"># e.g. [&#39;audio&#39;, &#39;speaker&#39;, &#39;split&#39;]</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">row</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Dict with the value of each field</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">audio</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;audio&quot;</span><span class="p">]</span>  <span class="c1"># np.ndarray</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">fs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">(</span><span class="s2">&quot;audio&quot;</span><span class="p">)</span>  <span class="c1"># e.g. 16000</span>
 </span></code></pre></div>
-<p>The output should look as follows:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>dataset.h5<span class="w">  </span>8258bb92f49c2ed032bbe6f1e3bc86132cbc8b7bc0c0e512c4bc6b9888f9aabe<span class="w"> </span><span class="o">[</span>OK<span class="o">]</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>Verified<span class="w"> </span><span class="m">1</span><span class="w"> </span>file<span class="o">(</span>s<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s1">&#39;dataset.sha256&#39;</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">5</span>.0ms
-</span></code></pre></div></p>
-<p>If one or more files do not match their stored checksum, they will be reported as errors and <code>h5pack checksum</code> will finish with a non-zero exit code, so it can be safely used in scripts.</p>
-<h3 id="calculating-checksum">Calculating checksum</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>&lt;h5-file&gt;
+<p><code>h5pack.open()</code> works with partitions and virtual datasets. Each row is returned as a <code>dict</code> where:</p>
+<ul>
+<li>Audio is returned as an <code>np.ndarray</code> with shape <code>(num_samples,)</code> for mono audio or <code>(num_channels, num_samples)</code> for multichannel audio. Audio keeps the data type of its parser (e.g. <code>int16</code> for <code>as_audioint16</code>), while audio packed with <code>as_audioflac</code> is decoded as <code>float32</code> (see <code>audio_dtype</code> below).</li>
+<li>Lists are returned as <code>np.ndarray</code>.</li>
+<li>Text and categorical values are returned as <code>str</code> (or the original integer for categorical integer columns).</li>
+<li>Single values are returned as <code>numpy</code> scalars.</li>
+</ul>
+<h2 id="reference">Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Method / property</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>h5pack.open(file, fields=None, audio_dtype="float32")</code></td>
+<td>Opens a file. <code>fields</code> selects the fields returned for each row. <code>audio_dtype</code> is the data type used to decode FLAC audio.</td>
+</tr>
+<tr>
+<td><code>len(data)</code></td>
+<td>Number of rows.</td>
+</tr>
+<tr>
+<td><code>data[idx]</code></td>
+<td>Row <code>idx</code> as a <code>dict</code>. Negative indices are supported.</td>
+</tr>
+<tr>
+<td><code>for row in data</code></td>
+<td>Iterates over all rows.</td>
+</tr>
+<tr>
+<td><code>data.fields</code></td>
+<td>Fields returned for each row.</td>
+</tr>
+<tr>
+<td><code>data.read(field, idx, decode=True)</code></td>
+<td>Value of a single field. With <code>decode=False</code>, the raw stored value is returned (e.g. FLAC bytes or categorical codes).</td>
+</tr>
+<tr>
+<td><code>data.sample_rate(field)</code></td>
+<td>Sample rate of an audio field.</td>
+</tr>
+<tr>
+<td><code>data.categories(field)</code></td>
+<td>Categories of a field packed with <code>as_categorical</code>.</td>
+</tr>
+<tr>
+<td><code>data.filepath(field, idx)</code></td>
+<td>Path of the original audio file of a row.</td>
+</tr>
+<tr>
+<td><code>data.field_attrs(field)</code></td>
+<td>Attributes of a field.</td>
+</tr>
+<tr>
+<td><code>data.attrs</code></td>
+<td>Attributes of the file (e.g. <code>producer</code> or your own <code>attrs</code>).</td>
+</tr>
+<tr>
+<td><code>data.data</code></td>
+<td>Underlying <code>h5py.Group</code> for direct access.</td>
+</tr>
+<tr>
+<td><code>data.close()</code></td>
+<td>Closes the file (also done when leaving a <code>with</code> block).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="using-it-with-pytorch">Using it with PyTorch</h2>
+<p>The file is opened lazily the first time a row is read, and reopened in each process. This means a single <code>h5pack.open()</code> object can be shared with all workers of a <code>torch.utils.data.DataLoader</code>, which is the safe way to read HDF5 files from multiple processes.</p>
+<p>The example below trains on random 1-second crops of the audio of each row, and uses a categorical <code>speaker</code> field as the target class:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">h5pack</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">AudioDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">crop_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">):</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">h5pack</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;audio&quot;</span><span class="p">,</span> <span class="s2">&quot;speaker&quot;</span><span class="p">])</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">speakers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">categories</span><span class="p">(</span><span class="s2">&quot;speaker&quot;</span><span class="p">)</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">crop_len</span> <span class="o">=</span> <span class="n">crop_len</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="n">audio</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;audio&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="c1"># int16 audio is scaled to [-1, 1)</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;audio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;i&quot;</span><span class="p">:</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>            <span class="n">audio</span> <span class="o">=</span> <span class="n">audio</span> <span class="o">/</span> <span class="mf">32768.0</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="c1"># Random crop (or zero padding) to a fixed length</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="k">if</span> <span class="n">audio</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_len</span><span class="p">:</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="n">start</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">audio</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">())</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>            <span class="n">audio</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_len</span><span class="p">]</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>            <span class="n">audio</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>                <span class="n">audio</span><span class="p">,</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>                <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_len</span> <span class="o">-</span> <span class="n">audio</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>            <span class="p">)</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speakers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;speaker&quot;</span><span class="p">])</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>        <span class="k">return</span> <span class="n">audio</span><span class="p">,</span> <span class="n">label</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="n">dataset</span> <span class="o">=</span> <span class="n">AudioDataset</span><span class="p">(</span><span class="s2">&quot;dataset.h5&quot;</span><span class="p">)</span>
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="k">for</span> <span class="n">audio</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>    <span class="o">...</span>  <span class="c1"># audio: (32, 16000), label: (32,)</span>
 </span></code></pre></div>
-<p>If the input has a <code>.h5</code> extension or is a folder, the checksum of all <code>.h5</code> files found will be calculated and printed to the screen as follows:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Calculating<span class="w"> </span>checksum<span class="w"> </span><span class="k">for</span><span class="w"> </span>.h5<span class="w"> </span>files<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s1">&#39;dataset.h5&#39;</span><span class="w"> </span>...
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>dataset.h5<span class="w">  </span>8258bb92f49c2ed032bbe6f1e3bc86132cbc8b7bc0c0e512c4bc6b9888f9aabe
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Checksum<span class="w"> </span>calculation<span class="w"> </span>completed<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">0</span>.1<span class="w"> </span>millisecond<span class="o">(</span>s<span class="o">)</span>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<ul>
+<li>Create the <code>h5pack.open()</code> object in <code>__init__</code> as shown above. It does not keep the file open until the first row is read, so it is safely copied to each worker.</li>
+<li>If your rows have different lengths and you need the full audio, use a custom <code>collate_fn</code> that pads each batch to its longest row instead of cropping.</li>
+<li>On macOS and Windows, <code>DataLoader</code> workers are started using <code>spawn</code>, so the code that creates the <code>DataLoader</code> must be inside an <code>if __name__ == "__main__":</code> block when it is run as a script.</li>
+<li>Reading from a <a href="../virtual/">virtual dataset</a> is as fast as reading from its partitions, so you can train on a dataset split across many files.</li>
+</ul>
+</div>
+<h2 id="using-h5py-directly">Using h5py directly</h2>
+<p>Files created with <code>h5pack</code> are regular HDF5 files, so they can be read with any HDF5 library. All fields are stored in the <code>data</code> group, and their attributes describe how they were stored (see <a href="../parsers/">Parsers</a>):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;dataset.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">audio</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;audio&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">fs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;audio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;sample_rate&quot;</span><span class="p">])</span>
 </span></code></pre></div>
-<p>Additionally, you can use the <code>--save</code> to save the calculated checksum to a <code>.sha256</code> file.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>&lt;h5-file&gt;<span class="w"> </span>--save<span class="w"> </span>&lt;output-sha256-file&gt;
-</span></code></pre></div>
-<h2 id="advanced-settings">Advanced settings</h2>
-<h3 id="recursive-search">Recursive search</h3>
-<p>To calculate the checksum of multiple <code>.h5</code> files, possibly within nested folders, you can use the <code>-r/--recursive</code> flag. Please note that this option is only available for checksum calculations.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>&lt;input-folder-with-h5-files&gt;<span class="w"> </span>--recursive
-</span></code></pre></div>
-<p>or using aliases:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>&lt;input-folder-with-h5-files&gt;<span class="w"> </span>-r
-</span></code></pre></div></p>
-<h2 id="help">Help</h2>
-<p>To see all available options, run:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>--help
-</span></code></pre></div></p>
-<p>or using aliases:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>h5pack<span class="w"> </span>checksum<span class="w"> </span>-h
-</span></code></pre></div></p>
 
 
 

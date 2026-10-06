@@ -9,26 +9,28 @@
       
       
       
+        <link rel="prev" href="../checksum/">
       
-        <link rel="next" href="install/">
+      
+        <link rel="next" href="../reading/">
       
       
         
       
       
-      <link rel="icon" href="assets/logo.svg">
+      <link rel="icon" href="../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>h5pack</title>
+        <title>Parsers - h5pack</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -47,11 +49,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-h5pack" class="md-skip">
+        <a href="#parsers" class="md-skip">
           Skip to content
         </a>
       
@@ -90,9 +92,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="h5pack" class="md-header__button md-logo" aria-label="h5pack" data-md-component="logo">
+    <a href=".." title="h5pack" class="md-header__button md-logo" aria-label="h5pack" data-md-component="logo">
       
-  <img src="assets/logo-inverted.svg" alt="logo">
+  <img src="../assets/logo-inverted.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -109,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              About
+              Parsers
             
           </span>
         </div>
@@ -225,11 +227,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -248,7 +248,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="install/" class="md-tabs__link">
+      <a href="../install/" class="md-tabs__link">
         
   
   
@@ -267,7 +267,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="quickstart/" class="md-tabs__link">
+      <a href="../quickstart/" class="md-tabs__link">
         
   
   
@@ -284,11 +284,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="docs/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../docs/" class="md-tabs__link">
           
   
   
@@ -325,7 +327,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="license/" class="md-tabs__link">
+      <a href="../license/" class="md-tabs__link">
         
   
   
@@ -362,9 +364,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="h5pack" class="md-nav__button md-logo" aria-label="h5pack" data-md-component="logo">
+    <a href=".." title="h5pack" class="md-nav__button md-logo" aria-label="h5pack" data-md-component="logo">
       
-  <img src="assets/logo-inverted.svg" alt="logo">
+  <img src="../assets/logo-inverted.svg" alt="logo">
 
     </a>
     h5pack
@@ -388,37 +390,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    About
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -434,37 +409,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Getting started
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -476,7 +420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="install/" class="md-nav__link">
+      <a href="../install/" class="md-nav__link">
         
   
   
@@ -503,7 +447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="quickstart/" class="md-nav__link">
+      <a href="../quickstart/" class="md-nav__link">
         
   
   
@@ -527,26 +471,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -564,7 +513,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -582,7 +531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="docs/" class="md-nav__link">
+      <a href="../docs/" class="md-nav__link">
         
   
   
@@ -616,17 +565,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
             
   
   
@@ -662,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="init/" class="md-nav__link">
+      <a href="../init/" class="md-nav__link">
         
   
   
@@ -690,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="pack/" class="md-nav__link">
+      <a href="../pack/" class="md-nav__link">
         
   
   
@@ -718,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="unpack/" class="md-nav__link">
+      <a href="../unpack/" class="md-nav__link">
         
   
   
@@ -746,7 +698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="info/" class="md-nav__link">
+      <a href="../info/" class="md-nav__link">
         
   
   
@@ -774,7 +726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="show/" class="md-nav__link">
+      <a href="../show/" class="md-nav__link">
         
   
   
@@ -802,7 +754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="virtual/" class="md-nav__link">
+      <a href="../virtual/" class="md-nav__link">
         
   
   
@@ -830,7 +782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="checksum/" class="md-nav__link">
+      <a href="../checksum/" class="md-nav__link">
         
   
   
@@ -863,26 +815,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
         
           
-          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
             
   
   
@@ -900,7 +857,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -915,10 +872,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="parsers/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parsers
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -934,6 +918,165 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-parsers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available parsers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audio-parsers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audio parsers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Audio parsers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FLAC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#single-value-parsers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single value parsers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list-parsers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List parsers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="List parsers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choosing-the-smallest-data-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing the smallest data type
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-parsers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Text parsers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Text parsers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#as_utf8str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as_utf8str
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as_categorical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as_categorical
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -946,7 +1089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reading/" class="md-nav__link">
+      <a href="../reading/" class="md-nav__link">
         
   
   
@@ -974,7 +1117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="space/" class="md-nav__link">
+      <a href="../space/" class="md-nav__link">
         
   
   
@@ -1044,7 +1187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="license/" class="md-nav__link">
+      <a href="../license/" class="md-nav__link">
         
   
   
@@ -1084,38 +1227,253 @@
   
 
 
-<h1 id="welcome-to-h5pack">Welcome to h5pack</h1>
-<p><a href="https://pypi.org/project/h5pack/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/h5pack?color=0f172a" /></a>
-<a href="https://pypi.org/project/h5pack/"><img alt="Python versions" src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Feagomez2%2Fh5pack%2Fmain%2Fpyproject.toml&amp;color=0f172a" /></a>
-<a href="https://eagomez2.github.io/h5pack/"><img alt="Docs" src="https://img.shields.io/badge/docs-eagomez2.github.io%2Fh5pack-0284c7" /></a>
-<a href="license/"><img alt="License" src="https://img.shields.io/github/license/eagomez2/h5pack?color=0f172a" /></a></p>
-<p><code>h5pack</code> is a utility made to pack, analyze and unpack HDF5 audio datasets using data and annotations of various sources. HDF5 is an open-source file format for storing large, complex data. It uses a directory-like structure to organize data within the file. Click <a href="https://www.hdfgroup.org/solutions/hdf5/">here</a> to learn more about HDF5. Among other, HDF5 provides:</p>
+<h1 id="parsers">Parsers</h1>
+<p>Parsers tell <code>h5pack pack</code> how to store each column of your <code>.csv</code> file. Each field of a dataset in <code>h5pack.yaml</code> selects one parser:</p>
+<div class="language-yaml highlight"><span class="filename">h5pack.yaml</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">datasets</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">my_dataset</span><span class="p">:</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">data</span><span class="p">:</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dataset.csv</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="nt">fields</span><span class="p">:</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="nt">audio</span><span class="p">:</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">          </span><span class="nt">column</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">          </span><span class="nt">parser</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">as_audioint16</span>
+</span></code></pre></div>
+<p><a href="../init/"><code>h5pack init</code></a> can guess the parsers of all columns of a <code>.csv</code> file for you.</p>
+<h2 id="available-parsers">Available parsers</h2>
+<table>
+<thead>
+<tr>
+<th>Parser name</th>
+<th>Resulting data type</th>
+<th>Example <code>.csv</code> row value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>as_audioint16</code></td>
+<td>Audio files stored as <code>int16</code></td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_audiofloat32</code></td>
+<td>Audio files stored as <code>float32</code></td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_audiofloat64</code></td>
+<td>Audio files stored as <code>float64</code></td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_audioflac</code></td>
+<td>Audio files stored as FLAC (lossless)</td>
+<td><code>/path/to/file.wav</code></td>
+</tr>
+<tr>
+<td><code>as_int8</code></td>
+<td>Single <code>int8</code> value</td>
+<td><code>64</code></td>
+</tr>
+<tr>
+<td><code>as_int16</code></td>
+<td>Single <code>int16</code> value</td>
+<td><code>32767</code></td>
+</tr>
+<tr>
+<td><code>as_float32</code></td>
+<td>Single <code>float32</code> value</td>
+<td><code>0.707</code></td>
+</tr>
+<tr>
+<td><code>as_float64</code></td>
+<td>Single <code>float64</code> value</td>
+<td><code>3.146</code></td>
+</tr>
+<tr>
+<td><code>as_listint8</code></td>
+<td>List of <code>int8</code> values</td>
+<td><code>[0, 127]</code></td>
+</tr>
+<tr>
+<td><code>as_listint16</code></td>
+<td>List of <code>int16</code> values</td>
+<td><code>[32767, 32767]</code></td>
+</tr>
+<tr>
+<td><code>as_listfloat32</code></td>
+<td>List of <code>float32</code> values</td>
+<td><code>[0.707, 1.414, ...]</code></td>
+</tr>
+<tr>
+<td><code>as_listfloat64</code></td>
+<td>List of <code>float64</code> values</td>
+<td><code>[0.505, 2.125, ...]</code></td>
+</tr>
+<tr>
+<td><code>as_utf8str</code></td>
+<td>Single <code>str</code> value</td>
+<td><code>hello_world</code></td>
+</tr>
+<tr>
+<td><code>as_categorical</code></td>
+<td>Value from a small set of values</td>
+<td><code>train</code></td>
+</tr>
+</tbody>
+</table>
+<p>All values are validated before any file is written. For example, <code>h5pack pack</code> reports values that do not fit in the selected data type (e.g. <code>300</code> with <code>as_int8</code>), empty values, or audio files with different sample rates, and shows the row where the problem was found.</p>
+<h2 id="audio-parsers">Audio parsers</h2>
+<p>Audio parsers read the audio files listed in a column and store their samples.</p>
+<table>
+<thead>
+<tr>
+<th>Parser</th>
+<th>Stored as</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>as_audioint16</code></td>
+<td><code>int16</code> samples</td>
+<td>16-bit audio files (most <code>.wav</code> files)</td>
+</tr>
+<tr>
+<td><code>as_audiofloat32</code></td>
+<td><code>float32</code> samples</td>
+<td>24-bit or floating point audio files</td>
+</tr>
+<tr>
+<td><code>as_audiofloat64</code></td>
+<td><code>float64</code> samples</td>
+<td>Floating point audio that needs full precision</td>
+</tr>
+<tr>
+<td><code>as_audioflac</code></td>
+<td>FLAC encoded bytes</td>
+<td>Saving space without losing any information</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Storing 16-bit audio files with <code>as_audiofloat32</code> or <code>as_audiofloat64</code> doubles or quadruples their size without adding any information. <code>h5pack pack</code> shows a warning when this happens.</p>
+</div>
+<h3 id="layout">Layout</h3>
+<p>Audio is stored as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Audio</th>
+<th>Shape of the field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mono, same length</td>
+<td><code>(num_rows, num_samples)</code></td>
+</tr>
+<tr>
+<td>Multichannel, same length</td>
+<td><code>(num_rows, num_channels, num_samples)</code></td>
+</tr>
+<tr>
+<td>Different lengths</td>
+<td><code>(num_rows,)</code> with one array per row</td>
+</tr>
+</tbody>
+</table>
+<p>When files have different lengths, multichannel audio is stored channel by channel in a single array per row and restored using the <code>num_channels</code> attribute. You don't have to deal with this yourself if you use the <a href="../reading/">Python API</a>, which always returns <code>(num_samples,)</code> arrays for mono audio and <code>(num_channels, num_samples)</code> arrays for multichannel audio.</p>
+<p>All audio files of a column must have the same sample rate and number of channels.</p>
+<h3 id="attributes">Attributes</h3>
+<p>Each audio field stores the following attributes:</p>
 <ul>
-<li>Efficient storage: Handles large datasets with chunking and compression, reducing disk space usage.</li>
-<li>Fast I/O: Optimized for rapid reading/writing of multi-dimensional data, improving data loading speeds.</li>
-<li>Hierarhical structures: Organizes metadata, features, and audio data efficiently within a single file.</li>
-<li>Concurrent access: Supports concurrent access, enabling efficient multi-threaded data loading.</li>
-<li>Scalability: Handles massive datasets without performance degradation, making it ideal for large-scale machine learning tasks.</li>
-<li>Cross-platform: Works across different OS and programming languages, ensuring flexibility.</li>
+<li><code>parser</code>: Parser used to pack the field.</li>
+<li><code>sample_rate</code>: Sample rate in Hz.</li>
+<li><code>num_channels</code>: Number of channels.</li>
+<li><code>codec</code> and <code>flac_subtype</code>: Only for <code>as_audioflac</code>.</li>
 </ul>
-<p><code>h5pack</code> was made to go from raw files to HDF5 files and back in a robust, consistent and simple way. It provides a collection of tools to facilitate all the necessary tasks to make it possible:</p>
-<ul>
-<li><code>h5pack init</code>: Creates a configuration file from an annotations <code>.csv</code> file.</li>
-<li><code>h5pack pack</code>: Converts raw data and/or annotation files into an HDF5 file.</li>
-<li><code>h5pack unpack</code>: Extracts raw data from an HDF5 file, allowing regeneration of the original input data.</li>
-<li><code>h5pack virtual</code>: Creates a virtual dataset by combining multiple datasets into a single logical dataset without duplication, enabling seamless access to fragmented or distributed data.</li>
-<li><code>h5pack info</code>: Displays the contents of an HDF5 file generated with <code>h5pack</code>, providing a quick overview of its structure.</li>
-<li><code>h5pack checksum</code>: Verifies the integrity of an HDF5 file by checking its checksum to detect potential corruption.</li>
-<li><code>h5pack show</code>: Shows, saves or plays the data of any row of an HDF5 file.</li>
-</ul>
-<p>Packed data can be read in Python with <code>h5pack.open()</code>, which also works with PyTorch <code>DataLoader</code> workers.</p>
-<h2 id="getting-started">Getting started</h2>
-<p>To begin using <code>h5pack</code>, refer to the pages below:</p>
-<ul>
-<li><a href="install/">Installation</a></li>
-<li><a href="quickstart/">Quickstart</a></li>
-<li><a href="docs/">User guide</a>: All commands, parsers, reading data in Python and saving space.</li>
-</ul>
+<p>The path of each original audio file is stored in an additional <code>&lt;field&gt;__filepath</code> field, relative to the folder shared by all audio files of the field (e.g. <code>spk1/001.wav</code>). It is used to restore the original folder structure with <a href="../unpack/"><code>h5pack unpack</code></a>. If you don't need it, use <code>h5pack pack --skip-filepaths</code>.</p>
+<h3 id="flac">FLAC</h3>
+<p><code>as_audioflac</code> stores each audio file as FLAC, a lossless audio codec, typically reducing the size of speech and music by 40 to 60%. Audio is decoded when it is read, so reading is slower than with uncompressed parsers. See <a href="../space/">Saving space</a> for more details.</p>
+<p>FLAC files are stored as they are, while other formats are encoded as 16-bit FLAC, or 24-bit FLAC if any file of the column has more than 16 bits. FLAC supports up to 8 channels. When unpacking, audio packed with <code>as_audioflac</code> is written as <code>.flac</code> files.</p>
+<h2 id="single-value-parsers">Single value parsers</h2>
+<p><code>as_int8</code>, <code>as_int16</code>, <code>as_float32</code> and <code>as_float64</code> store one number per row. Pick the smallest data type that can hold all your values:</p>
+<table>
+<thead>
+<tr>
+<th>Data type</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int8</code></td>
+<td>-128 to 127</td>
+</tr>
+<tr>
+<td><code>int16</code></td>
+<td>-32768 to 32767</td>
+</tr>
+<tr>
+<td><code>float32</code></td>
+<td>About 7 significant digits</td>
+</tr>
+<tr>
+<td><code>float64</code></td>
+<td>About 16 significant digits (integers up to 2<sup>53</sup> are exact)</td>
+</tr>
+</tbody>
+</table>
+<p>Integers that do not fit in <code>int16</code> (e.g. ids or timestamps) can be stored with <code>as_float64</code> without losing precision.</p>
+<h2 id="list-parsers">List parsers</h2>
+<p><code>as_listint8</code>, <code>as_listint16</code>, <code>as_listfloat32</code> and <code>as_listfloat64</code> store a list of numbers per row, written in the <code>.csv</code> file as <code>[1, 2, 3]</code>. If all lists have the same length, they are stored as a <code>(num_rows, list_length)</code> array. Otherwise, one array per row is stored.</p>
+<h3 id="choosing-the-smallest-data-type">Choosing the smallest data type</h3>
+<p>Lists such as token ids, frame labels or alignments can easily take more space than the audio itself. Since every value of every list is stored with the selected data type, choosing the smallest data type that can hold all values makes a big difference:</p>
+<table>
+<thead>
+<tr>
+<th>Values</th>
+<th>Parser</th>
+<th>Bytes per value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Small integers (-128 to 127)</td>
+<td><code>as_listint8</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>Integers (-32768 to 32767)</td>
+<td><code>as_listint16</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>Decimal numbers</td>
+<td><code>as_listfloat32</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td>Decimal numbers, full precision</td>
+<td><code>as_listfloat64</code></td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>For example, a list of 1,000 frame labels between 0 and 50 takes 1 KB with <code>as_listint8</code> but 8 KB with <code>as_listfloat64</code>. <code>h5pack pack</code> reports values that do not fit in the selected data type, so you can safely try the smallest one first.</p>
+<h2 id="text-parsers">Text parsers</h2>
+<h3 id="as_utf8str"><code>as_utf8str</code></h3>
+<p>Stores any text as UTF-8.</p>
+<h3 id="as_categorical"><code>as_categorical</code></h3>
+<p>Stores columns with a small set of repeated values, such as labels, splits or speaker ids, much more efficiently than <code>as_utf8str</code>. Each value is stored as an integer code (<code>uint8</code> for up to 256 different values) and the list of values is stored once in the <code>categories</code> attribute of the field. Categories are sorted and shared by all partitions, so codes are consistent across a whole dataset.</p>
+<p><code>as_categorical</code> can be used with text and integer columns. The <a href="../reading/">Python API</a> returns the original values, while the codes are available for machine learning pipelines that need class indices:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">h5pack</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">with</span> <span class="n">h5pack</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;dataset.h5&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">categories</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">categories</span><span class="p">(</span><span class="s2">&quot;split&quot;</span><span class="p">)</span>  <span class="c1"># e.g. [&#39;test&#39;, &#39;train&#39;, &#39;valid&#39;]</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">code</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;split&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># e.g. 1</span>
+</span></code></pre></div>
 
 
 
@@ -1196,14 +1554,14 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "navigation.instant", "navigation.instant.progress", "search.share"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "navigation.instant", "navigation.instant.progress", "search.share"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
         <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
       
-        <script src="js/tablesort.js"></script>
+        <script src="../js/tablesort.js"></script>
       
     
   </body>
