@@ -146,7 +146,6 @@ File attributes
   audio              (3, 16000)    int16     num_channels: 1
                                              parser: as_audioint16
                                              sample_rate: 16000
-                                             source_dir: data
   audio__filepath    (3,)          object
   type               (3,)          object    parser: as_utf8str
 ```
@@ -187,17 +186,6 @@ Row 1 of 3
 
 Add `--save <folder>` to save the audio of the selected rows as `.wav` files, or `--play` to play it. See [`h5pack show`](show.md) for more details.
 
-## Comparing with the original files using `h5pack verify`
-To make sure that the packed audio matches your original audio files, run:
-```bash
-h5pack verify simple_dataset.h5
-```
-
-It will output:
-```bash
-  Verified all 3 row(s), 'audio' (audio matches the original files) in 7.6ms
-```
-
 ## Reading the dataset in Python
 Your dataset can be read row by row using `h5pack.open()`:
 ```python
@@ -236,4 +224,4 @@ The generated files are structured so that you can promptly repack them into `.h
 
 ## Conclusion
 You should now be able to manage, verify, and repack your data to ensure its integrity and flexibility for future use.
-For more information on additional tools, including those not covered in this [Quickstart](quickstart.md) guide, visit the [Documentation](docs.md) section.
+For more information on additional tools, including those not covered in this [Quickstart](quickstart.md) guide, visit the [User guide](docs.md).

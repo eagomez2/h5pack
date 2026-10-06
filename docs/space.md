@@ -3,7 +3,7 @@
 Audio datasets can be large, and `h5pack` offers several ways to make them smaller. All of them are lossless, so no information is lost.
 
 !!! tip
-    Use `h5pack pack --dry-run` to validate your data and check the planned partitions before writing any file, and [`h5pack verify`](verify.md) to check that the packed audio matches your original files.
+    Use `h5pack pack --dry-run` to validate your data and check the planned partitions before writing any file, and [`h5pack show`](show.md) to check some rows of the packed file.
 
 ## Store audio as FLAC
 `as_audioflac` stores each audio file as FLAC, a lossless audio codec. This is the most effective option for audio, typically reducing speech and music to roughly half of their uncompressed size (the exact ratio depends on the content; noise-like signals compress much less).
@@ -40,7 +40,7 @@ Compressed fields are split into chunks (one row per chunk for audio) and the by
     HDF5 compression only applies to fields where all rows have the same length (e.g. fixed length audio, numbers, categorical values or lists of the same length). Fields with rows of different lengths and FLAC audio are stored uncompressed, since HDF5 cannot compress them. For audio, `as_audioflac` is usually much more effective than `--compression`.
 
 ## Skip file paths
-By default, `h5pack pack` stores the path of each original audio file, which is needed to restore your folder structure with [`h5pack unpack`](unpack.md) and to run [`h5pack verify`](verify.md). For datasets with many short audio files, these paths can take a noticeable amount of space. If you don't need them, add `--skip-filepaths`:
+By default, `h5pack pack` stores the path of each original audio file, which is needed to restore your folder structure with [`h5pack unpack`](unpack.md). For datasets with many short audio files, these paths can take a noticeable amount of space. If you don't need them, add `--skip-filepaths`:
 
 ```bash
 h5pack pack -c h5pack.yaml -d my_dataset -o my_dataset.h5 --skip-filepaths

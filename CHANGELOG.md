@@ -5,12 +5,10 @@
 ### New features
 - New `h5pack init` command to create a `h5pack.yaml` configuration file from a `.csv` file. It guesses a parser for each column (audio, lists, categorical values, text and numbers).
 - New `h5pack show` command to show the content of one or more rows (e.g. `-r 42`, `-r -1` or `-r 10:20`). Audio can be saved as `.wav` files with `-s/--save` or played with `-p/--play`.
-- New `h5pack verify` command to compare packed audio with the original audio files, sample by sample. It exits with a non-zero code if any audio does not match.
 - New Python API to read packed data: `h5pack.open("dataset.h5")` returns each row as a `dict` with decoded values. It works with partitions and virtual datasets and can be safely used with PyTorch `DataLoader` workers.
 - New `as_audioflac` parser to store audio as FLAC (lossless), often reducing speech and music to about half of their size.
 - New `as_categorical` parser to store labels, splits, speaker ids and other repeated values as integer codes.
 - Audio parsers now support multichannel audio.
-- Audio can be resampled when packing using `parser_args: {sample_rate: 16000}`. This requires the new optional `resample` extra (`pip install "h5pack[resample]"`).
 - New `h5pack pack` options:
     - `--compression gzip|lzf` and `--compression-level` to compress fields.
     - `--dry-run` to validate the data and show the planned partitions without writing any file.
@@ -28,24 +26,27 @@
     - All audio files of a column have the same sample rate and number of channels.
 - `h5pack pack` shows a warning when 16-bit audio files are stored with a floating point parser, which doubles their size without adding information.
 - Each worker now receives only the rows of its own partitions, reducing memory usage when packing large `.csv` files with several workers.
-- Audio fields now store `num_channels` and `source_dir` (folder of the original audio files, relative to the `.h5` file) attributes.
+- Audio fields now store a `num_channels` attribute.
 - New `h5pack info` layout.
-- `tqdm` and `packaging` are no longer dependencies. New optional extras: `resample` (`soxr`) and `play` (`sounddevice`).
+- `tqdm` and `packaging` are no longer dependencies. New optional `play` extra (`sounddevice`) for `h5pack show --play`.
 
 ### Bug fixes
 - Fixed `h5pack unpack` crashing with `polars` 2.0.
 - Fixed `h5pack unpack` writing integer fields as decimal numbers (e.g. `3.0` instead of `3`).
 - Fixed `h5pack unpack` crashing on fields packed with `as_audiofloat64`.
+- Fixed `h5pack unpack` writing Windows paths (`data\audio\...`) to `dataset.csv`. Paths now always use `/`.
+- Fixed `h5pack.yaml` files not being read and written as UTF-8 on Windows.
 - Fixed text that looks like a number (e.g. `007`) losing its leading zeros when packing with `as_utf8str` or unpacking.
 
 ### Backward compatibility
 - Existing `h5pack.yaml` files and command line options work as before.
-- Files created with previous versions can be read, inspected and unpacked with this version. Files created with 1.2.0 can also be checked with `h5pack verify --source <audio-folder>`.
+- Files created with previous versions can be read, inspected and unpacked with this version.
 - Files created with this version using the parsers available in previous versions keep the same layout, so they can still be read by previous versions. Files using `as_audioflac`, `as_categorical` or multichannel audio require `h5pack` 1.3.0 or newer.
 
 ### Documentation
-- New pages for `h5pack init`, `h5pack show` and `h5pack verify`.
-- New guides: Parsers, Reading data in Python (including a PyTorch `Dataset` example) and Saving space.
+- Commands and guides are now grouped in a single "User guide" section.
+- New pages for `h5pack init` and `h5pack show`.
+- New pages: Parsers, Reading data in Python (including a PyTorch `Dataset` example) and Saving space.
 - Updated Quickstart and command outputs.
 
 ### Development

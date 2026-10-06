@@ -116,7 +116,7 @@ h5pack pack -c <config-file> -d <dataset-name> -o <output-h5-file> --compression
 To store audio in a compressed format, use the `as_audioflac` [parser](parsers.md) instead. See [Saving space](space.md) for all options to make your files smaller.
 
 ### Skip file paths
-By default, the path of each audio file is stored in a `<field>__filepath` field. It is used to restore your folder structure with [`h5pack unpack`](unpack.md) and to compare the packed audio with your original files using [`h5pack verify`](verify.md). If you don't need it, add the `--skip-filepaths` flag.
+By default, the path of each audio file is stored in a `<field>__filepath` field. It is used to restore your folder structure with [`h5pack unpack`](unpack.md) and shown by [`h5pack show`](show.md). If you don't need it, add the `--skip-filepaths` flag.
 
 ### Other options
 - `--overwrite`: Replace existing output files.

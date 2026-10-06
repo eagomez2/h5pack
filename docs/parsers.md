@@ -60,7 +60,7 @@ Audio is stored as follows:
 
 When files have different lengths, multichannel audio is stored channel by channel in a single array per row and restored using the `num_channels` attribute. You don't have to deal with this yourself if you use the [Python API](reading.md), which always returns `(num_samples,)` arrays for mono audio and `(num_channels, num_samples)` arrays for multichannel audio.
 
-All audio files of a column must have the same number of channels.
+All audio files of a column must have the same sample rate and number of channels.
 
 ### Attributes
 Each audio field stores the following attributes:
@@ -68,9 +68,7 @@ Each audio field stores the following attributes:
 - `parser`: Parser used to pack the field.
 - `sample_rate`: Sample rate in Hz.
 - `num_channels`: Number of channels.
-- `source_dir`: Folder of the original audio files, relative to the `.h5` file. It is used by [`h5pack verify`](verify.md).
 - `codec` and `flac_subtype`: Only for `as_audioflac`.
-- `resampled`: Only if the audio was resampled.
 
 The path of each original audio file is stored in an additional `<field>__filepath` field, relative to the folder shared by all audio files of the field (e.g. `spk1/001.wav`). It is used to restore the original folder structure with [`h5pack unpack`](unpack.md). If you don't need it, use `h5pack pack --skip-filepaths`.
 
@@ -78,26 +76,6 @@ The path of each original audio file is stored in an additional `<field>__filepa
 `as_audioflac` stores each audio file as FLAC, a lossless audio codec, typically reducing the size of speech and music by 40 to 60%. Audio is decoded when it is read, so reading is slower than with uncompressed parsers. See [Saving space](space.md) for more details.
 
 FLAC files are stored as they are, while other formats are encoded as 16-bit FLAC, or 24-bit FLAC if any file of the column has more than 16 bits. FLAC supports up to 8 channels. When unpacking, audio packed with `as_audioflac` is written as `.flac` files.
-
-### Resampling
-All audio files of a column must have the same sample rate. If your files have different sample rates, or you want to store them at a different sample rate, add a `sample_rate` argument to the parser:
-
-```yaml title="h5pack.yaml"
-        audio:
-          column: file
-          parser: as_audiofloat32
-          parser_args:
-            sample_rate: 16000
-```
-
-Resampling requires the optional <a href="https://github.com/dofuuz/python-soxr" target="_blank">`soxr`</a> package, which can be installed as:
-
-```bash
-pip install "h5pack[resample]"
-```
-
-!!! note
-    Resampled audio cannot match its original files, so it is skipped by [`h5pack verify`](verify.md). Since resampling produces values between the original integer levels, `as_audiofloat32` is recommended for resampled audio.
 
 ## Single value parsers
 `as_int8`, `as_int16`, `as_float32` and `as_float64` store one number per row. Pick the smallest data type that can hold all your values:

@@ -23,24 +23,13 @@
 - `h5pack info`: Displays the contents of an HDF5 file generated with `h5pack`, providing a quick overview of its structure.
 - `h5pack checksum`: Verifies the integrity of an HDF5 file by checking its checksum to detect potential corruption.
 - `h5pack show`: Shows, saves or plays the data of any row of an HDF5 file.
-- `h5pack verify`: Compares the packed audio with the original audio files.
 
 Packed data can be read in Python with `h5pack.open()`, which also works with PyTorch `DataLoader` workers.
 
 
-## Guides
-To begin using `h5pack`, refer to the guides below:
+## Getting started
+To begin using `h5pack`, refer to the pages below:
 
 - [Installation](install.md)
 - [Quickstart](quickstart.md)
-- [`h5pack init` documentation](init.md)
-- [`h5pack pack` documentation](pack.md)
-- [`h5pack unpack` documentation](unpack.md)
-- [`h5pack info` documentation](info.md)
-- [`h5pack virtual` documentation](virtual.md)
-- [`h5pack checksum` documentation](checksum.md)
-- [`h5pack show` documentation](show.md)
-- [`h5pack verify` documentation](verify.md)
-- [Parsers](parsers.md)
-- [Reading data in Python](reading.md)
-- [Saving space](space.md)
+- [User guide](docs.md): All commands, parsers, reading data in Python and saving space.

@@ -28,17 +28,16 @@ Where:
 - `yyyy-zzzz` indicates the development start year and the current year.
 
 ## Optional features
-Some features need additional packages, which can be installed as extras:
+Some features need additional packages, which can be installed as an extra:
 
 | Extra      | Installs                                                                 | Needed for                                    |
 |------------|--------------------------------------------------------------------------|-----------------------------------------------|
-| `resample` | <a href="https://github.com/dofuuz/python-soxr" target="_blank">`soxr`</a> | [Resampling](parsers.md#resampling) audio when packing |
 | `play`     | <a href="https://python-sounddevice.readthedocs.io/" target="_blank">`sounddevice`</a> | Playing audio with [`h5pack show --play`](show.md) |
 
 For example:
 
 ```bash
-pip install "h5pack[resample,play]"
+pip install "h5pack[play]"
 ```
 
 ## Install using uv 

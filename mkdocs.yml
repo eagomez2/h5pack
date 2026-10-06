@@ -5,20 +5,20 @@ nav:
   - About: index.md
   - Installation: install.md
   - Quickstart: quickstart.md
-  - Documentation:
+  - User guide:
     - Overview: docs.md
-    - h5pack init documentation: init.md
-    - h5pack pack documentation: pack.md
-    - h5pack unpack documentation: unpack.md
-    - h5pack info documentation: info.md
-    - h5pack virtual documentation: virtual.md
-    - h5pack checksum documentation: checksum.md
-    - h5pack show documentation: show.md
-    - h5pack verify documentation: verify.md
-  - Guides:
-    - Parsers: parsers.md
-    - Reading data in Python: reading.md
-    - Saving space: space.md
+    - Commands:
+      - h5pack init: init.md
+      - h5pack pack: pack.md
+      - h5pack unpack: unpack.md
+      - h5pack info: info.md
+      - h5pack show: show.md
+      - h5pack virtual: virtual.md
+      - h5pack checksum: checksum.md
+    - Working with your data:
+      - Parsers: parsers.md
+      - Reading data in Python: reading.md
+      - Saving space: space.md
   - Changelog: https://github.com/eagomez2/h5pack/releases
   - License: license.md
 copyright: |
