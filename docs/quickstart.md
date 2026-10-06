@@ -81,22 +81,13 @@ annotations file with your raw data. In this case:
     the column from the `.csv` to be used and a `parser` selecting the parser used
     to include that data.
 
-`h5pack` supports the following parsers:
+`h5pack` supports parsers for audio (stored as `int16`, `float32`, `float64` or FLAC), numbers, lists of numbers, text and categorical values. See [Parsers](parsers.md) for the full list.
 
-| Parser name       | Resulting data type             | Example `.csv` row value |
-|-------------------|---------------------------------|--------------------------|
-| `as_audioint16`   | Audio files stored as `int16`   | `/path/to/file.wav`      |
-| `as_audiofloat32` | Audio files stored as `float32` | `/path/to/file.wav`      |
-| `as_audiofloat64` | Audio files stored as `float64` | `/path/to/file.wav`      |
-| `as_int8`         | Single `int8` value             | `64`                     |
-| `as_int16`        | Single `int16` value            | `32767`                  |
-| `as_float32`      | Single `float32` value          | `0.707`                  |
-| `as_float64`      | Single `float64` value          | `3.146`                  |
-| `as_listint8`     | List of `int8` values           | `[0, 127]`               |
-| `as_listint16`    | List of `int16` values          | `[32767, 32767]`         |
-| `as_listfloat32`  | List of `float32` values        | `[0.707, 1.414, ...]`    |
-| `as_listfloat64`  | List of `float64` values        | `[0.505, 2.125, ...]`    |
-| `as_utf8str`      | Single `str` value              | `hello_world`            |
+!!! tip
+    Instead of writing the configuration file by hand, you can create it from your `.csv` file using [`h5pack init`](init.md):
+    ```bash
+    h5pack init dataset.csv
+    ```
 
 In this case, there a single set of audio files from the `file` column and saved as `int16` (`as_audioint16`) in the `audio` field, and a `str` from the `type` column
 and saved as `str` (`as_utf8str`).
@@ -110,22 +101,20 @@ h5pack pack --config h5pack.yaml --dataset simple_dataset --output simple_datase
 
 This will result in the following output:
 ```bash
-Using root folder '/path/to/h5pack/examples/00_annotated-audio-dataset'
-Validating configuration file 'h5pack.yaml' ...
-Configuration file validation completed
-Validating input data ...
-Validating data of 'audio' field ...
-Validation of 'audio' field data completed
-Validating data of 'type' field ...
-Validation of 'type' field data completed
-Input data validation completed
-Generating 1 partition spec(s) ...
-Partition spec(s) completed
-1 partition(s) will be created
-Do you want to continue? [y/n]:
+ Validated h5pack.yaml (dataset 'simple_dataset', 2 field(s), 3 row(s)) in 12.6ms
+ Validated 3 row(s) (16 kHz, mono) in 5.0ms
+1 partition(s) will be created. Do you want to continue? [y/n]:
 ```
 
-Once you have executed the previous required commands, you will need to confirm by typing `y` and pressing `Enter` when prompted. Upon confirmation, two files will be generated: `simple_datase.h5` and `simple_dataset.sha256`. The `simple_datase.h5` file is your dataset, now ready for use, while the `simple_dataset.sha256` file contains the checksum for `simple_dataset.h5`. You can use this checksum file later to verify the integrity of your dataset.
+Once you have executed the previous required commands, you will need to confirm by typing `y` and pressing `Enter` when prompted. Upon confirmation, two files will be generated:
+
+```bash
+    Packed 1 partition(s) with 1 worker(s) (3 row(s), 101.8 KiB) in 383.0ms
+ + simple_dataset.h5 101.8 KiB
+ + simple_dataset.sha256 checksums
+```
+
+The `simple_dataset.h5` file is your dataset, now ready for use, while the `simple_dataset.sha256` file contains the checksum for `simple_dataset.h5`. You can use this checksum file later to verify the integrity of your dataset.
 
 For more options available with the `h5pack pack` tool, you can run
 ```bash
@@ -142,28 +131,24 @@ h5pack info simple_dataset.h5
 
 It will output
 ```bash
-Input file: 'simple_dataset.h5'
-File attribute(s):
-  - author:        Your name
-  - creation_date: 2025-10-25 11:17:37
-  - description:   Your dataset description
-  - producer:      h5pack 1.2.0
-  - version:       0.1.0
-Data group 'data':
-  - 'audio' attribute(s):
-    - parser:      as_audioint16
-    - sample_rate: 16000
-  - 'audio' data attribute(s):
-    - shape: (3, 16000)
-    - dtype: int16
-  - 'audio__filepath' data attribute(s):
-    - shape: (3,)
-    - dtype: object
-  - 'type' attribute(s):
-    - parser: as_utf8str
-  - 'type' data attribute(s):
-    - shape: (3,)
-    - dtype: object
+simple_dataset.h5 (101.8 KiB)
+
+File attributes
+  Name             Value
+  author           Your name
+  creation_date    2025-10-25 11:17:37
+  description      Your dataset description
+  producer         h5pack 1.3.0
+  version          0.1.0
+
+'data' fields
+  Field              Shape         Dtype     Attributes
+  audio              (3, 16000)    int16     num_channels: 1
+                                             parser: as_audioint16
+                                             sample_rate: 16000
+                                             source_dir: data
+  audio__filepath    (3,)          object
+  type               (3,)          object    parser: as_utf8str
 ```
 
 This information allows you to swiftly verify the contents of your file. In this
@@ -178,12 +163,53 @@ h5pack checksum simple_dataset.sha256
 
 The command will output:
 ```bash
-Verifying checksum in 'simple_dataset.sha256' ...
-simple_dataset.h5	cefeb61ce741bfa4a25cf54069e73d466fa9bdc2093d461ca30f381f6606eb79 [OK]
-Checksum verification completed in 0.2 millisecond(s)
+simple_dataset.h5       f8b1e88aefe681a42fab66024d50fc8573d533be780e1690c110ee213d54dcb0 [OK]
+  Verified 1 file(s) in 'simple_dataset.sha256' in 5.0ms
 ```
 
 Using this tool, you can consistently check for any potentially corrupted files.
+
+## Checking rows with `h5pack show`
+To see the content of any row, or listen to its audio, run:
+```bash
+h5pack show simple_dataset.h5 --rows 1
+```
+
+It will output:
+```bash
+Row 1 of 3
+ Field ┃ Type          ┃ Value
+━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ audio │ audio (int16) │ 1.00s, 16 kHz, mono, peak 0.65
+       │               │ pink-noise.flac
+ type  │ str           │ pink
+```
+
+Add `--save <folder>` to save the audio of the selected rows as `.wav` files, or `--play` to play it. See [`h5pack show`](show.md) for more details.
+
+## Comparing with the original files using `h5pack verify`
+To make sure that the packed audio matches your original audio files, run:
+```bash
+h5pack verify simple_dataset.h5
+```
+
+It will output:
+```bash
+  Verified all 3 row(s), 'audio' (audio matches the original files) in 7.6ms
+```
+
+## Reading the dataset in Python
+Your dataset can be read row by row using `h5pack.open()`:
+```python
+import h5pack
+
+with h5pack.open("simple_dataset.h5") as data:
+    row = data[1]
+    print(row["type"], row["audio"].shape, data.sample_rate("audio"))
+    # pink (16000,) 16000
+```
+
+See [Reading data in Python](reading.md) for more details, including how to use it with PyTorch.
 
 ## Unpacking the dataset with `h5pack unpack`
 You also have the option to convert your .h5 files back into their original constituent files

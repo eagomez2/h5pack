@@ -7,11 +7,18 @@ nav:
   - Quickstart: quickstart.md
   - Documentation:
     - Overview: docs.md
+    - h5pack init documentation: init.md
     - h5pack pack documentation: pack.md
     - h5pack unpack documentation: unpack.md
     - h5pack info documentation: info.md
     - h5pack virtual documentation: virtual.md
     - h5pack checksum documentation: checksum.md
+    - h5pack show documentation: show.md
+    - h5pack verify documentation: verify.md
+  - Guides:
+    - Parsers: parsers.md
+    - Reading data in Python: reading.md
+    - Saving space: space.md
   - Changelog: https://github.com/eagomez2/h5pack/releases
   - License: license.md
 copyright: |
