@@ -32,7 +32,10 @@ Rows can be selected using `-r/--rows` as:
 | `-1`    | Last row                  |
 | `10:20` | Rows 10 to 19             |
 | `:5`    | First 5 rows              |
-| `-3:`   | Last 3 rows               |
+| `-3:`   | Last 3 rows (use `-r=-3:`) |
+
+!!! note
+    Ranges starting with a negative number must be written as `-r=-3:` (or `--rows=-3:`), so they are not mistaken for an option.
 
 If `-r/--rows` is not given, the first row is shown. Virtual datasets are supported, so you can inspect any row of a dataset split into several partitions.
 

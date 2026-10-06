@@ -299,7 +299,7 @@ def get_parser() -> argparse.ArgumentParser:
         "-r", "--rows",
         type=str,
         default="0",
-        help="row index or range of rows (e.g. 42, 10:20 or -1)"
+        help="row index or range of rows (e.g. 42, 10:20, -1 or =-3:)"
     )
     show_parser.add_argument(
         "-f", "--fields",
