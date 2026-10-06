@@ -1,96 +1,203 @@
+import os
 import sys
-from tqdm import tqdm
-from .config import (
-    _get_text_color_tags,
-    _get_text_decorator_tags
+from rich.console import Console
+from rich.markup import escape
+from .utils import (
+    format_size,
+    time_to_str
 )
 
 
-def _decorate_str(s: str) -> str:
-    """Replace colors and decorators in a string.
+# NOTE: rich disables colors automatically when NO_COLOR is set or when the
+# output is not a terminal
+_console = Console(highlight=False)
+_err_console = Console(highlight=False, stderr=True)
+
+# Verbosity levels
+QUIET = 0
+NORMAL = 1
+VERBOSE = 2
+
+_verbosity = {"level": NORMAL}
+
+
+def set_verbosity(level: int) -> None:
+    """Sets the verbosity level used by all printing functions.
 
     Args:
-        s (str): The input string to be decorated.
+        level (int): `QUIET` (0), `NORMAL` (1) or `VERBOSE` (2).
+    """
+    _verbosity["level"] = level
+
+
+def get_verbosity() -> int:
+    """Returns the current verbosity level.
 
     Returns:
-        str: The decorated string.
+        (int): Current verbosity level.
     """
-    # Replace colors and decorators
-    for k, v in _get_text_decorator_tags().items():
-        s = s.replace(k, v)
-
-    for k, v in _get_text_color_tags().items():
-        s = s.replace(k, v)
-
-    return s
+    return _verbosity["level"]
 
 
-def printc(s: str, writer: tqdm | None = None) -> None:
-    """Prints a formatted string.
+def get_console() -> Console:
+    """Returns the console used to print messages, so progress bars can
+    share it.
+
+    Returns:
+        (Console): `rich` console.
+    """
+    return _console
+
+
+def is_progress_enabled() -> bool:
+    """Returns `True` if progress bars should be shown. Progress bars are
+    hidden in quiet mode and when the output is not a terminal (e.g. when it
+    is redirected to a log file).
+
+    Returns:
+        (bool): `True` if progress bars should be shown.
+    """
+    return get_verbosity() >= NORMAL and _console.is_terminal
+
+
+def print_step(
+        verb: str,
+        s: str,
+        details: str | None = None,
+        elapsed: float | None = None
+) -> None:
+    """Prints a step of a command in the style `Verb message (details) in
+    1.2s`.
 
     Args:
-        s (str): The string to print.
-        writer (tqdm | None): Writer to use.
+        verb (str): Past or present tense verb describing the step (e.g.
+            `Validated` or `Packing`).
+        s (str): Message.
+        details (str | None): Optional details shown dimmed in parentheses.
+        elapsed (float | None): Optional elapsed time in seconds.
     """
-    return (
-        print(_decorate_str(s)) if writer is None
-        else tqdm.write(_decorate_str(s))
+    if get_verbosity() < NORMAL:
+        return
+
+    line = f"[bold green]{escape(verb):>10}[/bold green] {escape(s)}"
+
+    if details is not None:
+        line += f" [dim]({escape(details)})[/dim]"
+
+    if elapsed is not None:
+        line += f" in {time_to_str(elapsed, abbrev=True).replace(' ', '')}"
+
+    _console.print(line)
+
+
+def print_output(file: str, details: str | None = None) -> None:
+    """Prints a file created by a command in the style ` + file details`.
+
+    Args:
+        file (str): Created file.
+        details (str | None): Optional details shown dimmed. If `file`
+            exists and no details are given, its size is shown.
+    """
+    if get_verbosity() < NORMAL:
+        return
+
+    if details is None:
+        try:
+            details = format_size(os.path.getsize(file))
+
+        except OSError:
+            details = ""
+
+    _console.print(
+        f" [bold green]+[/bold green] {escape(file)} [dim]{escape(details)}"
+        "[/dim]"
     )
 
 
-def printc_exit(s: str, code: int = 1, writer: tqdm | None = None) -> None:
-    """Prints a formatted string and exits the program with a specified exit
-    code.
+def print_info(s: str) -> None:
+    """Prints a regular message.
 
     Args:
-        s (str): The string to print.
-        code (int): Exit code.
-        writer (tqdm | None): Writer to use.
+        s (str): Message to print.
     """
-    printc(s=s, writer=writer)
-    sys.exit(code)
+    if get_verbosity() >= NORMAL:
+        _console.print(escape(s))
 
 
-def print_error(s: str, writer: tqdm | None = None) -> None:
+def print_debug(s: str) -> None:
+    """Prints a message only in verbose mode (`-v/--verbose`).
+
+    Args:
+        s (str): Message to print.
+    """
+    if get_verbosity() >= VERBOSE:
+        _console.print(f"[dim]{escape(s)}[/dim]")
+
+
+def print_error(s: str, cause: str | None = None) -> None:
     """Prints an error message.
-    
+
     Args:
         s (str): Error message to print.
-        writer (tqdm | None): Writer to use.
+        cause (str | None): Optional cause of the error.
     """
-    return printc(f"<error>{s}</error>", writer=writer)
+    _err_console.print(f"[bold red]error:[/bold red] {escape(s)}")
+
+    if cause is not None:
+        _err_console.print(f"  [bold]Caused by:[/bold] {escape(cause)}")
 
 
-def exit_error(s: str, code: int = 1, writer: tqdm | None = None) -> None:
+def print_warning(s: str) -> None:
+    """Prints a warning message.
+
+    Args:
+        s (str): Warning message to print.
+    """
+    if get_verbosity() >= NORMAL:
+        _err_console.print(f"[bold yellow]warning:[/bold yellow] {escape(s)}")
+
+
+def print_hint(s: str) -> None:
+    """Prints a hint that tells the user how to solve a problem.
+
+    Args:
+        s (str): Hint to print.
+    """
+    _err_console.print(f"[bold cyan]hint:[/bold cyan] {escape(s)}")
+
+
+def exit_error(
+        s: str,
+        code: int = 1,
+        cause: str | None = None,
+        hint: str | None = None
+) -> None:
     """Prints an error message and shuts down the program execution.
-    
+
     Args:
         s (str): Error message to print.
         code (int): Error code to return.
-        writer (tqdm | None): Writer to use.
+        cause (str | None): Optional cause of the error.
+        hint (str | None): Optional hint to solve the error.
     """
-    return printc_exit(f"<error>{s}</error>", code=code, writer=writer)
+    print_error(s, cause=cause)
+
+    if hint is not None:
+        print_hint(hint)
+
+    sys.exit(code)
 
 
-def print_warning(s: str, writer: tqdm | None = None) -> None:
-    """Prints an warning message.
-    
-    Args:
-        s (str): Warning message to print.
-        writer (tqdm | None): Writer to use.
-    """
-    return printc(f"<warning>{s}</warning>", writer=writer)
-
-
-def exit_warning(s: str, code: int = 1, writer: tqdm | None = None) -> None:
+def exit_warning(s: str, code: int = 1) -> None:
     """Prints a warning message and shuts down the program execution.
-    
+
     Args:
         s (str): Warning message to print.
         code (int): Warning code to return.
-        writer (tqdm | None): Writer to use.
     """
-    return printc_exit(f"<warning>{s}</warning>", code=code, writer=writer)
+    _err_console.print(f"[bold yellow]warning:[/bold yellow] {escape(s)}")
+    sys.exit(code)
+
 
 def ask_confirmation(
         s: str = "Do you want to continue? [y/n]:",
@@ -112,7 +219,7 @@ def ask_confirmation(
             if user_input is not None:
                 print_error(f"Invalid input '{user_input}'")
 
-            user_input = input(_decorate_str(s))
+            user_input = _console.input(f"{escape(s)} ")
 
             if str(user_input) == "y":
                 response = True

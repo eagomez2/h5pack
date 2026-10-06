@@ -75,6 +75,28 @@ def dict_from_interleaved_list(li: list) -> dict:
     return {li[idx]: li[idx + 1] for idx in range(0, len(li), 2)}
 
 
+def format_size(num_bytes: int) -> str:
+    """Returns a file size in bytes in a human readable format.
+
+    Args:
+        num_bytes (int): Size in bytes.
+
+    Returns:
+        (str): `str` representation of `num_bytes` (e.g. `13.1 MiB`).
+    """
+    size = float(num_bytes)
+
+    for unit in ("B", "KiB", "MiB", "GiB", "TiB"):
+        if size < 1024.0 or unit == "TiB":
+            return (
+                f"{int(size)} {unit}" if unit == "B" else f"{size:.1f} {unit}"
+            )
+
+        size /= 1024.0
+
+    raise AssertionError
+
+
 def time_to_str(time: float, abbrev: bool = False) -> str:
     """Returns a time in seconds in a human readable format.
     

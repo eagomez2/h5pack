@@ -55,7 +55,8 @@ def create_partition_from_data(
     Args:
         idx (int): Partition index.
         specs (dict): Set of specifications used to process the data.
-        data (pl.DataFrame): Input `DataFrame` containing the raw data.
+        data (pl.DataFrame): Input `DataFrame` containing only the rows of
+            this partition.
         args (Namespace): User provided arguments.
         ctx (dict): Context information.
     
@@ -86,7 +87,7 @@ def create_partition_from_data(
     for field_name, field_data in specs["fields"].items():
         # Get parser
         parser = (
-            get_parsers_map()[data[field_data["column"]].dtype].get(
+            get_parsers_map().get(data[field_data["column"]].dtype, {}).get(
                 field_data["parser"], None
             )
         )
@@ -100,8 +101,8 @@ def create_partition_from_data(
                 f" '{data[field_data['column']].dtype}'"
             )
 
-        # Get data slice indices
-        start_idx, end_idx = field_data["slices"][idx]
+        # NOTE: Each worker only receives the rows of its own partition
+        start_idx, end_idx = 0, data.height
 
         # Parse field data
         parser(
@@ -113,7 +114,7 @@ def create_partition_from_data(
             data_start_idx=start_idx,
             data_end_idx=end_idx,
             ctx=ctx,
-            **field_data.get("parser_args", {})
+            **(field_data.get("parser_args", {}) or {})
         )
  
     # Close file
